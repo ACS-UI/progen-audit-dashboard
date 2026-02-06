@@ -1,9 +1,9 @@
-# Your Project's Title...
-Your project's description...
+# ProGen Audit Dashboard
+The ProGen UI Audit Dashboard provides a centralized, data-driven view of UI quality, compliance, and consistency across the application. Built on top of a comprehensive UI audit checklist (200+ evaluation points), the dashboard transforms raw audit data into actionable insights for design, development, and product teams.
 
 ## Environments
-- Preview: https://main--{repo}--{owner}.aem.page/
-- Live: https://main--{repo}--{owner}.aem.live/
+- Preview: https://main--progen-audit-dashboard--acs-ui.aem.page/
+- Live: https://main--progen-audit-dashboard--acs-ui.aem.live/
 
 ## Documentation
 
