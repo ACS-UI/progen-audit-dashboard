@@ -15,9 +15,14 @@
   --background-color: white;
   --light-color: #f8f8f8;
   --dark-color: #505050;
-  --text-color: #131313;
+  --text-color: #101828;
   --link-color: #3b63fb;
   --link-hover-color: #1d3ecf;
+
+  /* navigation colors */
+  --primary-color: #4F39F6;
+  --border-color: #e5e5e5;
+  --hover-color: #f5f5f5;
 
   /* fonts */
   --body-font-family: roboto, roboto-fallback, sans-serif;
@@ -53,7 +58,7 @@
   src: local('Arial');
 }
 
-@media (width >= 900px) {
+@media (width >=900px) {
   :root {
     /* body sizes */
     --body-font-size-m: 18px;
@@ -84,10 +89,6 @@ body.appear {
   display: block;
 }
 
-header {
-  height: var(--nav-height);
-}
-
 header .header,
 footer .footer {
   visibility: hidden;
@@ -112,12 +113,29 @@ h6 {
   scroll-margin: 40px;
 }
 
-h1 { font-size: var(--heading-font-size-xxl); }
-h2 { font-size: var(--heading-font-size-xl); }
-h3 { font-size: var(--heading-font-size-l); }
-h4 { font-size: var(--heading-font-size-m); }
-h5 { font-size: var(--heading-font-size-s); }
-h6 { font-size: var(--heading-font-size-xs); }
+h1 {
+  font-size: var(--heading-font-size-xxl);
+}
+
+h2 {
+  font-size: var(--heading-font-size-xl);
+}
+
+h3 {
+  font-size: var(--heading-font-size-l);
+}
+
+h4 {
+  font-size: var(--heading-font-size-m);
+}
+
+h5 {
+  font-size: var(--heading-font-size-s);
+}
+
+h6 {
+  font-size: var(--heading-font-size-xs);
+}
 
 p,
 dl,
@@ -142,8 +160,19 @@ pre {
   white-space: pre;
 }
 
-main > div {
+main>div {
   margin: 40px 16px;
+}
+
+/* Adjust for sidebar navigation on desktop */
+@media (width >=900px) {
+  main {
+    margin-left: 280px;
+  }
+
+  footer {
+    margin-left: 280px;
+  }
 }
 
 input,
@@ -228,22 +257,22 @@ main img {
 }
 
 /* sections */
-main > .section {
+main>.section {
   margin: 40px 0;
 }
 
-main > .section > div {
+main>.section>div {
   max-width: 1200px;
   margin: auto;
   padding: 0 24px;
 }
 
-main > .section:first-of-type {
+main>.section:first-of-type {
   margin-top: 0;
 }
 
-@media (width >= 900px) {
-  main > .section > div {
+@media (width >=900px) {
+  main>.section>div {
     padding: 0 32px;
   }
 }
