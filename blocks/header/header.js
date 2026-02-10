@@ -115,7 +115,12 @@ export default async function decorate(block) {
           }
 
           const navLink = document.createElement('a');
-          navLink.href = link.href;
+          // Clean up href - remove 'https://' if URL starts with 'https://#'
+          let cleanHref = link.href;
+          if (cleanHref.startsWith('https://#')) {
+            cleanHref = cleanHref.replace('https://', '');
+          }
+          navLink.href = cleanHref;
           navLink.textContent = link.textContent;
           navLink.title = link.title || link.textContent;
           navItem.appendChild(navLink);
