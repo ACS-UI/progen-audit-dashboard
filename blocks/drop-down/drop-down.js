@@ -10,7 +10,7 @@ export default async function decorate(block) {
 
   if (isDynamic) {
     // Find the anchor element that contains the URL
-    const anchor = block.querySelector('.button-container a');
+    const anchor = block.querySelector('a');
 
     if (!anchor) {
       // eslint-disable-next-line no-console
