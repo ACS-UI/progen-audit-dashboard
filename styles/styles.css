@@ -16,10 +16,10 @@
   --light-color: #f8f8f8;
   --dark-color: #505050;
   --text-color: #101828;
-  --text-light-color: #666666;
+  --text-light-color: #666;
   --link-color: #3b63fb;
   --link-hover-color: #1d3ecf;
-  --white-color: #ffffff;
+  --white-color: #fff;
 
   /* navigation colors */
   --primary-color: #4F39F6;
@@ -30,17 +30,17 @@
   /* dropdown colors */
   --dropdown-border-color: #e0e0e0;
   --dropdown-border-hover-color: #c0c0c0;
-  --icon-color: #666666;
+  --icon-color: #666;
 
   /* error colors */
   --error-color: #d32f2f;
   --error-background-color: #ffebee;
 
   /* shadows */
-  --shadow-light: rgba(0, 0, 0, 0.05);
-  --shadow-medium: rgba(0, 0, 0, 0.08);
-  --shadow-dark: rgba(0, 0, 0, 0.1);
-  --focus-ring-shadow: rgba(79, 57, 246, 0.1);
+  --shadow-light: rgb(0 0 0 / 5%);
+  --shadow-medium: rgb(0 0 0 / 8%);
+  --shadow-dark: rgb(0 0 0 / 10%);
+  --focus-ring-shadow: rgb(79 57 246 / 10%);
 
   /* fonts */
   --body-font-family: roboto, roboto-fallback, sans-serif;

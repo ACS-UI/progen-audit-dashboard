@@ -45,13 +45,13 @@
   }
 }
 
-.drop-down-selected:focus:not(:focus-visible) {
-  outline: none;
-}
-
 .drop-down-selected:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+.drop-down-selected:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .drop-down-title {
@@ -135,14 +135,14 @@
   background-color: var(--secondary-color);
 }
 
-.drop-down-option:focus:not(:focus-visible) {
-  outline: none;
-}
-
 .drop-down-option:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: -2px;
   background-color: var(--secondary-color);
+}
+
+.drop-down-option:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .drop-down-option.selected {

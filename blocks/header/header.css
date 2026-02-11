@@ -80,6 +80,15 @@ header .nav-hamburger button {
   justify-content: center;
 }
 
+header .nav-hamburger button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+header .nav-hamburger button:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* Hamburger icon styles */
 header .nav-hamburger-icon,
 header .nav-hamburger-icon::before,
@@ -140,10 +149,7 @@ header .nav-hamburger button[aria-expanded='true'] .nav-hamburger-icon::after {
 /* Navigation sidebar */
 header nav {
   position: fixed;
-  top: var(--nav-height);
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: var(--nav-height) 0 0;
   height: calc(100vh - var(--nav-height));
   width: 100%;
   background-color: var(--background-color);
@@ -198,60 +204,9 @@ header .nav-item.active {
   background-color: var(--primary-color);
 }
 
-/* Navigation links */
-header .nav-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  color: var(--text-color);
-  text-decoration: none;
-  font-size: var(--body-font-size-xs);
-  font-weight: 500;
-  line-height: 1.6;
-  border-radius: 8px;
-  transition: background-color 0.2s ease, outline 0.1s ease;
-}
-
-header .nav-link:hover {
-  background-color: var(--hover-color);
-}
-
-header .nav-item.active .nav-link {
-  color: var(--white-color);
-}
-
-header .nav-item.active .nav-link:hover {
-  background-color: var(--primary-color);
-}
-
-/* Focus styles for keyboard navigation */
-header .nav-link:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-header .nav-link:focus:not(:focus-visible) {
-  outline: none;
-}
-
-header .nav-link:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-header .nav-hamburger button:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-header .nav-hamburger button:focus:not(:focus-visible) {
-  outline: none;
-}
-
-header .nav-hamburger button:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+/* Ensure icons maintain aspect ratio */
+header .icon img {
+  object-fit: contain;
 }
 
 header .nav-item .icon {
@@ -274,6 +229,48 @@ header .nav-item.active .icon img {
   opacity: 1;
 }
 
+/* Navigation links */
+header .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: var(--body-font-size-xs);
+  font-weight: 500;
+  line-height: 1.6;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, outline 0.1s ease;
+}
+
+header .nav-link:hover {
+  background-color: var(--hover-color);
+}
+
+header .nav-link:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+header .nav-link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+header .nav-item.active .nav-link {
+  color: var(--white-color);
+}
+
+header .nav-item.active .nav-link:hover {
+  background-color: var(--primary-color);
+}
+
+/* Smooth transitions */
+header nav,
+header .nav-item {
+  transition: all 0.2s ease;
+}
+
 /* Desktop styles (900px and up) */
 @media (width >=900px) {
 
@@ -290,10 +287,7 @@ header .nav-item.active .icon img {
   /* Navigation always visible and positioned as sidebar */
   header nav {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: auto;
-    bottom: 0;
+    inset: 0 auto 0 0;
     width: 280px;
     height: 100vh;
     transform: translateY(0);
@@ -351,15 +345,4 @@ header .nav-item.active .icon img {
   header nav[aria-expanded='true']::before {
     display: none;
   }
-}
-
-/* Ensure icons maintain aspect ratio */
-header .icon img {
-  object-fit: contain;
-}
-
-/* Smooth transitions */
-header nav,
-header .nav-item {
-  transition: all 0.2s ease;
 }
