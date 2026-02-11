@@ -15,9 +15,32 @@
   --background-color: white;
   --light-color: #f8f8f8;
   --dark-color: #505050;
-  --text-color: #131313;
+  --text-color: #101828;
+  --text-light-color: #666;
   --link-color: #3b63fb;
   --link-hover-color: #1d3ecf;
+  --white-color: #fff;
+
+  /* navigation colors */
+  --primary-color: #4F39F6;
+  --secondary-color: #C7C3FF;
+  --border-color: #e5e5e5;
+  --hover-color: #f5f5f5;
+
+  /* dropdown colors */
+  --dropdown-border-color: #e0e0e0;
+  --dropdown-border-hover-color: #c0c0c0;
+  --icon-color: #666;
+
+  /* error colors */
+  --error-color: #d32f2f;
+  --error-background-color: #ffebee;
+
+  /* shadows */
+  --shadow-light: rgb(0 0 0 / 5%);
+  --shadow-medium: rgb(0 0 0 / 8%);
+  --shadow-dark: rgb(0 0 0 / 10%);
+  --focus-ring-shadow: rgb(79 57 246 / 10%);
 
   /* fonts */
   --body-font-family: roboto, roboto-fallback, sans-serif;
@@ -27,12 +50,13 @@
   --body-font-size-m: 22px;
   --body-font-size-s: 19px;
   --body-font-size-xs: 17px;
+  --body-font-size-xxs: 15px;
 
   /* heading sizes */
   --heading-font-size-xxl: 55px;
   --heading-font-size-xl: 44px;
   --heading-font-size-l: 34px;
-  --heading-font-size-m: 27px;
+  --heading-font-size-m: 29px;
   --heading-font-size-s: 24px;
   --heading-font-size-xs: 22px;
 
@@ -53,18 +77,19 @@
   src: local('Arial');
 }
 
-@media (width >= 900px) {
+@media (width >=900px) {
   :root {
     /* body sizes */
     --body-font-size-m: 18px;
     --body-font-size-s: 16px;
     --body-font-size-xs: 14px;
+    --body-font-size-xxs: 12px;
 
     /* heading sizes */
     --heading-font-size-xxl: 45px;
     --heading-font-size-xl: 36px;
     --heading-font-size-l: 28px;
-    --heading-font-size-m: 22px;
+    --heading-font-size-m: 24px;
     --heading-font-size-s: 20px;
     --heading-font-size-xs: 18px;
   }
@@ -82,10 +107,6 @@ body {
 
 body.appear {
   display: block;
-}
-
-header {
-  height: var(--nav-height);
 }
 
 header .header,
@@ -112,12 +133,29 @@ h6 {
   scroll-margin: 40px;
 }
 
-h1 { font-size: var(--heading-font-size-xxl); }
-h2 { font-size: var(--heading-font-size-xl); }
-h3 { font-size: var(--heading-font-size-l); }
-h4 { font-size: var(--heading-font-size-m); }
-h5 { font-size: var(--heading-font-size-s); }
-h6 { font-size: var(--heading-font-size-xs); }
+h1 {
+  font-size: var(--heading-font-size-xxl);
+}
+
+h2 {
+  font-size: var(--heading-font-size-xl);
+}
+
+h3 {
+  font-size: var(--heading-font-size-l);
+}
+
+h4 {
+  font-size: var(--heading-font-size-m);
+}
+
+h5 {
+  font-size: var(--heading-font-size-s);
+}
+
+h6 {
+  font-size: var(--heading-font-size-xs);
+}
 
 p,
 dl,
@@ -142,8 +180,26 @@ pre {
   white-space: pre;
 }
 
-main > div {
+main>div {
   margin: 40px 16px;
+}
+
+/* Add top margin for mobile header */
+@media (width < 900px) {
+  main {
+    margin-top: var(--nav-height);
+  }
+}
+
+/* Adjust for sidebar navigation on desktop */
+@media (width >=900px) {
+  main {
+    margin-left: 280px;
+  }
+
+  footer {
+    margin-left: 280px;
+  }
 }
 
 input,
@@ -228,22 +284,22 @@ main img {
 }
 
 /* sections */
-main > .section {
+main>.section {
   margin: 40px 0;
 }
 
-main > .section > div {
+main>.section>div {
   max-width: 1200px;
   margin: auto;
   padding: 0 24px;
 }
 
-main > .section:first-of-type {
+main>.section:first-of-type {
   margin-top: 0;
 }
 
-@media (width >= 900px) {
-  main > .section > div {
+@media (width >=900px) {
+  main>.section>div {
     padding: 0 32px;
   }
 }
