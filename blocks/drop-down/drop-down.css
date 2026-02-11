@@ -1,5 +1,15 @@
+.dashboard-section .drop-down {
+  display: flex;
+  justify-content: end;
+}
+
 .drop-down {
   padding: 20px 0;
+}
+
+/* Hide the content div - it's only needed for data path */
+.drop-down-content {
+  display: none;
 }
 
 /* Custom dropdown container */
@@ -175,11 +185,6 @@
 .dashboard-section>div {
   margin: 0;
   width: 50%;
-}
-
-.dashboard-section .drop-down-content {
-  display: flex;
-  justify-content: end;
 }
 
 .dashboard-section h2 {

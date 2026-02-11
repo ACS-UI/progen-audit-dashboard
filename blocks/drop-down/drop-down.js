@@ -5,13 +5,26 @@ export default async function decorate(block) {
     innerDiv.classList.add('drop-down-content');
   }
 
+  // Clean up button-container if AEM auto-generated it
+  const buttonContainer = block.querySelector('.button-container');
+  if (buttonContainer) {
+    // Replace button-container with just a div
+    const cleanDiv = document.createElement('div');
+    cleanDiv.innerHTML = buttonContainer.innerHTML;
+    buttonContainer.replaceWith(cleanDiv);
+  }
+
+  // Remove 'button' class from anchor if it exists
+  const anchor = block.querySelector('a');
+  if (anchor) {
+    anchor.classList.remove('button');
+  }
+
   // Check if the block has the "dynamic" class
   const isDynamic = block.classList.contains('dynamic');
 
   if (isDynamic) {
-    // Find the anchor element that contains the URL
-    const anchor = block.querySelector('a');
-
+    // Verify anchor element exists (already queried above)
     if (!anchor) {
       // eslint-disable-next-line no-console
       console.error('No anchor element found in drop-down block');
@@ -240,13 +253,9 @@ export default async function decorate(block) {
       dropdownContainer.appendChild(arrow);
       dropdownContainer.appendChild(optionsContainer);
 
-      // Replace the button container with the dropdown
-      const buttonContainer = block.querySelector('.button-container');
-      if (buttonContainer) {
-        buttonContainer.replaceWith(dropdownContainer);
-      } else {
-        block.appendChild(dropdownContainer);
-      }
+      // Append dropdown as a sibling to drop-down-content
+      // Ensure it's added to the block, not inside drop-down-content
+      block.appendChild(dropdownContainer);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error loading dropdown data:', error);
@@ -256,10 +265,7 @@ export default async function decorate(block) {
       errorMsg.setAttribute('role', 'alert');
       errorMsg.setAttribute('aria-live', 'assertive');
       errorMsg.textContent = 'Failed to load dropdown options';
-      const buttonContainer = block.querySelector('.button-container');
-      if (buttonContainer) {
-        buttonContainer.replaceWith(errorMsg);
-      }
+      block.appendChild(errorMsg);
     }
   } else {
     // For non-dynamic dropdowns, handle static content
