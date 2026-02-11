@@ -75,9 +75,13 @@ export default async function decorate(block) {
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.classList.add('nav-sidebar');
+  nav.setAttribute('role', 'navigation');
+  nav.setAttribute('aria-label', 'Main navigation');
 
   // Get the default content wrapper from fragment
   const contentWrapper = fragment.querySelector('.default-content-wrapper');
+  let brandElement = null;
+
   if (contentWrapper) {
     // Extract brand/logo (first paragraph)
     const brandParagraph = contentWrapper.querySelector('p');
@@ -86,13 +90,79 @@ export default async function decorate(block) {
       navBrand.classList.add('nav-brand');
       navBrand.appendChild(brandParagraph.cloneNode(true));
       nav.appendChild(navBrand);
+      // Store brand for mobile header
+      brandElement = navBrand.cloneNode(true);
     }
 
     // Extract navigation list
     const navList = contentWrapper.querySelector('ul');
     if (navList) {
-      const navMenu = document.createElement('div');
+      const navMenu = document.createElement('ul');
       navMenu.classList.add('nav-menu');
+      navMenu.setAttribute('role', 'list');
+
+      const navItems = [];
+
+      // Function to update active navigation item based on current URL
+      const updateActiveNavItem = () => {
+        // Get current URL hash (e.g., #dashboard, #reports)
+        const currentHash = window.location.hash;
+        const currentPath = window.location.pathname;
+        let hasActiveItem = false;
+
+        navItems.forEach((item) => {
+          const { element, link, href } = item;
+
+          // Extract the hash or path from the nav item's href
+          let navHash = '';
+          let navPath = '';
+
+          if (href.startsWith('#')) {
+            navHash = href;
+          } else {
+            try {
+              const url = new URL(href, window.location.origin);
+              navHash = url.hash;
+              navPath = url.pathname;
+            } catch (e) {
+              // If href is invalid, skip this item
+              return;
+            }
+          }
+
+          // Check if this nav item matches the current URL
+          let isActive = false;
+
+          if (currentHash) {
+            // If there's a hash in the URL, match against nav item's hash
+            isActive = navHash && currentHash === navHash;
+          } else {
+            // If no hash, match against pathname
+            isActive = navPath && navPath !== '/' && currentPath.includes(navPath);
+          }
+
+          // Update active state
+          if (isActive) {
+            element.classList.add('active');
+            link.setAttribute('aria-current', 'page');
+            hasActiveItem = true;
+          } else {
+            element.classList.remove('active');
+            link.removeAttribute('aria-current');
+          }
+        });
+
+        // If no item is active, highlight Dashboard by default
+        if (!hasActiveItem) {
+          const dashboardItem = navItems.find(item =>
+            item.text.toLowerCase().includes('dashboard')
+          );
+          if (dashboardItem) {
+            dashboardItem.element.classList.add('active');
+            dashboardItem.link.setAttribute('aria-current', 'page');
+          }
+        }
+      };
 
       // Process each navigation item
       navList.querySelectorAll('li').forEach((item) => {
@@ -100,20 +170,12 @@ export default async function decorate(block) {
         const icon = item.querySelector('.icon');
 
         if (link) {
-          // Create a wrapper for each nav item
-          const navItem = document.createElement('div');
+          // Create a list item wrapper
+          const navItem = document.createElement('li');
           navItem.classList.add('nav-item');
+          navItem.setAttribute('role', 'listitem');
 
-          // Mark Dashboard as active (first item)
-          if (link.textContent.includes('Dashboard')) {
-            navItem.classList.add('active');
-          }
-
-          // Clone the content
-          if (icon) {
-            navItem.appendChild(icon.cloneNode(true));
-          }
-
+          // Create the nav link
           const navLink = document.createElement('a');
           // Clean up href - remove 'https://' if URL starts with 'https://#'
           let cleanHref = link.href;
@@ -123,13 +185,35 @@ export default async function decorate(block) {
           navLink.href = cleanHref;
           navLink.textContent = link.textContent;
           navLink.title = link.title || link.textContent;
-          navItem.appendChild(navLink);
+          navLink.classList.add('nav-link');
 
+          // Clone the icon and add to link
+          if (icon) {
+            const clonedIcon = icon.cloneNode(true);
+            clonedIcon.setAttribute('aria-hidden', 'true');
+            navLink.insertBefore(clonedIcon, navLink.firstChild);
+          }
+
+          navItem.appendChild(navLink);
           navMenu.appendChild(navItem);
+
+          // Store reference for active state management
+          navItems.push({
+            element: navItem,
+            link: navLink,
+            href: cleanHref,
+            text: link.textContent.trim()
+          });
         }
       });
 
       nav.appendChild(navMenu);
+
+      // Set initial active state
+      updateActiveNavItem();
+
+      // Update active state when hash changes (browser back/forward or link clicks)
+      window.addEventListener('hashchange', updateActiveNavItem);
     }
   }
 
@@ -137,12 +221,21 @@ export default async function decorate(block) {
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
   hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation" aria-expanded="false">
-      <span class="nav-hamburger-icon"></span>
+      <span class="nav-hamburger-icon" aria-hidden="true"></span>
     </button>`;
   hamburger.addEventListener('click', (e) => {
     e.stopPropagation();
     toggleMenu(nav);
   });
+
+  // Create mobile header with logo and hamburger
+  const mobileHeader = document.createElement('div');
+  mobileHeader.classList.add('nav-mobile-header');
+  mobileHeader.setAttribute('role', 'banner');
+  if (brandElement) {
+    mobileHeader.appendChild(brandElement);
+  }
+  mobileHeader.appendChild(hamburger);
 
   nav.setAttribute('aria-expanded', 'false');
 
@@ -166,7 +259,7 @@ export default async function decorate(block) {
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
-  navWrapper.append(hamburger);
+  navWrapper.append(mobileHeader);
   navWrapper.append(nav);
   block.append(navWrapper);
 }

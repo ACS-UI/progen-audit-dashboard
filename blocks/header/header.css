@@ -7,35 +7,77 @@ header .nav-wrapper {
   z-index: 1000;
 }
 
-/* Hamburger button - visible only on mobile */
-header .nav-hamburger {
+/* Mobile header bar - always visible on mobile */
+header .nav-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
   position: fixed;
-  top: 24px;
-  left: 16px;
-  z-index: 1002;
-  display: block;
-  transition: all 0.3s ease;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  height: var(--nav-height);
+  box-sizing: border-box;
 }
 
-/* Move close button to right side of expanded menu (280px - 16px - button width) */
-header .nav-wrapper:has(nav[aria-expanded='true']) .nav-hamburger {
-  left: calc(280px - 16px - 32px);
+/* Mobile header brand */
+header .nav-mobile-header .nav-brand {
+  padding: 0;
+  flex: 1;
+}
+
+header .nav-mobile-header .nav-brand p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--heading-font-size-s);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-color);
+  font-family: var(--heading-font-family);
+}
+
+header .nav-mobile-header .nav-brand .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: var(--primary-color);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+header .nav-mobile-header .nav-brand .icon img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+/* Hamburger button - visible only on mobile */
+header .nav-hamburger {
+  display: block;
+  z-index: 1002;
 }
 
 header .nav-hamburger button {
-  height: 24px;
-  width: 24px;
+  height: 32px;
+  width: 32px;
   margin: 0;
   border: 0;
   border-radius: 4px;
   padding: 4px;
-  background-color: var(--background-color);
+  background-color: transparent;
   color: var(--text-color);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Hamburger icon styles */
@@ -45,7 +87,7 @@ header .nav-hamburger-icon::after {
   box-sizing: border-box;
   display: block;
   position: relative;
-  width: 18px;
+  width: 20px;
 }
 
 header .nav-hamburger-icon::before,
@@ -75,14 +117,14 @@ header .nav-hamburger button[aria-expanded='false'] .nav-hamburger-icon::after {
 
 /* Hamburger icon - open state (X) */
 header .nav-hamburger button[aria-expanded='true'] .nav-hamburger-icon {
-  height: 20px;
+  height: 22px;
 }
 
 header .nav-hamburger button[aria-expanded='true'] .nav-hamburger-icon::before,
 header .nav-hamburger button[aria-expanded='true'] .nav-hamburger-icon::after {
-  top: 9px;
+  top: 10px;
   left: 0;
-  width: 18px;
+  width: 20px;
   height: 2px;
   border-radius: 2px;
 }
@@ -98,77 +140,40 @@ header .nav-hamburger button[aria-expanded='true'] .nav-hamburger-icon::after {
 /* Navigation sidebar */
 header nav {
   position: fixed;
-  top: 0;
+  top: var(--nav-height);
   left: 0;
-  height: 100vh;
-  width: 280px;
+  right: 0;
+  bottom: 0;
+  height: calc(100vh - var(--nav-height));
+  width: 100%;
   background-color: var(--background-color);
-  border-right: 1px solid var(--border-color);
   padding: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  z-index: 1001;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 1000;
   overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Navigation open state on mobile */
 header nav[aria-expanded='true'] {
-  transform: translateX(0);
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Overlay for mobile when nav is open */
 header nav[aria-expanded='true']::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: -1;
-  pointer-events: none;
+  display: none;
 }
 
-/* Brand/Logo section */
-header .nav-brand {
-  padding: 24px;
-  position: sticky;
-  top: 0;
-  background-color: var(--background-color);
-  z-index: 10;
-  flex-shrink: 0;
-}
-
-header .nav-brand p {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: var(--heading-font-size-s);
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--text-color);
-  font-family: var(--heading-font-family);
-}
-
-header .nav-brand .icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background-color: var(--primary-color);
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-header .nav-brand .icon img {
-  width: 20px;
-  height: 20px;
-  filter: brightness(0) invert(1);
+/* Brand/Logo section - hidden on mobile (shown in mobile header) */
+header nav .nav-brand {
+  display: none;
 }
 
 /* Navigation menu */
@@ -176,29 +181,77 @@ header .nav-menu {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px 16px 24px;
+  padding: 24px 16px;
   flex: 1;
+  list-style: none;
+  margin: 0;
 }
 
 /* Navigation items */
 header .nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  display: block;
   border-radius: 8px;
-  cursor: pointer;
   transition: background-color 0.2s ease;
-  text-decoration: none;
-}
-
-header .nav-item:hover {
-  background-color: var(--hover-color);
 }
 
 header .nav-item.active {
   background-color: var(--primary-color);
+}
+
+/* Navigation links */
+header .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: var(--body-font-size-xs);
+  font-weight: 500;
+  line-height: 1.6;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, outline 0.1s ease;
+}
+
+header .nav-link:hover {
+  background-color: var(--hover-color);
+}
+
+header .nav-item.active .nav-link {
   color: #fff;
+}
+
+header .nav-item.active .nav-link:hover {
+  background-color: var(--primary-color);
+}
+
+/* Focus styles for keyboard navigation */
+header .nav-link:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+header .nav-link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+header .nav-link:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+header .nav-hamburger button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+header .nav-hamburger button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+header .nav-hamburger button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 header .nav-item .icon {
@@ -218,35 +271,80 @@ header .nav-item .icon img {
 
 header .nav-item.active .icon img {
   filter: brightness(0) invert(1);
-}
-
-header .nav-item a {
-  color: inherit;
-  text-decoration: none;
-  font-size: var(--body-font-size-xs);
-  font-weight: 500;
-  line-height: 1.6;
-  flex: 1;
-  display: block;
-}
-
-/* Remove underline from links */
-header .nav-item a u {
-  text-decoration: none;
+  opacity: 1;
 }
 
 /* Desktop styles (900px and up) */
 @media (width >=900px) {
+
+  /* Hide mobile header on desktop */
+  header .nav-mobile-header {
+    display: none;
+  }
 
   /* Hide hamburger on desktop */
   header .nav-hamburger {
     display: none;
   }
 
-  /* Navigation always visible and positioned */
+  /* Navigation always visible and positioned as sidebar */
   header nav {
     position: fixed;
-    transform: translateX(0);
+    top: 0;
+    left: 0;
+    right: auto;
+    bottom: 0;
+    width: 280px;
+    height: 100vh;
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+    border-right: 1px solid var(--border-color);
+  }
+
+  /* Show brand in sidebar on desktop */
+  header nav .nav-brand {
+    display: block;
+    padding: 24px;
+    position: sticky;
+    top: 0;
+    background-color: var(--background-color);
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  header nav .nav-brand p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: var(--heading-font-size-s);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--text-color);
+    font-family: var(--heading-font-family);
+  }
+
+  header nav .nav-brand .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: var(--primary-color);
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  header nav .nav-brand .icon img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+  }
+
+  /* Adjust menu padding on desktop */
+  header .nav-menu {
+    padding: 16px 16px 24px;
   }
 
   /* Remove overlay on desktop */

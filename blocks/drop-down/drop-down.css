@@ -1,0 +1,187 @@
+.drop-down {
+  padding: 20px 0;
+}
+
+/* Custom dropdown container */
+.drop-down-custom {
+  position: relative;
+  width: 100%;
+  max-width: 250px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.drop-down-custom:hover {
+  border-color: #c0c0c0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.drop-down-custom.open {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+/* Selected display area - now a button for proper semantics */
+.drop-down-selected {
+  width: 100%;
+  padding: 8px 40px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: outline 0.1s ease;
+  margin: 0;
+
+  &:hover,
+  &:focus {
+    background-color: transparent;
+  }
+}
+
+.drop-down-selected:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.drop-down-selected:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.drop-down-title {
+  font-size: var(--body-font-size-xs);
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.44;
+}
+
+.drop-down-status {
+  font-size: var(--body-font-size-xxs);
+  font-weight: 400;
+  color: var(--text-light-color);
+  line-height: 1.33;
+}
+
+/* Dropdown arrow */
+.drop-down-arrow {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 8px;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+.drop-down-custom.open .drop-down-arrow {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Options container */
+.drop-down-options {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 300px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 100;
+  margin: 0;
+  padding: 0;
+}
+
+.drop-down-custom.open .drop-down-options {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Individual option */
+.drop-down-option {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  list-style: none;
+}
+
+.drop-down-option:hover {
+  background-color: var(--secondary-color);
+}
+
+.drop-down-option:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+  background-color: var(--secondary-color);
+}
+
+.drop-down-option:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.drop-down-option:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+  background-color: var(--secondary-color);
+}
+
+.drop-down-option.selected {
+  background-color: var(--primary-color);
+  color: var(--light-color);
+  font-weight: 600;
+}
+
+.drop-down-option.selected:focus,
+.drop-down-option.selected:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: -2px;
+}
+
+/* Error state */
+.drop-down-error {
+  color: #d32f2f;
+  font-size: 14px;
+  padding: 12px 20px;
+  background-color: #ffebee;
+  border-radius: 12px;
+  border-left: 4px solid #d32f2f;
+  max-width: 250px;
+}
+
+.dashboard-section {
+  display: flex;
+}
+
+.dashboard-section>div {
+  margin: 0;
+  width: 50%;
+}
+
+.dashboard-section .drop-down-content {
+  display: flex;
+  justify-content: end;
+}
+
+.dashboard-section h2 {
+  font-size: var(--heading-font-size-m);
+}

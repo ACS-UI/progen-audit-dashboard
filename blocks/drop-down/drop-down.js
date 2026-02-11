@@ -1,0 +1,266 @@
+export default async function decorate(block) {
+  // Add class to the inner wrapper div if it exists
+  const innerDiv = block.querySelector('div');
+  if (innerDiv && !innerDiv.className) {
+    innerDiv.classList.add('drop-down-content');
+  }
+
+  // Check if the block has the "dynamic" class
+  const isDynamic = block.classList.contains('dynamic');
+
+  if (isDynamic) {
+    // Find the anchor element that contains the URL
+    const anchor = block.querySelector('.button-container a');
+
+    if (!anchor) {
+      console.error('No anchor element found in drop-down block');
+      return;
+    }
+
+    const dataUrl = anchor.getAttribute('href');
+
+    if (!dataUrl) {
+      console.error('No href attribute found in anchor element');
+      return;
+    }
+
+    try {
+      // Fetch data from the URL
+      const response = await fetch(dataUrl);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Populate the dropdown with data
+      // Assuming the JSON data is an array or has a 'data' property with an array
+      const items = Array.isArray(data) ? data : (data.data || []);
+
+      // Create custom dropdown container with proper semantics
+      const dropdownContainer = document.createElement('div');
+      dropdownContainer.className = 'drop-down-custom';
+      dropdownContainer.setAttribute('role', 'combobox');
+      dropdownContainer.setAttribute('aria-haspopup', 'listbox');
+      dropdownContainer.setAttribute('aria-expanded', 'false');
+
+      // Add label for accessibility
+      const dropdownId = `dropdown-${Math.random().toString(36).substr(2, 9)}`;
+      const labelId = `${dropdownId}-label`;
+      const listboxId = `${dropdownId}-listbox`;
+
+      // Create the selected display area (acts as button)
+      const selectedDisplay = document.createElement('button');
+      selectedDisplay.className = 'drop-down-selected';
+      selectedDisplay.setAttribute('type', 'button');
+      selectedDisplay.setAttribute('aria-labelledby', labelId);
+      selectedDisplay.setAttribute('aria-controls', listboxId);
+
+      const selectedTitle = document.createElement('span');
+      selectedTitle.className = 'drop-down-title';
+      selectedTitle.id = labelId;
+
+      const selectedStatus = document.createElement('span');
+      selectedStatus.className = 'drop-down-status';
+      selectedStatus.textContent = 'Active';
+      selectedStatus.setAttribute('aria-live', 'polite');
+
+      selectedDisplay.appendChild(selectedTitle);
+      selectedDisplay.appendChild(selectedStatus);
+
+      // Create dropdown arrow
+      const arrow = document.createElement('span');
+      arrow.className = 'drop-down-arrow';
+      arrow.setAttribute('aria-hidden', 'true');
+
+      // Create options container
+      const optionsContainer = document.createElement('ul');
+      optionsContainer.className = 'drop-down-options';
+      optionsContainer.id = listboxId;
+      optionsContainer.setAttribute('role', 'listbox');
+      optionsContainer.setAttribute('aria-labelledby', labelId);
+
+      let selectedIndex = 0;
+
+      // Populate options
+      items.forEach((item, index) => {
+        const option = document.createElement('li');
+        option.className = 'drop-down-option';
+        option.setAttribute('role', 'option');
+        option.setAttribute('tabindex', '-1');
+
+        // Try to use Title first (case-sensitive), then other common property names
+        const titleValue = item.Title || item.title || item.label || item.name || item.value || JSON.stringify(item);
+        option.textContent = titleValue;
+        option.dataset.value = titleValue;
+        option.id = `${listboxId}-option-${index}`;
+
+        // Select the first item by default
+        if (index === 0) {
+          selectedTitle.textContent = titleValue;
+          option.classList.add('selected');
+          option.setAttribute('aria-selected', 'true');
+          selectedDisplay.setAttribute('aria-activedescendant', option.id);
+        } else {
+          option.setAttribute('aria-selected', 'false');
+        }
+
+        // Add click handler
+        option.addEventListener('click', () => {
+          selectOption(option, index);
+        });
+
+        optionsContainer.appendChild(option);
+      });
+
+      // Function to select an option
+      const selectOption = (option, index) => {
+        const titleValue = option.dataset.value;
+        selectedTitle.textContent = titleValue;
+        selectedIndex = index;
+
+        // Update selected state
+        optionsContainer.querySelectorAll('.drop-down-option').forEach((opt) => {
+          opt.classList.remove('selected');
+          opt.setAttribute('aria-selected', 'false');
+        });
+        option.classList.add('selected');
+        option.setAttribute('aria-selected', 'true');
+        selectedDisplay.setAttribute('aria-activedescendant', option.id);
+
+        // Close dropdown
+        closeDropdown();
+
+        // Dispatch custom event
+        block.dispatchEvent(new CustomEvent('dropdown-change', {
+          detail: { value: titleValue },
+          bubbles: true,
+        }));
+      };
+
+      // Function to open dropdown
+      const openDropdown = () => {
+        dropdownContainer.classList.add('open');
+        dropdownContainer.setAttribute('aria-expanded', 'true');
+        // Focus the selected option
+        const selectedOption = optionsContainer.querySelector('.drop-down-option.selected');
+        if (selectedOption) {
+          selectedOption.focus();
+        }
+      };
+
+      // Function to close dropdown
+      const closeDropdown = () => {
+        dropdownContainer.classList.remove('open');
+        dropdownContainer.setAttribute('aria-expanded', 'false');
+        selectedDisplay.focus();
+      };
+
+      // Toggle dropdown on click
+      selectedDisplay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (dropdownContainer.classList.contains('open')) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      });
+
+      // Keyboard navigation
+      selectedDisplay.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          openDropdown();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeDropdown();
+        }
+      });
+
+      // Keyboard navigation within options
+      optionsContainer.addEventListener('keydown', (e) => {
+        const options = Array.from(optionsContainer.querySelectorAll('.drop-down-option'));
+        const currentIndex = options.indexOf(document.activeElement);
+
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            if (currentIndex < options.length - 1) {
+              options[currentIndex + 1].focus();
+            }
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            if (currentIndex > 0) {
+              options[currentIndex - 1].focus();
+            }
+            break;
+          case 'Home':
+            e.preventDefault();
+            options[0].focus();
+            break;
+          case 'End':
+            e.preventDefault();
+            options[options.length - 1].focus();
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            if (currentIndex >= 0) {
+              selectOption(options[currentIndex], currentIndex);
+            }
+            break;
+          case 'Escape':
+            e.preventDefault();
+            closeDropdown();
+            break;
+          default:
+            break;
+        }
+      });
+
+      // Close dropdown when clicking outside
+      const handleClickOutside = (e) => {
+        if (!dropdownContainer.contains(e.target)) {
+          closeDropdown();
+        }
+      };
+
+      document.addEventListener('click', handleClickOutside);
+
+      // Cleanup function to remove event listener
+      block.addEventListener('disconnected', () => {
+        document.removeEventListener('click', handleClickOutside);
+      });
+
+      // Assemble the dropdown
+      dropdownContainer.appendChild(selectedDisplay);
+      dropdownContainer.appendChild(arrow);
+      dropdownContainer.appendChild(optionsContainer);
+
+      // Replace the button container with the dropdown
+      const buttonContainer = block.querySelector('.button-container');
+      if (buttonContainer) {
+        buttonContainer.replaceWith(dropdownContainer);
+      } else {
+        block.appendChild(dropdownContainer);
+      }
+    } catch (error) {
+      console.error('Error loading dropdown data:', error);
+      // Show error message to user with proper ARIA live region
+      const errorMsg = document.createElement('div');
+      errorMsg.className = 'drop-down-error';
+      errorMsg.setAttribute('role', 'alert');
+      errorMsg.setAttribute('aria-live', 'assertive');
+      errorMsg.textContent = 'Failed to load dropdown options';
+      const buttonContainer = block.querySelector('.button-container');
+      if (buttonContainer) {
+        buttonContainer.replaceWith(errorMsg);
+      }
+    }
+  } else {
+    // For non-dynamic dropdowns, handle static content
+    console.log('Static drop-down block', block);
+  }
+}
