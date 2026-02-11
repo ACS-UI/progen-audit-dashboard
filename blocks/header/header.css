@@ -7,6 +7,47 @@ header .nav-wrapper {
   z-index: 1000;
 }
 
+/* Generic icon styles - must come before more specific selectors */
+header .icon img {
+  object-fit: contain;
+}
+
+/* Navigation sidebar */
+header nav {
+  position: fixed;
+  inset: var(--nav-height) 0 0;
+  height: calc(100vh - var(--nav-height));
+  width: 100%;
+  background-color: var(--background-color);
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Navigation open state on mobile */
+header nav[aria-expanded='true'] {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Overlay for mobile when nav is open */
+header nav[aria-expanded='true']::before {
+  display: none;
+}
+
+/* Brand/Logo section - hidden on mobile (shown in mobile header) */
+header nav .nav-brand {
+  display: none;
+}
+
 /* Mobile header bar - always visible on mobile */
 header .nav-mobile-header {
   display: flex;
@@ -146,42 +187,6 @@ header .nav-hamburger button[aria-expanded='true'] .nav-hamburger-icon::after {
   transform: rotate(-45deg);
 }
 
-/* Navigation sidebar */
-header nav {
-  position: fixed;
-  inset: var(--nav-height) 0 0;
-  height: calc(100vh - var(--nav-height));
-  width: 100%;
-  background-color: var(--background-color);
-  padding: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  transform: translateY(-100%);
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  z-index: 1000;
-  overflow-y: auto;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Navigation open state on mobile */
-header nav[aria-expanded='true'] {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Overlay for mobile when nav is open */
-header nav[aria-expanded='true']::before {
-  display: none;
-}
-
-/* Brand/Logo section - hidden on mobile (shown in mobile header) */
-header nav .nav-brand {
-  display: none;
-}
-
 /* Navigation menu */
 header .nav-menu {
   display: flex;
@@ -202,11 +207,6 @@ header .nav-item {
 
 header .nav-item.active {
   background-color: var(--primary-color);
-}
-
-/* Ensure icons maintain aspect ratio */
-header .icon img {
-  object-fit: contain;
 }
 
 header .nav-item .icon {
