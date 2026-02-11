@@ -22,6 +22,8 @@ export default async function decorate(block) {
 
   // Check if the block has the "dynamic" class
   const isDynamic = block.classList.contains('dynamic');
+  // Check if the block has the "project-selector" class
+  const isProjectSelector = block.classList.contains('project-selector');
 
   if (isDynamic) {
     // Verify anchor element exists (already queried above)
@@ -96,9 +98,57 @@ export default async function decorate(block) {
       optionsContainer.setAttribute('role', 'listbox');
       optionsContainer.setAttribute('aria-labelledby', labelId);
 
+      // Function to fetch project data and store in localStorage
+      const fetchProjectData = async (selectedValue) => {
+        if (!isProjectSelector) return;
+
+        try {
+          // Fetch both API endpoints
+          const [metricsResponse, checklistResponse] = await Promise.all([
+            fetch(`/reports/${selectedValue.toLowerCase()}/ui-audit-metrics.json`),
+            fetch(`/reports/${selectedValue.toLowerCase()}/ui-audit-checklist.json`),
+          ]);
+
+          if (!metricsResponse.ok) {
+            throw new Error(`Failed to fetch metrics: ${metricsResponse.status}`);
+          }
+          if (!checklistResponse.ok) {
+            throw new Error(`Failed to fetch checklist: ${checklistResponse.status}`);
+          }
+
+          const metricsData = await metricsResponse.json();
+          const checklistData = await checklistResponse.json();
+
+          // Store in localStorage
+          localStorage.setItem('ui-audit-metrics', JSON.stringify(metricsData));
+          localStorage.setItem('ui-audit-checklist', JSON.stringify(checklistData));
+
+          // Dispatch custom event with both data
+          block.dispatchEvent(new CustomEvent('project-data-loaded', {
+            detail: {
+              project: selectedValue,
+              metrics: metricsData,
+              checklist: checklistData,
+            },
+            bubbles: true,
+          }));
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error loading project data:', error);
+        }
+      };
+
       // Function to select an option
-      const selectOption = (option) => {
+      const selectOption = async (option) => {
+        // Check if this option is already selected
+        if (option.classList.contains('selected')) {
+          // eslint-disable-next-line no-use-before-define
+          closeDropdown();
+          return;
+        }
+
         const titleValue = option.dataset.value;
+        const folderValue = option.dataset.folder;
         selectedTitle.textContent = titleValue;
 
         // Update selected state
@@ -114,9 +164,15 @@ export default async function decorate(block) {
         // eslint-disable-next-line no-use-before-define
         closeDropdown();
 
+        // Fetch project data if this is a project-selector using folder value
+        await fetchProjectData(folderValue);
+
         // Dispatch custom event
         block.dispatchEvent(new CustomEvent('dropdown-change', {
-          detail: { value: titleValue },
+          detail: {
+            value: titleValue,
+            folder: folderValue,
+          },
           bubbles: true,
         }));
       };
@@ -140,6 +196,7 @@ export default async function decorate(block) {
       };
 
       // Populate options
+      let firstOptionFolder = null;
       items.forEach((item, index) => {
         const option = document.createElement('li');
         option.className = 'drop-down-option';
@@ -149,12 +206,18 @@ export default async function decorate(block) {
         // Try to use Title first (case-sensitive), then other common names
         const titleValue = item.Title || item.title || item.label
           || item.name || item.value || JSON.stringify(item);
+
+        // Extract folder value for API calls
+        const folderValue = item.Folder || item.folder || titleValue;
+
         option.textContent = titleValue;
         option.dataset.value = titleValue;
+        option.dataset.folder = folderValue;
         option.id = `${listboxId}-option-${index}`;
 
         // Select the first item by default
         if (index === 0) {
+          firstOptionFolder = folderValue;
           selectedTitle.textContent = titleValue;
           option.classList.add('selected');
           option.setAttribute('aria-selected', 'true');
@@ -170,6 +233,11 @@ export default async function decorate(block) {
 
         optionsContainer.appendChild(option);
       });
+
+      // Fetch project data for the initially selected option
+      if (firstOptionFolder) {
+        fetchProjectData(firstOptionFolder);
+      }
 
       // Toggle dropdown on click
       selectedDisplay.addEventListener('click', (e) => {
