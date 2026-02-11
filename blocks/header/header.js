@@ -115,7 +115,7 @@ export default async function decorate(block) {
 
           // Extract the hash or path from the nav item's href
           let navHash = '';
-          let navPath = '';
+          let itemNavPath = '';
 
           if (href.startsWith('#')) {
             navHash = href;
@@ -123,7 +123,7 @@ export default async function decorate(block) {
             try {
               const url = new URL(href, window.location.origin);
               navHash = url.hash;
-              navPath = url.pathname;
+              itemNavPath = url.pathname;
             } catch (e) {
               // If href is invalid, skip this item
               return;
@@ -138,7 +138,7 @@ export default async function decorate(block) {
             isActive = navHash && currentHash === navHash;
           } else {
             // If no hash, match against pathname
-            isActive = navPath && navPath !== '/' && currentPath.includes(navPath);
+            isActive = itemNavPath && itemNavPath !== '/' && currentPath.includes(itemNavPath);
           }
 
           // Update active state
@@ -154,9 +154,7 @@ export default async function decorate(block) {
 
         // If no item is active, highlight Dashboard by default
         if (!hasActiveItem) {
-          const dashboardItem = navItems.find(item =>
-            item.text.toLowerCase().includes('dashboard')
-          );
+          const dashboardItem = navItems.find((item) => item.text.toLowerCase().includes('dashboard'));
           if (dashboardItem) {
             dashboardItem.element.classList.add('active');
             dashboardItem.link.setAttribute('aria-current', 'page');
@@ -202,7 +200,7 @@ export default async function decorate(block) {
             element: navItem,
             link: navLink,
             href: cleanHref,
-            text: link.textContent.trim()
+            text: link.textContent.trim(),
           });
         }
       });

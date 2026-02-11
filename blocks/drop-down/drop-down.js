@@ -13,6 +13,7 @@ export default async function decorate(block) {
     const anchor = block.querySelector('.button-container a');
 
     if (!anchor) {
+      // eslint-disable-next-line no-console
       console.error('No anchor element found in drop-down block');
       return;
     }
@@ -20,6 +21,7 @@ export default async function decorate(block) {
     const dataUrl = anchor.getAttribute('href');
 
     if (!dataUrl) {
+      // eslint-disable-next-line no-console
       console.error('No href attribute found in anchor element');
       return;
     }
@@ -81,44 +83,10 @@ export default async function decorate(block) {
       optionsContainer.setAttribute('role', 'listbox');
       optionsContainer.setAttribute('aria-labelledby', labelId);
 
-      let selectedIndex = 0;
-
-      // Populate options
-      items.forEach((item, index) => {
-        const option = document.createElement('li');
-        option.className = 'drop-down-option';
-        option.setAttribute('role', 'option');
-        option.setAttribute('tabindex', '-1');
-
-        // Try to use Title first (case-sensitive), then other common property names
-        const titleValue = item.Title || item.title || item.label || item.name || item.value || JSON.stringify(item);
-        option.textContent = titleValue;
-        option.dataset.value = titleValue;
-        option.id = `${listboxId}-option-${index}`;
-
-        // Select the first item by default
-        if (index === 0) {
-          selectedTitle.textContent = titleValue;
-          option.classList.add('selected');
-          option.setAttribute('aria-selected', 'true');
-          selectedDisplay.setAttribute('aria-activedescendant', option.id);
-        } else {
-          option.setAttribute('aria-selected', 'false');
-        }
-
-        // Add click handler
-        option.addEventListener('click', () => {
-          selectOption(option, index);
-        });
-
-        optionsContainer.appendChild(option);
-      });
-
       // Function to select an option
       const selectOption = (option, index) => {
         const titleValue = option.dataset.value;
         selectedTitle.textContent = titleValue;
-        selectedIndex = index;
 
         // Update selected state
         optionsContainer.querySelectorAll('.drop-down-option').forEach((opt) => {
@@ -130,6 +98,7 @@ export default async function decorate(block) {
         selectedDisplay.setAttribute('aria-activedescendant', option.id);
 
         // Close dropdown
+        // eslint-disable-next-line no-use-before-define
         closeDropdown();
 
         // Dispatch custom event
@@ -156,6 +125,38 @@ export default async function decorate(block) {
         dropdownContainer.setAttribute('aria-expanded', 'false');
         selectedDisplay.focus();
       };
+
+      // Populate options
+      items.forEach((item, index) => {
+        const option = document.createElement('li');
+        option.className = 'drop-down-option';
+        option.setAttribute('role', 'option');
+        option.setAttribute('tabindex', '-1');
+
+        // Try to use Title first (case-sensitive), then other common names
+        const titleValue = item.Title || item.title || item.label
+          || item.name || item.value || JSON.stringify(item);
+        option.textContent = titleValue;
+        option.dataset.value = titleValue;
+        option.id = `${listboxId}-option-${index}`;
+
+        // Select the first item by default
+        if (index === 0) {
+          selectedTitle.textContent = titleValue;
+          option.classList.add('selected');
+          option.setAttribute('aria-selected', 'true');
+          selectedDisplay.setAttribute('aria-activedescendant', option.id);
+        } else {
+          option.setAttribute('aria-selected', 'false');
+        }
+
+        // Add click handler
+        option.addEventListener('click', () => {
+          selectOption(option, index);
+        });
+
+        optionsContainer.appendChild(option);
+      });
 
       // Toggle dropdown on click
       selectedDisplay.addEventListener('click', (e) => {
@@ -247,6 +248,7 @@ export default async function decorate(block) {
         block.appendChild(dropdownContainer);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error loading dropdown data:', error);
       // Show error message to user with proper ARIA live region
       const errorMsg = document.createElement('div');
@@ -261,6 +263,7 @@ export default async function decorate(block) {
     }
   } else {
     // For non-dynamic dropdowns, handle static content
+    // eslint-disable-next-line no-console
     console.log('Static drop-down block', block);
   }
 }
