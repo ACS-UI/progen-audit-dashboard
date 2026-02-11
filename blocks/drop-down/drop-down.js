@@ -84,7 +84,7 @@ export default async function decorate(block) {
       optionsContainer.setAttribute('aria-labelledby', labelId);
 
       // Function to select an option
-      const selectOption = (option, index) => {
+      const selectOption = (option) => {
         const titleValue = option.dataset.value;
         selectedTitle.textContent = titleValue;
 
@@ -152,7 +152,7 @@ export default async function decorate(block) {
 
         // Add click handler
         option.addEventListener('click', () => {
-          selectOption(option, index);
+          selectOption(option);
         });
 
         optionsContainer.appendChild(option);
@@ -209,7 +209,7 @@ export default async function decorate(block) {
           case ' ':
             e.preventDefault();
             if (currentIndex >= 0) {
-              selectOption(options[currentIndex], currentIndex);
+              selectOption(options[currentIndex]);
             }
             break;
           case 'Escape':
