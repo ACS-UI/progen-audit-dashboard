@@ -140,10 +140,16 @@ export default async function decorate(block) {
     if (body.childElementCount > 0) li.append(body);
     ul.append(li);
   });
-  ul.querySelectorAll('picture > img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
+  ul.querySelectorAll('picture > img').forEach((img) => {
+    img.closest('picture').replaceWith(
+      createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]),
+    );
+  });
   block.replaceChildren(ul);
 
-  const scoreValues = SCORE_KEYS.map((key) => scoreByKey[key]).filter((value) => value !== undefined && value !== null);
+  const scoreValues = SCORE_KEYS
+    .map((key) => scoreByKey[key])
+    .filter((value) => value !== undefined && value !== null);
   if (scoreValues.length === 0) return;
 
   // Load Chart.js once and build score UI on each card based on SCORE_KEYS order.
@@ -167,6 +173,7 @@ export default async function decorate(block) {
     const scoreNumber = document.createElement('span');
     scoreNumber.className = 'cards-ui-quality-score-number';
     scoreNumber.textContent = scoreValue;
+    scoreNumber.style.color = getScoreColor(scoreValue);
     cardBody.prepend(scoreNumber);
 
     const chartContainer = document.createElement('div');
