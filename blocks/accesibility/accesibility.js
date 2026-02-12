@@ -1,14 +1,14 @@
-import { fetchFormJson, getFormUrl } from "../../scripts/utils.js";
+import { fetchFormJson, getFormUrl } from '../../scripts/utils.js';
 
 export default async function decorate(block) {
   const rows = [...block.children];
 
   const headerRow = rows.shift();
 
-  const icon = headerRow.querySelector("picture")?.outerHTML || "";
-  const title = headerRow.querySelector("h2")?.textContent || "";
-  const subtitle = headerRow.querySelectorAll("p")[1]?.textContent || "";
-  const riskLabel = headerRow.querySelectorAll("p")[2]?.textContent || "";
+  const icon = headerRow.querySelector('picture')?.outerHTML || '';
+  const title = headerRow.querySelector('h2')?.textContent || '';
+  const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
+  const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
 
   const scoreByKey = {};
   try {
@@ -26,10 +26,10 @@ export default async function decorate(block) {
     }
   } catch (e) {}
 
-  block.textContent = "";
+  block.textContent = '';
 
-  const header = document.createElement("div");
-  const domainToken = (title || "").toLowerCase().replace(/\s+/g, "-");
+  const header = document.createElement('div');
+  const domainToken = (title || '').toLowerCase().replace(/\s+/g, '-');
   header.className = `${domainToken}-header domain-header`;
   const headerScoreKey = `overallScores.${domainToken}Score`;
   const headerScore = scoreByKey[headerScoreKey];
@@ -50,8 +50,8 @@ export default async function decorate(block) {
 
   block.append(header);
 
-  const grid = document.createElement("div");
-  grid.className = "accessibility-grid";
+  const grid = document.createElement('div');
+  grid.className = 'accessibility-grid';
 
   const formatLabel = (key, domainTok) => {
     const lower = key.toLowerCase();
@@ -59,23 +59,23 @@ export default async function decorate(block) {
     const idx = domainTok ? lower.indexOf(domainTok) : -1;
     if (idx !== -1) {
       const after = key.slice(idx + domainTok.length);
-      suffix = after || "";
-      if (suffix.startsWith(".")) suffix = suffix.slice(1);
+      suffix = after || '';
+      if (suffix.startsWith('.')) suffix = suffix.slice(1);
     }
     if (!suffix) {
       suffix =
         key
-          .replace(new RegExp(`.*${domainTok}.*`, "i"), "")
-          .replace(/^\./, "") || key;
+          .replace(new RegExp(`.*${domainTok}.*`, 'i'), '')
+          .replace(/^\./, '') || key;
     }
-    let label = suffix.replace(/[._\-]/g, " ");
-    label = label.replace(/([a-z])([A-Z])/g, "$1 $2");
+    let label = suffix.replace(/[._\-]/g, ' ');
+    label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
     label = label.trim();
     if (!label) label = domainTok ? domainTok : key;
     label = label
       .split(/\s+/)
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+      .join(' ');
     return label;
   };
 
@@ -87,33 +87,33 @@ export default async function decorate(block) {
     if (!domainTokenPresent) return false;
     return lk === domainPrefix || lk.startsWith(`${domainPrefix}.`);
   });
-  keys = keys.filter((k) => !k.toLowerCase().endsWith(".score"));
+  keys = keys.filter((k) => !k.toLowerCase().endsWith('.score'));
   keys.sort();
 
   const hasDomainKeys = keys.length > 0 && domainTokenPresent;
 
-  const wcagKeys = keys.filter((k) => k.toLowerCase().includes("wcag"));
+  const wcagKeys = keys.filter((k) => k.toLowerCase().includes('wcag'));
   if (hasDomainKeys) {
     if (wcagKeys.length > 0) {
-      const severities = ["critical", "high", "medium", "low"];
+      const severities = ['critical', 'high', 'medium', 'low'];
       const severityColors = {
-        critical: "#ef4444",
-        high: "#f97316",
-        medium: "#F0B100",
-        low: "#2B7FFF",
+        critical: '#ef4444',
+        high: '#f97316',
+        medium: '#F0B100',
+        low: '#2B7FFF',
       };
 
-      const wcagCard = document.createElement("div");
-      wcagCard.className = "metric-card wcag-card list-card";
+      const wcagCard = document.createElement('div');
+      wcagCard.className = 'metric-card wcag-card list-card';
       const itemsHtml = severities
         .map((s) => {
           const matchKey = wcagKeys.find(
             (k) =>
-              k.toLowerCase().endsWith("." + s) ||
-              k.toLowerCase().includes("." + s),
+              k.toLowerCase().endsWith('.' + s) ||
+              k.toLowerCase().includes('.' + s),
           );
           const value = matchKey ? scoreByKey[matchKey] : 0;
-          const color = severityColors[s] || "#6b7280";
+          const color = severityColors[s] || '#6b7280';
           const label = s.charAt(0).toUpperCase() + s.slice(1);
           return `
             <li class='wcag-${s}'>
@@ -122,7 +122,7 @@ export default async function decorate(block) {
             </li>
           `;
         })
-        .join("");
+        .join('');
 
       wcagCard.innerHTML = `
         <h3>WCAG Violations</h3>
@@ -134,36 +134,36 @@ export default async function decorate(block) {
       grid.append(wcagCard);
     }
 
-    const otherKeys = keys.filter((k) => !k.toLowerCase().includes("wcag"));
+    const otherKeys = keys.filter((k) => !k.toLowerCase().includes('wcag'));
     otherKeys.forEach((k) => {
       const rawValue = scoreByKey[k];
-      const value = rawValue === undefined || rawValue === null ? "" : rawValue;
+      const value = rawValue === undefined || rawValue === null ? '' : rawValue;
 
       let label = formatLabel(k, domainToken);
       label = label
-        .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, "")
+        .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '')
         .trim();
 
       label = label
         .split(/\s+/)
         .map((w) =>
-          w.toLowerCase() === "aria"
-            ? "ARIA"
+          w.toLowerCase() === 'aria'
+            ? 'ARIA'
             : w.charAt(0).toUpperCase() + w.slice(1),
         )
-        .join(" ");
+        .join(' ');
 
       let displayValue = value;
       if (
-        k.toLowerCase().includes("percent") ||
+        k.toLowerCase().includes('percent') ||
         /percent/i.test(k) ||
-        String(value).toLowerCase() === "n/a"
+        String(value).toLowerCase() === 'n/a'
       ) {
         if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
       }
 
-      const card = document.createElement("div");
-      card.className = "metric-card";
+      const card = document.createElement('div');
+      card.className = 'metric-card';
       card.innerHTML = `
         <div class='metric-value'>${displayValue}</div>
         <div class='metric-label'>${label}</div>
@@ -172,20 +172,20 @@ export default async function decorate(block) {
     });
   } else {
     rows.forEach((row) => {
-      const list = row.querySelector("ul");
+      const list = row.querySelector('ul');
 
       if (list) {
-        const title = row.querySelector("p")?.textContent || "";
-        const items = [...list.querySelectorAll("li")].map(
+        const title = row.querySelector('p')?.textContent || '';
+        const items = [...list.querySelectorAll('li')].map(
           (li) => li.textContent,
         );
 
-        const wcagCard = document.createElement("div");
-        wcagCard.className = "metric-card list-card";
+        const wcagCard = document.createElement('div');
+        wcagCard.className = 'metric-card list-card';
 
         const itemsHtml = items
           .map((item) => {
-            let severity = "0";
+            let severity = '0';
             const exactKey = `${domainToken}.${item}`;
             if (scoreByKey[exactKey] !== undefined)
               severity = scoreByKey[exactKey];
@@ -193,12 +193,12 @@ export default async function decorate(block) {
               const match = Object.entries(scoreByKey).find(([k]) =>
                 k
                   .toLowerCase()
-                  .includes(item.toLowerCase().replace(/\s+/g, "")),
+                  .includes(item.toLowerCase().replace(/\s+/g, '')),
               );
               if (match) severity = match[1];
             }
 
-            const safeClass = item.replace(/[^a-z0-9\-]/gi, "-").toLowerCase();
+            const safeClass = item.replace(/[^a-z0-9\-]/gi, '-').toLowerCase();
 
             return `
               <li class='${safeClass}'>
@@ -207,7 +207,7 @@ export default async function decorate(block) {
               </li>
             `;
           })
-          .join("");
+          .join('');
 
         wcagCard.innerHTML = `
           <h3>${title}</h3>
@@ -222,8 +222,8 @@ export default async function decorate(block) {
 
         if (!text) return;
 
-        const card = document.createElement("div");
-        card.className = "metric-card";
+        const card = document.createElement('div');
+        card.className = 'metric-card';
 
         card.innerHTML = `
           <div class='metric-value'></div>
