@@ -14,31 +14,25 @@ export default async function decorate(block) {
   try {
     const formUrl = getFormUrl() || getFormUrl(block) || null;
     if (formUrl) {
-      window.__auditDataCache = window.__auditDataCache || {};
-      let dataArray = window.__auditDataCache[formUrl];
-      if (!dataArray) {
-        const formData = await fetchFormJson(formUrl);
-        dataArray = Array.isArray(formData) ? formData : formData?.data;
-        window.__auditDataCache[formUrl] = dataArray;
-      }
+      const formData = await fetchFormJson(formUrl);
+      const dataArray = Array.isArray(formData) ? formData : formData?.data;
       if (Array.isArray(dataArray)) {
-        for (let i = 0; i < dataArray.length; i += 1) {
-          const item = dataArray[i];
-          if (item?.key && item?.value !== undefined) scoreByKey[item.key] = item.value;
-        }
+        dataArray.forEach((item) => {
+          if (item?.key && item?.value !== undefined) {
+            scoreByKey[item.key] = item.value;
+          }
+        });
       }
     }
   } catch (e) {
-    /* noop */
+    console.warn('Accessibility: unable to load form data', e);
   }
 
   block.textContent = "";
 
   const header = document.createElement("div");
-  const domainTokenForClass = (title || '').toLowerCase().replace(/\s+/g, '-');
-  header.className = `${domainTokenForClass}-header domain-header`;
-
-  const domainToken = (title || '').toLowerCase().replace(/\s+/g, '');
+  const domainToken = (title || '').toLowerCase().replace(/\s+/g, '-');
+  header.className = `${domainToken}-header domain-header`;
   const headerScoreKey = `overallScores.${domainToken}Score`;
   const headerScore = scoreByKey[headerScoreKey];
 
@@ -58,9 +52,8 @@ export default async function decorate(block) {
 
   block.append(header);
 
-  const grid = document.createElement('div');
-  grid.className = 'accessibility-grid';
-  const fragment = document.createDocumentFragment();
+  const grid = document.createElement("div");
+  grid.className = "accessibility-grid";
 
   const formatLabel = (key, domainTok) => {
     const lower = key.toLowerCase();
@@ -88,7 +81,6 @@ export default async function decorate(block) {
   let keys = Object.keys(scoreByKey)
     .filter((k) => {
       const lk = k.toLowerCase();
-      if (lk.startsWith('riskindex.')) return false;
       if (!domainTokenPresent) return false;
       return lk === domainPrefix || lk.startsWith(`${domainPrefix}.`);
     });
@@ -101,59 +93,63 @@ export default async function decorate(block) {
   if (hasDomainKeys) {
     if (wcagKeys.length > 0) {
       const severities = ['critical', 'high', 'medium', 'low'];
-      const severityColors = { critical: '#ef4444', high: '#f97316', medium: '#F0B100', low: '#2B7FFF' };
+      const severityColors = {
+        critical: '#ef4444',
+        high: '#f97316',
+        medium: '#F0B100',
+        low: '#2B7FFF',
+      };
+
       const wcagCard = document.createElement('div');
       wcagCard.className = 'metric-card wcag-card list-card';
-      const h3 = document.createElement('h3');
-      h3.textContent = 'WCAG Violations';
-      const ul = document.createElement('ul');
-      ul.className = 'wcag-list';
-      const wcagBase = `${domainPrefix}.wcagViolations`;
-      for (let i = 0; i < severities.length; i += 1) {
-        const s = severities[i];
-        const li = document.createElement('li');
-        li.className = `wcag-${s}`;
-        const label = document.createElement('span');
-        label.className = 'wcag-label';
-        label.textContent = s.charAt(0).toUpperCase() + s.slice(1);
-        const valueEl = document.createElement('span');
-        valueEl.className = 'wcag-value';
-        valueEl.style.color = severityColors[s] || '#6b7280';
-        valueEl.style.fontWeight = '600';
-        const key = `${wcagBase}.${s}`;
-        const value = scoreByKey[key] !== undefined ? scoreByKey[key] : 0;
-        valueEl.textContent = value;
-        li.append(label, valueEl);
-        ul.append(li);
-      }
-      wcagCard.append(h3, ul);
-      fragment.appendChild(wcagCard);
+      const itemsHtml = severities
+        .map((s) => {
+          const matchKey = wcagKeys.find((k) => k.toLowerCase().endsWith('.' + s) || k.toLowerCase().includes('.' + s));
+          const value = matchKey ? scoreByKey[matchKey] : 0;
+          const color = severityColors[s] || '#6b7280';
+          const label = s.charAt(0).toUpperCase() + s.slice(1);
+          return `
+            <li class="wcag-${s}">
+              <span class="wcag-label">${label}</span>
+              <span class="wcag-value" style="color:${color}; font-weight:600">${value}</span>
+            </li>
+          `;
+        })
+        .join('');
+
+      wcagCard.innerHTML = `
+        <h3>WCAG Violations</h3>
+        <ul class="wcag-list">
+          ${itemsHtml}
+        </ul>
+      `;
+
+      grid.append(wcagCard);
     }
 
     const otherKeys = keys.filter((k) => !k.toLowerCase().includes('wcag'));
-    for (let i = 0; i < otherKeys.length; i += 1) {
-      const k = otherKeys[i];
+    otherKeys.forEach((k) => {
       const rawValue = scoreByKey[k];
       const value = rawValue === undefined || rawValue === null ? '' : rawValue;
+
       let label = formatLabel(k, domainToken);
       label = label.replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '').trim();
+
       label = label.split(/\s+/).map((w) => (w.toLowerCase() === 'aria' ? 'ARIA' : (w.charAt(0).toUpperCase() + w.slice(1)))).join(' ');
+
       let displayValue = value;
-      const lk = k.toLowerCase();
-      if (lk.includes('percent') || String(value).toLowerCase() === 'n/a') {
+      if (k.toLowerCase().includes('percent') || /percent/i.test(k) || String(value).toLowerCase() === 'n/a') {
         if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
       }
+
       const card = document.createElement('div');
       card.className = 'metric-card';
-      const valEl = document.createElement('div');
-      valEl.className = 'metric-value';
-      valEl.textContent = displayValue;
-      const lblEl = document.createElement('div');
-      lblEl.className = 'metric-label';
-      lblEl.textContent = label;
-      card.append(valEl, lblEl);
-      fragment.appendChild(card);
-    }
+      card.innerHTML = `
+        <div class="metric-value">${displayValue}</div>
+        <div class="metric-label">${label}</div>
+      `;
+      grid.append(card);
+    });
   } else {
     rows.forEach((row) => {
       const list = row.querySelector('ul');
@@ -164,36 +160,38 @@ export default async function decorate(block) {
 
         const wcagCard = document.createElement('div');
         wcagCard.className = 'metric-card list-card';
-        const h3 = document.createElement('h3');
-        h3.textContent = title;
-        const ul = document.createElement('ul');
-        for (let j = 0; j < items.length; j += 1) {
-          const item = items[j];
-          let severity = '5';
-          const exactKey = `${domainToken}.${item}`;
-          if (scoreByKey[exactKey] !== undefined) severity = scoreByKey[exactKey];
-          else {
-            const entries = Object.entries(scoreByKey);
-            for (let e = 0; e < entries.length; e += 1) {
-              const [k, v] = entries[e];
-              if (k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, ''))) {
-                severity = v; break;
-              }
+
+        const itemsHtml = items
+          .map((item) => {
+            let severity = '0';
+            const exactKey = `${domainToken}.${item}`;
+            if (scoreByKey[exactKey] !== undefined) severity = scoreByKey[exactKey];
+            else {
+              const match = Object.entries(scoreByKey).find(([k]) =>
+                k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')),
+              );
+              if (match) severity = match[1];
             }
-          }
-          const li = document.createElement('li');
-          li.className = item.replace(/[^a-z0-9\-]/gi, '-').toLowerCase();
-          const spanVal = document.createElement('span');
-          spanVal.className = 'severity-value';
-          spanVal.textContent = item;
-          const spanLabel = document.createElement('span');
-          spanLabel.className = 'severity-label';
-          spanLabel.textContent = severity;
-          li.append(spanVal, spanLabel);
-          ul.append(li);
-        }
-        wcagCard.append(h3, ul);
-        fragment.appendChild(wcagCard);
+
+            const safeClass = item.replace(/[^a-z0-9\-]/gi, '-').toLowerCase();
+
+            return `
+              <li class="${safeClass}">
+                <span class="severity-value">${item}</span>
+                <span class="severity-label">${severity}</span>
+              </li>
+            `;
+          })
+          .join('');
+
+        wcagCard.innerHTML = `
+          <h3>${title}</h3>
+          <ul>
+            ${itemsHtml}
+          </ul>
+        `;
+
+        grid.append(wcagCard);
       } else {
         const text = row.textContent.trim();
 
@@ -201,16 +199,16 @@ export default async function decorate(block) {
 
         const card = document.createElement('div');
         card.className = 'metric-card';
-        const valEl = document.createElement('div');
-        valEl.className = 'metric-value';
-        const lblEl = document.createElement('div');
-        lblEl.className = 'metric-label';
-        lblEl.textContent = text;
-        card.append(valEl, lblEl);
-        fragment.appendChild(card);
+
+        card.innerHTML = `
+          <div class="metric-value"></div>
+          <div class="metric-label">${text}</div>
+        `;
+
+        grid.append(card);
       }
     });
   }
-  grid.appendChild(fragment);
+
   block.append(grid);
 }
