@@ -61,19 +61,13 @@ export default async function decorate(block) {
       if (suffix.startsWith('.')) suffix = suffix.slice(1);
     }
     if (!suffix) {
-      suffix =
-        key
-          .replace(new RegExp(`.*${domainTok}.*`, 'i'), '')
-          .replace(/^\./, '') || key;
+      suffix = key.replace(new RegExp(`.*${domainTok}.*`, 'i'), '').replace(/^\./, '') || key;
     }
-    let label = suffix.replace(/[._\-]/g, ' ');
+    let label = suffix.replace(/[._-]/g, ' ');
     label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
     label = label.trim();
-    if (!label) label = domainTok ? domainTok : key;
-    label = label
-      .split(/\s+/)
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
+    if (!label) label = domainTok || key;
+    label = label.split(/\s+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     return label;
   };
 
@@ -105,11 +99,7 @@ export default async function decorate(block) {
       wcagCard.className = 'metric-card wcag-card list-card';
       const itemsHtml = severities
         .map((s) => {
-          const matchKey = wcagKeys.find(
-            (k) =>
-              k.toLowerCase().endsWith('.' + s) ||
-              k.toLowerCase().includes('.' + s),
-          );
+          const matchKey = wcagKeys.find((k) => k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`));
           const value = matchKey ? scoreByKey[matchKey] : 0;
           const color = severityColors[s] || '#6b7280';
           const label = s.charAt(0).toUpperCase() + s.slice(1);
@@ -142,21 +132,15 @@ export default async function decorate(block) {
         .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '')
         .trim();
 
-      label = label
-        .split(/\s+/)
-        .map((w) =>
-          w.toLowerCase() === 'aria'
-            ? 'ARIA'
-            : w.charAt(0).toUpperCase() + w.slice(1),
-        )
-        .join(' ');
+      label = label.split(/\s+/).map((w) => {
+        if (w.toLowerCase() === 'aria') return 'ARIA';
+        return w.charAt(0).toUpperCase() + w.slice(1);
+      }).join(' ');
 
       let displayValue = value;
-      if (
-        k.toLowerCase().includes('percent') ||
-        /percent/i.test(k) ||
-        String(value).toLowerCase() === 'n/a'
-      ) {
+      if (k.toLowerCase().includes('percent')
+        || /percent/i.test(k)
+        || String(value).toLowerCase() === 'n/a') {
         if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
       }
 
@@ -173,10 +157,8 @@ export default async function decorate(block) {
       const list = row.querySelector('ul');
 
       if (list) {
-        const title = row.querySelector('p')?.textContent || '';
-        const items = [...list.querySelectorAll('li')].map(
-          (li) => li.textContent,
-        );
+        const listTitle = row.querySelector('p')?.textContent || '';
+        const items = Array.from(list.querySelectorAll('li'), (li) => li.textContent);
 
         const wcagCard = document.createElement('div');
         wcagCard.className = 'metric-card list-card';
@@ -185,18 +167,14 @@ export default async function decorate(block) {
           .map((item) => {
             let severity = '0';
             const exactKey = `${domainToken}.${item}`;
-            if (scoreByKey[exactKey] !== undefined)
+            if (scoreByKey[exactKey] !== undefined) {
               severity = scoreByKey[exactKey];
-            else {
-              const match = Object.entries(scoreByKey).find(([k]) =>
-                k
-                  .toLowerCase()
-                  .includes(item.toLowerCase().replace(/\s+/g, '')),
-              );
+            } else {
+              const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
               if (match) severity = match[1];
             }
 
-            const safeClass = item.replace(/[^a-z0-9\-]/gi, '-').toLowerCase();
+            const safeClass = item.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
 
             return `
               <li class='${safeClass}'>
@@ -208,7 +186,7 @@ export default async function decorate(block) {
           .join('');
 
         wcagCard.innerHTML = `
-          <h3>${title}</h3>
+          <h3>${listTitle}</h3>
           <ul>
             ${itemsHtml}
           </ul>
