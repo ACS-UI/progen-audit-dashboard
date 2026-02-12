@@ -92,6 +92,11 @@
   height: 36px;
 }
 
+.summary .cards > ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .summary .cards > ul > li {
   width: 265.8px;
   height: 134px;
