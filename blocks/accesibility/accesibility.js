@@ -171,7 +171,10 @@ export default async function decorate(block) {
               severity = scoreByKey[exactKey];
             } else {
               const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
-              if (match) severity = match[1];
+              if (match) {
+                const [, v] = match;
+                severity = v;
+              }
             }
 
             const safeClass = item.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
