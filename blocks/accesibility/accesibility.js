@@ -5,10 +5,10 @@ export default async function decorate(block) {
 
   const headerRow = rows.shift();
 
-  const icon = headerRow.querySelector("picture")?.outerHTML || "";
-  const title = headerRow.querySelector("h2")?.textContent || "";
-  const subtitle = headerRow.querySelectorAll("p")[1]?.textContent || "";
-  const riskLabel = headerRow.querySelectorAll("p")[2]?.textContent || "";
+  const icon = headerRow.querySelector('picture')?.outerHTML || '';
+  const title = headerRow.querySelector('h2')?.textContent || '';
+  const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
+  const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
 
   const scoreByKey = {};
   try {
@@ -24,13 +24,11 @@ export default async function decorate(block) {
         });
       }
     }
-  } catch (e) {
-    console.warn('Accessibility: unable to load form data', e);
-  }
+  } catch (e) {}
 
-  block.textContent = "";
+  block.textContent = '';
 
-  const header = document.createElement("div");
+  const header = document.createElement('div');
   const domainToken = (title || '').toLowerCase().replace(/\s+/g, '-');
   header.className = `${domainToken}-header domain-header`;
   const headerScoreKey = `overallScores.${domainToken}Score`;
@@ -52,7 +50,7 @@ export default async function decorate(block) {
 
   block.append(header);
 
-  const grid = document.createElement("div");
+  const grid = document.createElement('div');
   grid.className = "accessibility-grid";
 
   const formatLabel = (key, domainTok) => {
