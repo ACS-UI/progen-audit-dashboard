@@ -11,20 +11,18 @@ export default async function decorate(block) {
   const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
 
   const scoreByKey = {};
-  try {
-    const formUrl = getFormUrl() || getFormUrl(block) || null;
-    if (formUrl) {
-      const formData = await fetchFormJson(formUrl);
-      const dataArray = Array.isArray(formData) ? formData : formData?.data;
-      if (Array.isArray(dataArray)) {
-        dataArray.forEach((item) => {
-          if (item?.key && item?.value !== undefined) {
-            scoreByKey[item.key] = item.value;
-          }
-        });
-      }
+  const formUrl = getFormUrl() || getFormUrl(block) || null;
+  if (formUrl) {
+    const formData = await fetchFormJson(formUrl);
+    const dataArray = Array.isArray(formData) ? formData : formData?.data;
+    if (Array.isArray(dataArray)) {
+      dataArray.forEach((item) => {
+        if (item?.key && item?.value !== undefined) {
+          scoreByKey[item.key] = item.value;
+        }
+      });
     }
-  } catch (e) {}
+  }
 
   block.textContent = '';
 
