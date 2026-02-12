@@ -60,25 +60,25 @@
 
     .accessibility-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: 1fr;
         gap: 20px;
-        /* Tablet */
-        @media (max-width: 1200px) {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        /* Small tablet */
-        @media (max-width: 900px) {
+        /* Mobile */
+        @media (width >= 600px) {
             grid-template-columns: repeat(2, 1fr);
         }
-
-        /* Mobile */
-        @media (max-width: 600px) {
-            grid-template-columns: 1fr;
+        
+        /* Small tablet */
+        @media (width >= 900px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        /* Tablet */
+        @media (width >= 1200px) {
+            grid-template-columns: repeat(4, 1fr);
         }
 
         .metric-card {
-            background: #ffffff;
+            background: #fff;
             padding: 20px;
             border-radius: 14px;
             display: flex;
