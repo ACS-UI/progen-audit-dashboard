@@ -5,13 +5,28 @@ export default async function decorate(block) {
     innerDiv.classList.add('drop-down-content');
   }
 
+  // Clean up button-container if AEM auto-generated it
+  const buttonContainer = block.querySelector('.button-container');
+  if (buttonContainer) {
+    // Replace button-container with just a div
+    const cleanDiv = document.createElement('div');
+    cleanDiv.innerHTML = buttonContainer.innerHTML;
+    buttonContainer.replaceWith(cleanDiv);
+  }
+
+  // Remove 'button' class from anchor if it exists
+  const anchor = block.querySelector('a');
+  if (anchor) {
+    anchor.classList.remove('button');
+  }
+
   // Check if the block has the "dynamic" class
   const isDynamic = block.classList.contains('dynamic');
+  // Check if the block has the "project-selector" class
+  const isProjectSelector = block.classList.contains('project-selector');
 
   if (isDynamic) {
-    // Find the anchor element that contains the URL
-    const anchor = block.querySelector('.button-container a');
-
+    // Verify anchor element exists (already queried above)
     if (!anchor) {
       // eslint-disable-next-line no-console
       console.error('No anchor element found in drop-down block');
@@ -83,9 +98,57 @@ export default async function decorate(block) {
       optionsContainer.setAttribute('role', 'listbox');
       optionsContainer.setAttribute('aria-labelledby', labelId);
 
+      // Function to fetch project data and store in localStorage
+      const fetchProjectData = async (selectedValue) => {
+        if (!isProjectSelector) return;
+
+        try {
+          // Fetch both API endpoints
+          const [metricsResponse, checklistResponse] = await Promise.all([
+            fetch(`/reports/${selectedValue.toLowerCase()}/ui-audit-metrics.json`),
+            fetch(`/reports/${selectedValue.toLowerCase()}/ui-audit-checklist.json`),
+          ]);
+
+          if (!metricsResponse.ok) {
+            throw new Error(`Failed to fetch metrics: ${metricsResponse.status}`);
+          }
+          if (!checklistResponse.ok) {
+            throw new Error(`Failed to fetch checklist: ${checklistResponse.status}`);
+          }
+
+          const metricsData = await metricsResponse.json();
+          const checklistData = await checklistResponse.json();
+
+          // Store in localStorage
+          localStorage.setItem('ui-audit-metrics', JSON.stringify(metricsData));
+          localStorage.setItem('ui-audit-checklist', JSON.stringify(checklistData));
+
+          // Dispatch custom event with both data
+          block.dispatchEvent(new CustomEvent('project-data-loaded', {
+            detail: {
+              project: selectedValue,
+              metrics: metricsData,
+              checklist: checklistData,
+            },
+            bubbles: true,
+          }));
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error loading project data:', error);
+        }
+      };
+
       // Function to select an option
-      const selectOption = (option) => {
+      const selectOption = async (option) => {
+        // Check if this option is already selected
+        if (option.classList.contains('selected')) {
+          // eslint-disable-next-line no-use-before-define
+          closeDropdown();
+          return;
+        }
+
         const titleValue = option.dataset.value;
+        const folderValue = option.dataset.folder;
         selectedTitle.textContent = titleValue;
 
         // Update selected state
@@ -101,9 +164,15 @@ export default async function decorate(block) {
         // eslint-disable-next-line no-use-before-define
         closeDropdown();
 
+        // Fetch project data if this is a project-selector using folder value
+        await fetchProjectData(folderValue);
+
         // Dispatch custom event
         block.dispatchEvent(new CustomEvent('dropdown-change', {
-          detail: { value: titleValue },
+          detail: {
+            value: titleValue,
+            folder: folderValue,
+          },
           bubbles: true,
         }));
       };
@@ -127,6 +196,7 @@ export default async function decorate(block) {
       };
 
       // Populate options
+      let firstOptionFolder = null;
       items.forEach((item, index) => {
         const option = document.createElement('li');
         option.className = 'drop-down-option';
@@ -136,12 +206,18 @@ export default async function decorate(block) {
         // Try to use Title first (case-sensitive), then other common names
         const titleValue = item.Title || item.title || item.label
           || item.name || item.value || JSON.stringify(item);
+
+        // Extract folder value for API calls
+        const folderValue = item.Folder || item.folder || titleValue;
+
         option.textContent = titleValue;
         option.dataset.value = titleValue;
+        option.dataset.folder = folderValue;
         option.id = `${listboxId}-option-${index}`;
 
         // Select the first item by default
         if (index === 0) {
+          firstOptionFolder = folderValue;
           selectedTitle.textContent = titleValue;
           option.classList.add('selected');
           option.setAttribute('aria-selected', 'true');
@@ -157,6 +233,11 @@ export default async function decorate(block) {
 
         optionsContainer.appendChild(option);
       });
+
+      // Fetch project data for the initially selected option
+      if (firstOptionFolder) {
+        fetchProjectData(firstOptionFolder);
+      }
 
       // Toggle dropdown on click
       selectedDisplay.addEventListener('click', (e) => {
@@ -240,13 +321,9 @@ export default async function decorate(block) {
       dropdownContainer.appendChild(arrow);
       dropdownContainer.appendChild(optionsContainer);
 
-      // Replace the button container with the dropdown
-      const buttonContainer = block.querySelector('.button-container');
-      if (buttonContainer) {
-        buttonContainer.replaceWith(dropdownContainer);
-      } else {
-        block.appendChild(dropdownContainer);
-      }
+      // Append dropdown as a sibling to drop-down-content
+      // Ensure it's added to the block, not inside drop-down-content
+      block.appendChild(dropdownContainer);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error loading dropdown data:', error);
@@ -256,10 +333,7 @@ export default async function decorate(block) {
       errorMsg.setAttribute('role', 'alert');
       errorMsg.setAttribute('aria-live', 'assertive');
       errorMsg.textContent = 'Failed to load dropdown options';
-      const buttonContainer = block.querySelector('.button-container');
-      if (buttonContainer) {
-        buttonContainer.replaceWith(errorMsg);
-      }
+      block.appendChild(errorMsg);
     }
   } else {
     // For non-dynamic dropdowns, handle static content
