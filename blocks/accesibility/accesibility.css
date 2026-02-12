@@ -8,7 +8,7 @@
         BlinkMacSystemFont,
         sans-serif;
 
-    .accessibility-header {
+    .domain-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -20,13 +20,11 @@
             gap: 14px;
 
             .icon-wrapper {
-                background: #f0e7ff;
-                padding: 10px;
                 border-radius: 10px;
 
                 img {
-                    width: 24px;
-                    height: 24px;
+                    width: 40px;
+                    height: 40px;
                 }
             }
 
