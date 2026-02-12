@@ -14,6 +14,14 @@ const SCORE_KEYS = [
   'overallScores.uxComplianceScore',
 ];
 
+const SUMMARY_KEYS = [
+  'summary.totalChecks',
+  'summary.passed',
+  'summary.failed',
+  'summary.criticalFailed',
+  'summary.notApplicable',
+];
+
 function getScoreColor(score) {
   const parsedScore = parseInt(score, 10) || 0;
   const scoreNum = Math.max(0, Math.min(parsedScore, 100));
@@ -98,22 +106,26 @@ function createProgressChart(canvas, score) {
 }
 
 export default async function decorate(block) {
-  // Fetch form JSON
-  const formUrl = await getFormUrl();
+  const isOverallScoresBlock = !!block.closest('.overall-scores');
+  const isSummaryBlock = !!block.closest('.summary');
+  const needsScoreData = isOverallScoresBlock || isSummaryBlock;
   const scoreByKey = {};
 
-  if (formUrl) {
-    const formData = await fetchFormJson(formUrl);
+  if (needsScoreData) {
+    const formUrl = await getFormUrl();
+    if (formUrl) {
+      const formData = await fetchFormJson(formUrl);
 
-    // Get the data array (might be at root level or inside a 'data' property)
-    const dataArray = Array.isArray(formData) ? formData : formData?.data;
+      // Get the data array (might be at root level or inside a 'data' property)
+      const dataArray = Array.isArray(formData) ? formData : formData?.data;
 
-    if (Array.isArray(dataArray)) {
-      dataArray.forEach((item) => {
-        if (item?.key && item?.value !== undefined) {
-          scoreByKey[item.key] = item.value;
-        }
-      });
+      if (Array.isArray(dataArray)) {
+        dataArray.forEach((item) => {
+          if (item?.key && item?.value !== undefined) {
+            scoreByKey[item.key] = item.value;
+          }
+        });
+      }
     }
   }
 
@@ -146,6 +158,39 @@ export default async function decorate(block) {
     );
   });
   block.replaceChildren(ul);
+
+  if (isSummaryBlock) {
+    const cards = [...ul.querySelectorAll('li')];
+    cards.forEach((card, index) => {
+      const summaryKey = SUMMARY_KEYS[index];
+      const summaryValue = scoreByKey[summaryKey];
+      if (summaryValue === undefined || summaryValue === null) return;
+
+      const cardBody = card.querySelector('.cards-card-body');
+
+      const existingSummaryValue = card.querySelector('.cards-summary-value');
+      if (existingSummaryValue) existingSummaryValue.remove();
+
+      const summaryValueEl = document.createElement('span');
+      summaryValueEl.className = 'cards-summary-value';
+      summaryValueEl.textContent = summaryValue;
+
+      const imageContainer = card.querySelector('.cards-card-image');
+      if (imageContainer) {
+        imageContainer.insertAdjacentElement('afterend', summaryValueEl);
+      } else if (cardBody) {
+        const picture = cardBody.querySelector('picture');
+        if (picture) {
+          const pictureWrapper = picture.closest('p') || picture;
+          pictureWrapper.insertAdjacentElement('afterend', summaryValueEl);
+        } else {
+          cardBody.prepend(summaryValueEl);
+        }
+      }
+    });
+  }
+
+  if (!isOverallScoresBlock) return;
 
   const scoreValues = SCORE_KEYS
     .map((key) => scoreByKey[key])
