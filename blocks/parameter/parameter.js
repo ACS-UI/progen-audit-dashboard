@@ -2,6 +2,13 @@ import { fetchFormJson, getFormUrl } from '../../scripts/utils.js';
 
 export default async function decorate(block) {
   const rows = [...block.children];
+  const section = block.closest('.section');
+  const keywordString = section?.dataset.keyword || '';
+  const keywords = keywordString
+    .split(',')
+    .map((k) => k.trim())
+    .filter(Boolean);
+  const primaryKeyword = keywords[0] || '';
 
   const headerRow = rows.shift();
 
@@ -23,13 +30,12 @@ export default async function decorate(block) {
       });
     }
   }
-
+  console.log('Score by key:', scoreByKey);
   block.textContent = '';
 
   const header = document.createElement('div');
-  const domainToken = (title || '').toLowerCase().replace(/\s+/g, '-');
-  header.className = `${domainToken}-header domain-header`;
-  const headerScoreKey = `overallScores.${domainToken}Score`;
+  header.className = `${title}-header domain-header`;
+  const headerScoreKey = `overallScores.${primaryKeyword}Score`;
   const headerScore = scoreByKey[headerScoreKey];
 
   header.innerHTML = `
@@ -40,10 +46,14 @@ export default async function decorate(block) {
         <p>${subtitle}</p>
       </div>
     </div>
-    <div class='risk-wrapper'>
-      <div class='risk-score'>${headerScore ?? 72}</div>
+    ${
+      headerScore
+        ? `<div class='risk-wrapper'>
+      <div class='risk-score'>${headerScore}</div>
       <div class='risk-label'>${riskLabel}</div>
-    </div>
+    </div>`
+        : ``
+    }
   `;
 
   block.append(header);
@@ -52,36 +62,41 @@ export default async function decorate(block) {
   grid.className = 'parameter-grid';
 
   const formatLabel = (key, domainTok) => {
-    const lower = key.toLowerCase();
     let suffix = key;
-    const idx = domainTok ? lower.indexOf(domainTok) : -1;
+    const idx = domainTok ? key.indexOf(domainTok) : -1;
     if (idx !== -1) {
       const after = key.slice(idx + domainTok.length);
       suffix = after || '';
       if (suffix.startsWith('.')) suffix = suffix.slice(1);
     }
     if (!suffix) {
-      suffix = key.replace(new RegExp(`.*${domainTok}.*`, 'i'), '').replace(/^\./, '') || key;
+      suffix =
+        key
+          .replace(new RegExp(`.*${domainTok}.*`, 'i'), '')
+          .replace(/^\./, '') || key;
     }
     let label = suffix.replace(/[._-]/g, ' ');
     label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
     label = label.trim();
     if (!label) label = domainTok || key;
-    label = label.split(/\s+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    label = label
+      .split(/\s+/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
     return label;
   };
 
-  const domainTokenPresent = domainToken && domainToken.length > 0;
+  const domainTokenPresent = keywords.length > 0;
 
-  const domainPrefix = `domains.${domainToken}`;
+  const domainPrefixes = keywords.map((kw) => `domains.${kw}`);
   let keys = Object.keys(scoreByKey).filter((k) => {
-    const lk = k.toLowerCase();
     if (!domainTokenPresent) return false;
-    return lk === domainPrefix || lk.startsWith(`${domainPrefix}.`);
+    return domainPrefixes.some(
+      (prefix) => k === prefix || k.startsWith(`${prefix}.`),
+    );
   });
   keys = keys.filter((k) => !k.toLowerCase().endsWith('.score'));
   keys.sort();
-
   const hasDomainKeys = keys.length > 0 && domainTokenPresent;
 
   const wcagKeys = keys.filter((k) => k.toLowerCase().includes('wcag'));
@@ -99,7 +114,11 @@ export default async function decorate(block) {
       wcagCard.className = 'metric-card wcag-card list-card';
       const itemsHtml = severities
         .map((s) => {
-          const matchKey = wcagKeys.find((k) => k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`));
+          const matchKey = wcagKeys.find(
+            (k) =>
+              k.toLowerCase().endsWith(`.${s}`) ||
+              k.toLowerCase().includes(`.${s}`),
+          );
           const value = matchKey ? scoreByKey[matchKey] : 0;
           const color = severityColors[s] || '#6b7280';
           const label = s.charAt(0).toUpperCase() + s.slice(1);
@@ -127,20 +146,30 @@ export default async function decorate(block) {
       const rawValue = scoreByKey[k];
       const value = rawValue === undefined || rawValue === null ? '' : rawValue;
 
-      let label = formatLabel(k, domainToken);
+      const matchingKeyword =
+        keywords.find(
+          (kw) => k === `domains.${kw}` || k.startsWith(`domains.${kw}.`),
+        ) || primaryKeyword;
+
+      let label = formatLabel(k, matchingKeyword);
       label = label
         .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '')
         .trim();
 
-      label = label.split(/\s+/).map((w) => {
-        if (w.toLowerCase() === 'aria') return 'ARIA';
-        return w.charAt(0).toUpperCase() + w.slice(1);
-      }).join(' ');
+      label = label
+        .split(/\s+/)
+        .map((w) => {
+          if (w.toLowerCase() === 'aria') return 'ARIA';
+          return w.charAt(0).toUpperCase() + w.slice(1);
+        })
+        .join(' ');
 
       let displayValue = value;
-      if (k.toLowerCase().includes('percent')
-        || /percent/i.test(k)
-        || String(value).toLowerCase() === 'n/a') {
+      if (
+        k.toLowerCase().includes('percent') ||
+        /percent/i.test(k) ||
+        String(value).toLowerCase() === 'n/a'
+      ) {
         if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
       }
 
@@ -158,7 +187,10 @@ export default async function decorate(block) {
 
       if (list) {
         const listTitle = row.querySelector('p')?.textContent || '';
-        const items = Array.from(list.querySelectorAll('li'), (li) => li.textContent);
+        const items = Array.from(
+          list.querySelectorAll('li'),
+          (li) => li.textContent,
+        );
 
         const wcagCard = document.createElement('div');
         wcagCard.className = 'metric-card list-card';
@@ -166,11 +198,18 @@ export default async function decorate(block) {
         const itemsHtml = items
           .map((item) => {
             let severity = '0';
-            const exactKey = `${domainToken}.${item}`;
-            if (scoreByKey[exactKey] !== undefined) {
-              severity = scoreByKey[exactKey];
+            // try exact matches for each keyword domain (e.g., accessibility.SomeRule)
+            const exactKeyMatch = keywords
+              .map((kw) => `${kw}.${item}`)
+              .find((candidate) => scoreByKey[candidate] !== undefined);
+            if (exactKeyMatch) {
+              severity = scoreByKey[exactKeyMatch];
             } else {
-              const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
+              const match = Object.entries(scoreByKey).find(([k]) =>
+                k
+                  .toLowerCase()
+                  .includes(item.toLowerCase().replace(/\s+/g, '')),
+              );
               if (match) {
                 const [, v] = match;
                 severity = v;
