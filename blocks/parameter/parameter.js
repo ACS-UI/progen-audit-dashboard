@@ -1,4 +1,33 @@
-import { fetchFormJson, getFormUrl } from '../../scripts/utils.js';
+function getScoreByKeyFromStorage() {
+  const scoreByKey = {};
+  let storedMetrics;
+
+  try {
+    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
+  } catch (e) {
+    storedMetrics = null;
+  }
+
+  if (!storedMetrics) return scoreByKey;
+
+  let parsedMetrics;
+  try {
+    parsedMetrics = JSON.parse(storedMetrics);
+  } catch (e) {
+    parsedMetrics = null;
+  }
+
+  const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
+  if (!Array.isArray(dataArray)) return scoreByKey;
+
+  dataArray.forEach((item) => {
+    if (item?.key && item?.value !== undefined) {
+      scoreByKey[item.key] = item.value;
+    }
+  });
+
+  return scoreByKey;
+}
 
 export default async function decorate(block) {
   const rows = [...block.children];
@@ -9,7 +38,7 @@ export default async function decorate(block) {
     .map((k) => k.trim())
     .filter(Boolean);
   const primaryKeyword = keywords[0] || '';
-
+  const scoreByKey = getScoreByKeyFromStorage();
   const headerRow = rows.shift();
 
   const icon = headerRow.querySelector('picture')?.outerHTML || '';
@@ -17,19 +46,6 @@ export default async function decorate(block) {
   const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
   const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
 
-  const scoreByKey = {};
-  const formUrl = getFormUrl() || getFormUrl(block) || null;
-  if (formUrl) {
-    const formData = await fetchFormJson(formUrl);
-    const dataArray = Array.isArray(formData) ? formData : formData?.data;
-    if (Array.isArray(dataArray)) {
-      dataArray.forEach((item) => {
-        if (item?.key && item?.value !== undefined) {
-          scoreByKey[item.key] = item.value;
-        }
-      });
-    }
-  }
   block.textContent = '';
 
   const header = document.createElement('div');
