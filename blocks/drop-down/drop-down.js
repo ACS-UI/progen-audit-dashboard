@@ -103,32 +103,23 @@ export default async function decorate(block) {
         if (!isProjectSelector) return;
 
         try {
-          // Fetch both API endpoints
-          const [metricsResponse, checklistResponse] = await Promise.all([
-            fetch(`/reports/${selectedValue.toLowerCase()}/ui-audit-metrics.json`),
-            fetch(`/reports/${selectedValue.toLowerCase()}/ui-audit-checklist.json`),
-          ]);
+          // Fetch metrics data
+          const metricsResponse = await fetch(`/reports/${selectedValue.toLowerCase()}/ui-audit-metrics.json`);
 
           if (!metricsResponse.ok) {
             throw new Error(`Failed to fetch metrics: ${metricsResponse.status}`);
           }
-          if (!checklistResponse.ok) {
-            throw new Error(`Failed to fetch checklist: ${checklistResponse.status}`);
-          }
 
           const metricsData = await metricsResponse.json();
-          const checklistData = await checklistResponse.json();
 
           // Store in localStorage
           localStorage.setItem('ui-audit-metrics', JSON.stringify(metricsData));
-          localStorage.setItem('ui-audit-checklist', JSON.stringify(checklistData));
 
-          // Dispatch custom event with both data
+          // Dispatch custom event with metrics data
           block.dispatchEvent(new CustomEvent('project-data-loaded', {
             detail: {
               project: selectedValue,
               metrics: metricsData,
-              checklist: checklistData,
             },
             bubbles: true,
           }));
