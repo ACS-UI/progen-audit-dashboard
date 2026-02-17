@@ -4,6 +4,8 @@ indices:
   reports:
     include:
       - /reports/**
+    exclude:
+      - /drafts/**
     target: /query-index.xlsx
     properties:
       title:
