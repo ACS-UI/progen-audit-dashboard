@@ -1,9 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import {
-  fetchFormJson,
-  getFormUrl,
-  loadChartJs,
-} from '../../scripts/utils.js';
+import { loadChartJs } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
   'overallScores.uiQualityScore',
@@ -112,12 +108,23 @@ export default async function decorate(block) {
   const scoreByKey = {};
 
   if (needsScoreData) {
-    const formUrl = await getFormUrl();
-    if (formUrl) {
-      const formData = await fetchFormJson(formUrl);
+    let storedMetrics;
+    try {
+      storedMetrics = window.localStorage.getItem('ui-audit-metrics');
+    } catch (e) {
+      storedMetrics = null;
+    }
 
-      // Get the data array (might be at root level or inside a 'data' property)
-      const dataArray = Array.isArray(formData) ? formData : formData?.data;
+    if (storedMetrics) {
+      let parsedMetrics;
+      try {
+        parsedMetrics = JSON.parse(storedMetrics);
+      } catch (e) {
+        parsedMetrics = null;
+      }
+
+      // Data can be stored either as an array or as { data: [...] }.
+      const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
 
       if (Array.isArray(dataArray)) {
         dataArray.forEach((item) => {

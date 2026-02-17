@@ -184,12 +184,6 @@ main>div {
   margin: 40px 16px;
 }
 
-/* Add top margin for mobile header */
-@media (width < 900px) {
-  main {
-    margin-top: var(--nav-height);
-  }
-}
 
 /* Adjust for sidebar navigation on desktop */
 @media (width >=900px) {

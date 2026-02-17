@@ -1,0 +1,148 @@
+.accesibility {
+    background: #f5f6fa;
+    padding: 32px;
+    border-radius: 16px;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+
+    .domain-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
+            .icon-wrapper {
+                border-radius: 10px;
+
+                img {
+                    width: 40px;
+                    height: 40px;
+                }
+            }
+
+            h2 {
+                margin: 0;
+                font-size: 18px;
+                font-weight: 600;
+                color: #111;
+            }
+
+            p {
+                margin: 4px 0 0;
+                font-size: 13px;
+                color: #6b7280;
+            }
+        }
+
+        .risk-wrapper {
+            text-align: right;
+
+            .risk-score {
+                font-size: 28px;
+                font-weight: 700;
+                color: #7c3aed;
+            }
+
+            .risk-label {
+                font-size: 12px;
+                color: #9ca3af;
+            }
+        }
+    }
+
+    .accessibility-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        /* Mobile */
+        @media (width >= 600px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        /* Small tablet */
+        @media (width >= 900px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        /* Tablet */
+        @media (width >= 1200px) {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .metric-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+
+            .metric-value {
+                font-size: 26px;
+                font-weight: 700;
+                color: #111827;
+                margin-bottom: 6px;
+            }
+
+            .metric-label {
+                font-size: 13px;
+                color: #6b7280;
+            }
+
+            &.list-card {
+                justify-content: flex-start;
+
+                h3 {
+                    margin: 0 0 14px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #374151;
+                }
+
+                ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+
+                    li {
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 13px;
+                        margin-bottom: 8px;
+
+                        .severity-label {
+                            color: #6b7280;
+                        }
+
+                        .severity-value {
+                            font-weight: 600;
+                        }
+
+                        &.critical .severity-value {
+                            color: #ef4444;
+                        }
+
+                        &.high .severity-value {
+                            color: #f97316;
+                        }
+
+                        &.medium .severity-value {
+                            color: #f59e0b;
+                        }
+
+                        &.low .severity-value {
+                            color: #3b82f6;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
