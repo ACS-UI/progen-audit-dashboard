@@ -49,7 +49,7 @@ export default async function decorate(block) {
   block.append(header);
 
   const grid = document.createElement('div');
-  grid.className = 'accessibility-grid';
+  grid.className = 'parameter-grid';
 
   const formatLabel = (key, domainTok) => {
     const lower = key.toLowerCase();
