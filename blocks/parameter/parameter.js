@@ -30,7 +30,6 @@ export default async function decorate(block) {
       });
     }
   }
-  console.log('Score by key:', scoreByKey);
   block.textContent = '';
 
   const header = document.createElement('div');
@@ -38,22 +37,23 @@ export default async function decorate(block) {
   const headerScoreKey = `overallScores.${primaryKeyword}Score`;
   const headerScore = scoreByKey[headerScoreKey];
 
-  header.innerHTML = `
-    <div class='header-left'>
-      <div class='icon-wrapper'>${icon}</div>
-      <div>
-        <h2>${title}</h2>
-        <p>${subtitle}</p>
-      </div>
-    </div>
-    ${
-      headerScore
-        ? `<div class='risk-wrapper'>
+  let riskHtml = '';
+  if (headerScore) {
+    riskHtml = `<div class='risk-wrapper'>
       <div class='risk-score'>${headerScore}</div>
       <div class='risk-label'>${riskLabel}</div>
-    </div>`
-        : ``
-    }
+    </div>`;
+  }
+
+  header.innerHTML = `
+  <div class='header-left'>
+    <div class='icon-wrapper'>${icon}</div>
+    <div>
+      <h2>${title}</h2>
+      <p>${subtitle}</p>
+    </div>
+  </div>
+  ${riskHtml}
   `;
 
   block.append(header);
@@ -70,10 +70,7 @@ export default async function decorate(block) {
       if (suffix.startsWith('.')) suffix = suffix.slice(1);
     }
     if (!suffix) {
-      suffix =
-        key
-          .replace(new RegExp(`.*${domainTok}.*`, 'i'), '')
-          .replace(/^\./, '') || key;
+      suffix = key.replace(new RegExp(`.*${domainTok}.*`, 'i'), '').replace(/^\./, '') || key;
     }
     let label = suffix.replace(/[._-]/g, ' ');
     label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
@@ -91,9 +88,7 @@ export default async function decorate(block) {
   const domainPrefixes = keywords.map((kw) => `domains.${kw}`);
   let keys = Object.keys(scoreByKey).filter((k) => {
     if (!domainTokenPresent) return false;
-    return domainPrefixes.some(
-      (prefix) => k === prefix || k.startsWith(`${prefix}.`),
-    );
+    return domainPrefixes.some((prefix) => k === prefix || k.startsWith(`${prefix}.`));
   });
   keys = keys.filter((k) => !k.toLowerCase().endsWith('.score'));
   keys.sort();
@@ -114,10 +109,9 @@ export default async function decorate(block) {
       wcagCard.className = 'metric-card wcag-card list-card';
       const itemsHtml = severities
         .map((s) => {
-          const matchKey = wcagKeys.find(
-            (k) =>
-              k.toLowerCase().endsWith(`.${s}`) ||
-              k.toLowerCase().includes(`.${s}`),
+          const matchKey = wcagKeys.find((k) =>
+            k.toLowerCase().endsWith(`.${s}`)
+            || k.toLowerCase().includes(`.${s}`)
           );
           const value = matchKey ? scoreByKey[matchKey] : 0;
           const color = severityColors[s] || '#6b7280';
@@ -146,29 +140,20 @@ export default async function decorate(block) {
       const rawValue = scoreByKey[k];
       const value = rawValue === undefined || rawValue === null ? '' : rawValue;
 
-      const matchingKeyword =
-        keywords.find(
-          (kw) => k === `domains.${kw}` || k.startsWith(`domains.${kw}.`),
-        ) || primaryKeyword;
+      const matchingKeyword = keywords.find((kw) => k === `domains.${kw}` || k.startsWith(`domains.${kw}.`)) || primaryKeyword;
 
       let label = formatLabel(k, matchingKeyword);
       label = label
         .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '')
         .trim();
 
-      label = label
-        .split(/\s+/)
-        .map((w) => {
-          if (w.toLowerCase() === 'aria') return 'ARIA';
-          return w.charAt(0).toUpperCase() + w.slice(1);
-        })
-        .join(' ');
+      label = label.split(/\s+/).map((w) => (w.toLowerCase() === 'aria' ? 'ARIA' : w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
 
       let displayValue = value;
       if (
-        k.toLowerCase().includes('percent') ||
-        /percent/i.test(k) ||
-        String(value).toLowerCase() === 'n/a'
+        k.toLowerCase().includes('percent')
+        || /percent/i.test(k)
+        || String(value).toLowerCase() === 'n/a'
       ) {
         if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
       }
@@ -187,10 +172,7 @@ export default async function decorate(block) {
 
       if (list) {
         const listTitle = row.querySelector('p')?.textContent || '';
-        const items = Array.from(
-          list.querySelectorAll('li'),
-          (li) => li.textContent,
-        );
+        const items = Array.from(list.querySelectorAll('li'), (li) => li.textContent);
 
         const wcagCard = document.createElement('div');
         wcagCard.className = 'metric-card list-card';
@@ -199,17 +181,11 @@ export default async function decorate(block) {
           .map((item) => {
             let severity = '0';
             // try exact matches for each keyword domain (e.g., accessibility.SomeRule)
-            const exactKeyMatch = keywords
-              .map((kw) => `${kw}.${item}`)
-              .find((candidate) => scoreByKey[candidate] !== undefined);
+            const exactKeyMatch = keywords.map((kw) => `${kw}.${item}`).find((candidate) => scoreByKey[candidate] !== undefined);
             if (exactKeyMatch) {
               severity = scoreByKey[exactKeyMatch];
             } else {
-              const match = Object.entries(scoreByKey).find(([k]) =>
-                k
-                  .toLowerCase()
-                  .includes(item.toLowerCase().replace(/\s+/g, '')),
-              );
+              const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
               if (match) {
                 const [, v] = match;
                 severity = v;
