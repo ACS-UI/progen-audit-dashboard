@@ -109,10 +109,7 @@ export default async function decorate(block) {
       wcagCard.className = 'metric-card wcag-card list-card';
       const itemsHtml = severities
         .map((s) => {
-          const matchKey = wcagKeys.find((k) =>
-            k.toLowerCase().endsWith(`.${s}`)
-            || k.toLowerCase().includes(`.${s}`)
-          );
+          const matchKey = wcagKeys.find((k) =>k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`));
           const value = matchKey ? scoreByKey[matchKey] : 0;
           const color = severityColors[s] || '#6b7280';
           const label = s.charAt(0).toUpperCase() + s.slice(1);
