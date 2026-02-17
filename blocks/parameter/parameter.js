@@ -13,7 +13,7 @@ export default async function decorate(block) {
   const headerRow = rows.shift();
 
   const icon = headerRow.querySelector('picture')?.outerHTML || '';
-  const title = headerRow.querySelector('h2')?.textContent || '';
+  const title = headerRow.querySelector('h1, h2, h3, h4, h5, h6')?.textContent || '';
   const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
   const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
 
