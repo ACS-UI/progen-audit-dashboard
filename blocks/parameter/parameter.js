@@ -33,7 +33,8 @@ export default async function decorate(block) {
   block.textContent = '';
 
   const header = document.createElement('div');
-  header.className = `${title}-header domain-header`;
+  const titleClass = title.toLowerCase().replace(/ /g, "-")
+  header.className = `${titleClass}-header domain-header`;
   const headerScoreKey = `overallScores.${primaryKeyword}Score`;
   const headerScore = scoreByKey[headerScoreKey];
 
@@ -49,7 +50,7 @@ export default async function decorate(block) {
   <div class='header-left'>
     <div class='icon-wrapper'>${icon}</div>
     <div>
-      <h2>${title}</h2>
+      <h2 id=${titleClass}>${title}</h2>
       <p>${subtitle}</p>
     </div>
   </div>
