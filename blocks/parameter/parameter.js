@@ -33,7 +33,7 @@ export default async function decorate(block) {
   block.textContent = '';
 
   const header = document.createElement('div');
-  const titleClass = title.toLowerCase().replace(/ /g, "-")
+  const titleClass = title.toLowerCase().replace(/ /g, '-');
   header.className = `${titleClass}-header domain-header`;
   const headerScoreKey = `overallScores.${primaryKeyword}Score`;
   const headerScore = scoreByKey[headerScoreKey];
