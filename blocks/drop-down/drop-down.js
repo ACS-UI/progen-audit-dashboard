@@ -194,9 +194,8 @@ export default async function decorate(block) {
       }
 
       // Populate options
-      let firstOptionFolder = null;
       let matchedOption = null;
-      const allOptions = [];
+      let firstOption = null;
 
       items.forEach((item, index) => {
         const option = document.createElement('li');
@@ -216,9 +215,9 @@ export default async function decorate(block) {
         option.dataset.folder = folderValue;
         option.id = `${listboxId}-option-${index}`;
 
-        // Store first option folder for fallback
+        // Store first option for fallback
         if (index === 0) {
-          firstOptionFolder = folderValue;
+          firstOption = { option, folderValue, titleValue };
         }
 
         // Check if this option matches the query parameter
@@ -234,19 +233,11 @@ export default async function decorate(block) {
           selectOption(option);
         });
 
-        allOptions.push({ option, folderValue, titleValue });
         optionsContainer.appendChild(option);
       });
 
       // Select the appropriate option
-      let selectedOptionData;
-      if (matchedOption) {
-        // Select the matched option from query param
-        selectedOptionData = matchedOption;
-      } else {
-        // Select the first option
-        selectedOptionData = allOptions[0];
-      }
+      const selectedOptionData = matchedOption || firstOption;
 
       if (selectedOptionData) {
         selectedTitle.textContent = selectedOptionData.titleValue;
@@ -354,9 +345,5 @@ export default async function decorate(block) {
       errorMsg.textContent = 'Failed to load dropdown options';
       block.appendChild(errorMsg);
     }
-  } else {
-    // For non-dynamic dropdowns, handle static content
-    // eslint-disable-next-line no-console
-    console.log('Static drop-down block', block);
   }
 }
