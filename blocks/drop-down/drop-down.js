@@ -186,8 +186,17 @@ export default async function decorate(block) {
         selectedDisplay.focus();
       };
 
+      // Get query parameter for project-selector
+      let queryParamValue = null;
+      if (isProjectSelector) {
+        const urlParams = new URLSearchParams(window.location.search);
+        queryParamValue = urlParams.get('project');
+      }
+
       // Populate options
-      let firstOptionFolder = null;
+      let matchedOption = null;
+      let firstOption = null;
+
       items.forEach((item, index) => {
         const option = document.createElement('li');
         option.className = 'drop-down-option';
@@ -206,16 +215,18 @@ export default async function decorate(block) {
         option.dataset.folder = folderValue;
         option.id = `${listboxId}-option-${index}`;
 
-        // Select the first item by default
+        // Store first option for fallback
         if (index === 0) {
-          firstOptionFolder = folderValue;
-          selectedTitle.textContent = titleValue;
-          option.classList.add('selected');
-          option.setAttribute('aria-selected', 'true');
-          selectedDisplay.setAttribute('aria-activedescendant', option.id);
-        } else {
-          option.setAttribute('aria-selected', 'false');
+          firstOption = { option, folderValue, titleValue };
         }
+
+        // Check if this option matches the query parameter
+        if (queryParamValue && folderValue.toLowerCase() === queryParamValue.toLowerCase()) {
+          matchedOption = { option, folderValue, titleValue };
+        }
+
+        // Initially mark all as not selected
+        option.setAttribute('aria-selected', 'false');
 
         // Add click handler
         option.addEventListener('click', () => {
@@ -225,9 +236,17 @@ export default async function decorate(block) {
         optionsContainer.appendChild(option);
       });
 
-      // Fetch project data for the initially selected option
-      if (firstOptionFolder) {
-        fetchProjectData(firstOptionFolder);
+      // Select the appropriate option
+      const selectedOptionData = matchedOption || firstOption;
+
+      if (selectedOptionData) {
+        selectedTitle.textContent = selectedOptionData.titleValue;
+        selectedOptionData.option.classList.add('selected');
+        selectedOptionData.option.setAttribute('aria-selected', 'true');
+        selectedDisplay.setAttribute('aria-activedescendant', selectedOptionData.option.id);
+
+        // Fetch project data for the initially selected option
+        fetchProjectData(selectedOptionData.folderValue);
       }
 
       // Toggle dropdown on click
@@ -326,9 +345,5 @@ export default async function decorate(block) {
       errorMsg.textContent = 'Failed to load dropdown options';
       block.appendChild(errorMsg);
     }
-  } else {
-    // For non-dynamic dropdowns, handle static content
-    // eslint-disable-next-line no-console
-    console.log('Static drop-down block', block);
   }
 }
