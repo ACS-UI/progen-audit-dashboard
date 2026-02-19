@@ -192,6 +192,14 @@ export default async function decorate(block) {
             navLink.insertBefore(clonedIcon, navLink.firstChild);
           }
 
+          // Add click handler to close menu on mobile
+          navLink.addEventListener('click', () => {
+            if (!isDesktop.matches) {
+              // Close the menu when a nav item is clicked on mobile
+              toggleMenu(nav, false);
+            }
+          });
+
           navItem.appendChild(navLink);
           navMenu.appendChild(navItem);
 
@@ -230,10 +238,10 @@ export default async function decorate(block) {
   const mobileHeader = document.createElement('div');
   mobileHeader.classList.add('nav-mobile-header');
   mobileHeader.setAttribute('role', 'banner');
+  mobileHeader.appendChild(hamburger);
   if (brandElement) {
     mobileHeader.appendChild(brandElement);
   }
-  mobileHeader.appendChild(hamburger);
 
   nav.setAttribute('aria-expanded', 'false');
 
