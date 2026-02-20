@@ -1,3 +1,5 @@
+import { setLocalStorageItem } from '../../scripts/utils.js';
+
 export default async function decorate(block) {
   // Add class to the inner wrapper div if it exists
   const innerDiv = block.querySelector('div');
@@ -113,7 +115,7 @@ export default async function decorate(block) {
           const metricsData = await metricsResponse.json();
 
           // Store in localStorage
-          localStorage.setItem('ui-audit-metrics', JSON.stringify(metricsData));
+          setLocalStorageItem('ui-audit-metrics', metricsData);
 
           // Dispatch custom event with metrics data
           block.dispatchEvent(new CustomEvent('project-data-loaded', {

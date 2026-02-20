@@ -14,6 +14,93 @@ export async function loadChartJs() {
   });
 }
 
+const LOCAL_STORAGE_CHANGE_EVENT = 'local-storage-change';
+
+/**
+ * Writes a value to localStorage and emits a same-tab change event.
+ * @param {string} key - Storage key.
+ * @param {string|object|number|boolean|null} value - Value to store.
+ */
+export function setLocalStorageItem(key, value) {
+  const oldValue = window.localStorage.getItem(key);
+  const newValue = typeof value === 'string' ? value : JSON.stringify(value);
+
+  window.localStorage.setItem(key, newValue);
+
+  window.dispatchEvent(new CustomEvent(LOCAL_STORAGE_CHANGE_EVENT, {
+    detail: {
+      key,
+      oldValue,
+      newValue,
+      storageArea: 'localStorage',
+      source: 'same-tab',
+    },
+  }));
+}
+
+/**
+ * Subscribes to localStorage changes.
+ * Works for both same-tab updates (custom event) and cross-tab updates (native storage event).
+ * @param {(change: {
+ *   key: string|null,
+ *   oldValue: string|null,
+ *   newValue: string|null,
+ *   storageArea: string,
+ *   source: 'same-tab'|'cross-tab',
+ * }) => void} callback - Called on storage change.
+ * @param {{ key?: string }} [options] - Optional key filter.
+ * @returns {() => void} Cleanup function that removes listeners.
+ */
+export function onLocalStorageChange(callback, options = {}) {
+  const { key: keyFilter } = options;
+
+  const invokeCallback = (change) => {
+    if (keyFilter && change.key !== keyFilter) return;
+    callback(change);
+  };
+
+  const handleCustomChange = (event) => {
+    if (!event.detail) return;
+    invokeCallback(event.detail);
+  };
+
+  const handleNativeStorage = (event) => {
+    if (event.storageArea !== window.localStorage) return;
+
+    invokeCallback({
+      key: event.key,
+      oldValue: event.oldValue,
+      newValue: event.newValue,
+      storageArea: 'localStorage',
+      source: 'cross-tab',
+    });
+  };
+
+  window.addEventListener(LOCAL_STORAGE_CHANGE_EVENT, handleCustomChange);
+  window.addEventListener('storage', handleNativeStorage);
+
+  return () => {
+    window.removeEventListener(LOCAL_STORAGE_CHANGE_EVENT, handleCustomChange);
+    window.removeEventListener('storage', handleNativeStorage);
+  };
+}
+
+/**
+ * Subscribes to a specific localStorage key.
+ * @param {string} key - Storage key to watch.
+ * @param {(change: {
+ *   key: string|null,
+ *   oldValue: string|null,
+ *   newValue: string|null,
+ *   storageArea: string,
+ *   source: 'same-tab'|'cross-tab',
+ * }) => void} callback - Called on matching key changes.
+ * @returns {() => void} Cleanup function.
+ */
+export function onLocalStorageKeyChange(key, callback) {
+  return onLocalStorageChange(callback, { key });
+}
+
 /**
  * Extracts form definition from a document body.
  * @param {HTMLElement} body - The document body element.
