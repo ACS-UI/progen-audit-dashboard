@@ -1,5 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { loadChartJs } from '../../scripts/utils.js';
+import { loadChartJs, onLocalStorageKeyChange } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
   'overallScores.uiQualityScore',
@@ -101,42 +101,39 @@ function createProgressChart(canvas, score) {
   });
 }
 
-export default async function decorate(block) {
-  const isOverallScoresBlock = !!block.closest('.overall-scores');
-  const isSummaryBlock = !!block.closest('.summary');
-  const needsScoreData = isOverallScoresBlock || isSummaryBlock;
+function getScoreByKeyFromStorage() {
   const scoreByKey = {};
+  let storedMetrics;
 
-  if (needsScoreData) {
-    let storedMetrics;
-    try {
-      storedMetrics = window.localStorage.getItem('ui-audit-metrics');
-    } catch (e) {
-      storedMetrics = null;
-    }
-
-    if (storedMetrics) {
-      let parsedMetrics;
-      try {
-        parsedMetrics = JSON.parse(storedMetrics);
-      } catch (e) {
-        parsedMetrics = null;
-      }
-
-      // Data can be stored either as an array or as { data: [...] }.
-      const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
-
-      if (Array.isArray(dataArray)) {
-        dataArray.forEach((item) => {
-          if (item?.key && item?.value !== undefined) {
-            scoreByKey[item.key] = item.value;
-          }
-        });
-      }
-    }
+  try {
+    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
+  } catch (e) {
+    storedMetrics = null;
   }
 
-  /* change to ul, li */
+  if (!storedMetrics) return scoreByKey;
+
+  let parsedMetrics;
+  try {
+    parsedMetrics = JSON.parse(storedMetrics);
+  } catch (e) {
+    parsedMetrics = null;
+  }
+
+  // Data can be stored either as an array or as { data: [...] }.
+  const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
+  if (!Array.isArray(dataArray)) return scoreByKey;
+
+  dataArray.forEach((item) => {
+    if (item?.key && item?.value !== undefined) {
+      scoreByKey[item.key] = item.value;
+    }
+  });
+
+  return scoreByKey;
+}
+
+function buildCardsList(block) {
   const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
     const li = document.createElement('li');
@@ -164,47 +161,47 @@ export default async function decorate(block) {
       createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]),
     );
   });
-  block.replaceChildren(ul);
 
-  if (isSummaryBlock) {
-    const cards = [...ul.querySelectorAll('li')];
-    cards.forEach((card, index) => {
-      const summaryKey = SUMMARY_KEYS[index];
-      const summaryValue = scoreByKey[summaryKey];
-      if (summaryValue === undefined || summaryValue === null) return;
+  return ul;
+}
 
-      const cardBody = card.querySelector('.cards-card-body');
+function renderSummaryCards(ul, scoreByKey) {
+  const cards = [...ul.querySelectorAll('li')];
+  cards.forEach((card, index) => {
+    const summaryKey = SUMMARY_KEYS[index];
+    const summaryValue = scoreByKey[summaryKey];
+    if (summaryValue === undefined || summaryValue === null) return;
 
-      const existingSummaryValue = card.querySelector('.cards-summary-value');
-      if (existingSummaryValue) existingSummaryValue.remove();
+    const cardBody = card.querySelector('.cards-card-body');
 
-      const summaryValueEl = document.createElement('span');
-      summaryValueEl.className = 'cards-summary-value';
-      summaryValueEl.textContent = summaryValue;
+    const existingSummaryValue = card.querySelector('.cards-summary-value');
+    if (existingSummaryValue) existingSummaryValue.remove();
 
-      const imageContainer = card.querySelector('.cards-card-image');
-      if (imageContainer) {
-        imageContainer.insertAdjacentElement('afterend', summaryValueEl);
-      } else if (cardBody) {
-        const picture = cardBody.querySelector('picture');
-        if (picture) {
-          const pictureWrapper = picture.closest('p') || picture;
-          pictureWrapper.insertAdjacentElement('afterend', summaryValueEl);
-        } else {
-          cardBody.prepend(summaryValueEl);
-        }
+    const summaryValueEl = document.createElement('span');
+    summaryValueEl.className = 'cards-summary-value';
+    summaryValueEl.textContent = summaryValue;
+
+    const imageContainer = card.querySelector('.cards-card-image');
+    if (imageContainer) {
+      imageContainer.insertAdjacentElement('afterend', summaryValueEl);
+    } else if (cardBody) {
+      const picture = cardBody.querySelector('picture');
+      if (picture) {
+        const pictureWrapper = picture.closest('p') || picture;
+        pictureWrapper.insertAdjacentElement('afterend', summaryValueEl);
+      } else {
+        cardBody.prepend(summaryValueEl);
       }
-    });
-  }
+    }
+  });
+}
 
-  if (!isOverallScoresBlock) return;
-
+async function renderOverallScoreCards(ul, scoreByKey) {
   const scoreValues = SCORE_KEYS
     .map((key) => scoreByKey[key])
     .filter((value) => value !== undefined && value !== null);
   if (scoreValues.length === 0) return;
 
-  // Load Chart.js once and build score UI on each card based on SCORE_KEYS order.
   await loadChartJs();
 
   const cards = [...ul.querySelectorAll('li')];
@@ -235,5 +232,35 @@ export default async function decorate(block) {
     cardBody.append(chartContainer);
 
     createProgressChart(canvas, scoreValue);
+  });
+}
+
+export default async function decorate(block) {
+  const isOverallScoresBlock = !!block.closest('.overall-scores');
+  const isSummaryBlock = !!block.closest('.summary');
+
+  const ul = buildCardsList(block);
+  block.replaceChildren(ul);
+
+  const applyMetrics = async () => {
+    const scoreByKey = getScoreByKeyFromStorage();
+
+    if (isSummaryBlock) {
+      renderSummaryCards(ul, scoreByKey);
+    }
+
+    if (isOverallScoresBlock) {
+      await renderOverallScoreCards(ul, scoreByKey);
+    }
+  };
+
+  await applyMetrics();
+
+  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+    applyMetrics();
+  });
+
+  block.addEventListener('disconnected', () => {
+    unsubscribe();
   });
 }

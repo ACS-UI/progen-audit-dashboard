@@ -1,4 +1,4 @@
-import { loadChartJs } from '../../scripts/utils.js';
+import { loadChartJs, onLocalStorageKeyChange } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
   'overallScores.uiQualityScore',
@@ -52,154 +52,177 @@ function getScoreByKeyFromStorage() {
 }
 
 export default async function decorate(block) {
-  const scoreByKey = getScoreByKeyFromStorage();
-  const isMobile = window.matchMedia('(max-width: 1200px)').matches;
-  const barThickness = isMobile ? 28 : 130;
-
   const container = document.createElement('div');
   container.className = 'bar-chart-content';
-
   block.replaceChildren(container);
 
-  const chartValues = SCORE_KEYS.map((key) => {
-    const parsedScore = parseInt(scoreByKey[key], 10);
-    if (Number.isNaN(parsedScore)) return null;
-    return Math.max(0, Math.min(parsedScore, 100));
-  });
+  const renderChart = async () => {
+    const scoreByKey = getScoreByKeyFromStorage();
+    const isMobile = window.matchMedia('(max-width: 1200px)').matches;
+    const barThickness = isMobile ? 28 : 130;
 
-  const hasAnyScore = chartValues.some((value) => value !== null);
-  if (!hasAnyScore) return;
+    const chartValues = SCORE_KEYS.map((key) => {
+      const parsedScore = parseInt(scoreByKey[key], 10);
+      if (Number.isNaN(parsedScore)) return null;
+      return Math.max(0, Math.min(parsedScore, 100));
+    });
 
-  const existingChart = container.querySelector('.bar-chart-chart');
-  if (existingChart) existingChart.remove();
+    const hasAnyScore = chartValues.some((value) => value !== null);
+    if (!hasAnyScore) {
+      if (block.barChartInstance) {
+        block.barChartInstance.destroy();
+        delete block.barChartInstance;
+      }
+      container.replaceChildren();
+      return;
+    }
 
-  const chartWrapper = document.createElement('div');
-  chartWrapper.className = 'bar-chart-chart';
-  const chartCanvas = document.createElement('canvas');
-  chartWrapper.append(chartCanvas);
-  container.append(chartWrapper);
+    const chartWrapper = document.createElement('div');
+    chartWrapper.className = 'bar-chart-chart';
+    const chartCanvas = document.createElement('canvas');
+    chartWrapper.append(chartCanvas);
+    container.replaceChildren(chartWrapper);
 
-  await loadChartJs();
+    await loadChartJs();
 
-  const labels = [];
-  const values = [];
-  const colors = [];
+    const labels = [];
+    const values = [];
+    const colors = [];
 
-  chartValues.forEach((value, index) => {
-    if (value === null) return;
-    labels.push(SCORE_LABELS[index]);
-    values.push(value);
-    colors.push(BAR_COLORS[index % BAR_COLORS.length]);
-  });
+    chartValues.forEach((value, index) => {
+      if (value === null) return;
+      labels.push(SCORE_LABELS[index]);
+      values.push(value);
+      colors.push(BAR_COLORS[index % BAR_COLORS.length]);
+    });
 
-  const dashedGridPlugin = {
-    id: 'dashed-grid',
-    beforeDatasetsDraw: (chart) => {
-      const { ctx, chartArea, scales } = chart;
-      const xScale = scales.x;
-      const yScale = scales.y;
-      if (!chartArea || !xScale || !yScale) return;
+    const dashedGridPlugin = {
+      id: 'dashed-grid',
+      beforeDatasetsDraw: (chart) => {
+        const { ctx, chartArea, scales } = chart;
+        const xScale = scales.x;
+        const yScale = scales.y;
+        if (!chartArea || !xScale || !yScale) return;
 
-      ctx.save();
-      ctx.setLineDash([3, 3]);
-      ctx.lineWidth = 1;
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.lineWidth = 1;
 
-      yScale.ticks.forEach((_, index) => {
-        const y = yScale.getPixelForTick(index);
-        ctx.strokeStyle = '#E5E7EB';
-        ctx.beginPath();
-        ctx.moveTo(chartArea.left, y);
-        ctx.lineTo(chartArea.right, y);
-        ctx.stroke();
-      });
+        yScale.ticks.forEach((_, index) => {
+          const y = yScale.getPixelForTick(index);
+          ctx.strokeStyle = '#E5E7EB';
+          ctx.beginPath();
+          ctx.moveTo(chartArea.left, y);
+          ctx.lineTo(chartArea.right, y);
+          ctx.stroke();
+        });
 
-      xScale.ticks.forEach((_, index) => {
-        const x = xScale.getPixelForTick(index);
-        ctx.strokeStyle = '#E5E7EB';
-        ctx.beginPath();
-        ctx.moveTo(x, chartArea.top);
-        ctx.lineTo(x, chartArea.bottom);
-        ctx.stroke();
-      });
+        xScale.ticks.forEach((_, index) => {
+          const x = xScale.getPixelForTick(index);
+          ctx.strokeStyle = '#E5E7EB';
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+        });
 
-      ctx.restore();
-    },
+        ctx.restore();
+      },
+    };
+
+    if (block.barChartInstance) {
+      block.barChartInstance.destroy();
+    }
+
+    // eslint-disable-next-line no-new
+    block.barChartInstance = new window.Chart(chartCanvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            backgroundColor: colors,
+            borderRadius: {
+              topLeft: 8,
+              topRight: 8,
+              bottomLeft: 0,
+              bottomRight: 0,
+            },
+            borderSkipped: false,
+            barThickness,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: {
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: true,
+              tickLength: 6,
+              color: '#E5E7EB',
+            },
+            border: {
+              display: true,
+              color: '#E5E7EB',
+            },
+            ticks: {
+              color: '#6B7280',
+              font: {
+                size: 12,
+                weight: 400,
+              },
+            },
+          },
+          y: {
+            min: 0,
+            max: 100,
+            ticks: {
+              display: true,
+              stepSize: 20,
+              color: '#6B7280',
+              font: {
+                size: 12,
+                weight: 400,
+              },
+              callback: (value) => `${value}`,
+            },
+            grid: {
+              display: false,
+              color: '#E5E7EB',
+              lineWidth: 1,
+              drawTicks: true,
+            },
+            border: {
+              display: true,
+              color: '#D1D5DB',
+            },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false },
+        },
+      },
+      plugins: [dashedGridPlugin],
+    });
   };
 
-  // eslint-disable-next-line no-new
-  new window.Chart(chartCanvas, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          data: values,
-          backgroundColor: colors,
-          borderRadius: {
-            topLeft: 8,
-            topRight: 8,
-            bottomLeft: 0,
-            bottomRight: 0,
-          },
-          borderSkipped: false,
-          barThickness,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: {
-          grid: {
-            display: false,
-            drawOnChartArea: false,
-            drawTicks: true,
-            tickLength: 6,
-            color: '#E5E7EB',
-          },
-          border: {
-            display: true,
-            color: '#E5E7EB',
-          },
-          ticks: {
-            color: '#6B7280',
-            font: {
-              size: 12,
-              weight: 400,
-            },
-          },
-        },
-        y: {
-          min: 0,
-          max: 100,
-          ticks: {
-            display: true,
-            stepSize: 20,
-            color: '#6B7280',
-            font: {
-              size: 12,
-              weight: 400,
-            },
-            callback: (value) => `${value}`,
-          },
-          grid: {
-            display: false,
-            color: '#E5E7EB',
-            lineWidth: 1,
-            drawTicks: true,
-          },
-          border: {
-            display: true,
-            color: '#D1D5DB',
-          },
-        },
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: false },
-      },
-    },
-    plugins: [dashedGridPlugin],
+  await renderChart();
+
+  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+    renderChart();
+  });
+
+  block.addEventListener('disconnected', () => {
+    unsubscribe();
+    if (block.barChartInstance) {
+      block.barChartInstance.destroy();
+      delete block.barChartInstance;
+    }
   });
 }
