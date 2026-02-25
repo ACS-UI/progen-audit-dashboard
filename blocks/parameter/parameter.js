@@ -49,8 +49,7 @@ export default async function decorate(block) {
     const headerRow = rows.shift();
 
     const icon = headerRow.querySelector('picture')?.outerHTML || '';
-    const title =
-      headerRow.querySelector('h1, h2, h3, h4, h5, h6')?.textContent || '';
+    const title = headerRow.querySelector('h1, h2, h3, h4, h5, h6')?.textContent || '';
     const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
     const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
 
@@ -97,10 +96,7 @@ export default async function decorate(block) {
         if (suffix.startsWith('.')) suffix = suffix.slice(1);
       }
       if (!suffix) {
-        suffix =
-          key
-            .replace(new RegExp(`.*${domainTok}.*`, 'i'), '')
-            .replace(/^\./, '') || key;
+        suffix = key.replace(new RegExp(`.*${domainTok}.*`, 'i'), '').replace(/^\./, '') || key;
       }
       let label = suffix.replace(/[._-]/g, ' ');
       label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
@@ -142,9 +138,7 @@ export default async function decorate(block) {
         const itemsHtml = severities
           .map((s) => {
             const matchKey = wcagKeys.find(
-              (k) =>
-                k.toLowerCase().endsWith(`.${s}`) ||
-                k.toLowerCase().includes(`.${s}`),
+              (k) => k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`),
             );
             const value = matchKey ? scoreByKey[matchKey] : 0;
             const color = severityColors[s] || '#6b7280';
@@ -171,13 +165,10 @@ export default async function decorate(block) {
       const otherKeys = keys.filter((k) => !k.toLowerCase().includes('wcag'));
       otherKeys.forEach((k) => {
         const rawValue = scoreByKey[k];
-        const value =
-          rawValue === undefined || rawValue === null ? '' : rawValue;
-
-        const matchingKeyword =
-          keywords.find(
-            (kw) => k === `domains.${kw}` || k.startsWith(`domains.${kw}.`),
-          ) || primaryKeyword;
+        const value = rawValue === undefined || rawValue === null ? '' : rawValue;
+        const matchingKeyword = keywords.find(
+          (kw) => k === `domains.${kw}` || k.startsWith(`domains.${kw}.`),
+        ) || primaryKeyword;
 
         let label = formatLabel(k, matchingKeyword);
         label = label
