@@ -1,3 +1,5 @@
+import { onLocalStorageKeyChange } from '../../scripts/utils.js';
+
 function getScoreByKeyFromStorage() {
   const scoreByKey = {};
   let storedMetrics;
@@ -17,7 +19,9 @@ function getScoreByKeyFromStorage() {
     parsedMetrics = null;
   }
 
-  const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
+  const dataArray = Array.isArray(parsedMetrics)
+    ? parsedMetrics
+    : parsedMetrics?.data;
   if (!Array.isArray(dataArray)) return scoreByKey;
 
   dataArray.forEach((item) => {
@@ -30,7 +34,7 @@ function getScoreByKeyFromStorage() {
 }
 
 export default async function decorate(block) {
-  const rows = [...block.children];
+  const authoredRows = [...block.children];
   const section = block.closest('.section');
   const keywordString = section?.dataset.keyword || '';
   const keywords = keywordString
@@ -38,210 +42,237 @@ export default async function decorate(block) {
     .map((k) => k.trim())
     .filter(Boolean);
   const primaryKeyword = keywords[0] || '';
-  const scoreByKey = getScoreByKeyFromStorage();
-  const headerRow = rows.shift();
 
-  const icon = headerRow.querySelector('picture')?.outerHTML || '';
-  const title = headerRow.querySelector('h1, h2, h3, h4, h5, h6')?.textContent || '';
-  const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
-  const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
+  async function renderMetrics() {
+    const rows = [...authoredRows];
+    const scoreByKey = getScoreByKeyFromStorage();
+    const headerRow = rows.shift();
 
-  block.textContent = '';
+    const icon = headerRow.querySelector('picture')?.outerHTML || '';
+    const title = headerRow.querySelector('h1, h2, h3, h4, h5, h6')?.textContent || '';
+    const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
+    const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
 
-  const header = document.createElement('div');
-  const titleClass = title.toLowerCase().replace(/ /g, '-');
-  header.className = `${titleClass}-header domain-header`;
-  const headerScoreKey = `overallScores.${primaryKeyword}Score`;
-  const headerScore = scoreByKey[headerScoreKey];
+    block.textContent = '';
 
-  let riskHtml = '';
-  if (headerScore) {
-    riskHtml = `<div class='risk-wrapper'>
+    const header = document.createElement('div');
+    const titleClass = title.toLowerCase().replace(/ /g, '-');
+    header.className = `${titleClass}-header domain-header`;
+    const headerScoreKey = `overallScores.${primaryKeyword}Score`;
+    const headerScore = scoreByKey[headerScoreKey];
+    const riKey = `riskIndex.${primaryKeyword}`;
+    const riskindex = scoreByKey[riKey];
+
+    let riskHtml = '';
+    if (headerScore) {
+      riskHtml = `<div class='risk-wrapper'>
       <div class='risk-score'>${headerScore}</div>
-      <div class='risk-label'>${riskLabel}</div>
+      <div class='risk-label'>${riskLabel}${riskindex ? `: ${riskindex}` : ''}</div>
     </div>`;
-  }
+    }
 
-  header.innerHTML = `
-  <div class='header-left'>
-    <div class='icon-wrapper'>${icon}</div>
-    <div>
-      <h2 id=${titleClass}>${title}</h2>
-      <p>${subtitle}</p>
+    header.innerHTML = `
+    <div class='header-left'>
+      <div class='icon-wrapper'>${icon}</div>
+      <div>
+        <h2 id='${titleClass}'>${title}</h2>
+        <p>${subtitle}</p>
+      </div>
     </div>
-  </div>
-  ${riskHtml}
-  `;
+    ${riskHtml}
+    `;
 
-  block.append(header);
+    block.append(header);
 
-  const grid = document.createElement('div');
-  grid.className = 'parameter-grid';
+    const grid = document.createElement('div');
+    grid.className = 'parameter-grid';
 
-  const formatLabel = (key, domainTok) => {
-    let suffix = key;
-    const idx = domainTok ? key.indexOf(domainTok) : -1;
-    if (idx !== -1) {
-      const after = key.slice(idx + domainTok.length);
-      suffix = after || '';
-      if (suffix.startsWith('.')) suffix = suffix.slice(1);
-    }
-    if (!suffix) {
-      suffix = key.replace(new RegExp(`.*${domainTok}.*`, 'i'), '').replace(/^\./, '') || key;
-    }
-    let label = suffix.replace(/[._-]/g, ' ');
-    label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
-    label = label.trim();
-    if (!label) label = domainTok || key;
-    label = label
-      .split(/\s+/)
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
-    return label;
-  };
+    const formatLabel = (key, domainTok) => {
+      let suffix = key;
+      const idx = domainTok ? key.indexOf(domainTok) : -1;
+      if (idx !== -1) {
+        const after = key.slice(idx + domainTok.length);
+        suffix = after || '';
+        if (suffix.startsWith('.')) suffix = suffix.slice(1);
+      }
+      if (!suffix) {
+        suffix = key.replace(new RegExp(`.*${domainTok}.*`, 'i'), '').replace(/^\./, '') || key;
+      }
+      let label = suffix.replace(/[._-]/g, ' ');
+      label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
+      label = label.trim();
+      if (!label) label = domainTok || key;
+      label = label
+        .split(/\s+/)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+      return label;
+    };
 
-  const domainTokenPresent = keywords.length > 0;
+    const domainTokenPresent = keywords.length > 0;
 
-  const domainPrefixes = keywords.map((kw) => `domains.${kw}`);
-  let keys = Object.keys(scoreByKey).filter((k) => {
-    if (!domainTokenPresent) return false;
-    return domainPrefixes.some((prefix) => k === prefix || k.startsWith(`${prefix}.`));
-  });
-  keys = keys.filter((k) => !k.toLowerCase().endsWith('.score'));
-  keys.sort();
-  const hasDomainKeys = keys.length > 0 && domainTokenPresent;
+    const domainPrefixes = keywords.map((kw) => `domains.${kw}`);
+    let keys = Object.keys(scoreByKey).filter((k) => {
+      if (!domainTokenPresent) return false;
+      return domainPrefixes.some(
+        (prefix) => k === prefix || k.startsWith(`${prefix}.`),
+      );
+    });
+    keys = keys.filter((k) => !k.toLowerCase().endsWith('.score'));
+    keys.sort();
+    const hasDomainKeys = keys.length > 0 && domainTokenPresent;
 
-  const wcagKeys = keys.filter((k) => k.toLowerCase().includes('wcag'));
-  if (hasDomainKeys) {
-    if (wcagKeys.length > 0) {
-      const severities = ['critical', 'high', 'medium', 'low'];
-      const severityColors = {
-        critical: '#ef4444',
-        high: '#f97316',
-        medium: '#F0B100',
-        low: '#2B7FFF',
-      };
+    const wcagKeys = keys.filter((k) => k.toLowerCase().includes('wcag'));
+    if (hasDomainKeys) {
+      if (wcagKeys.length > 0) {
+        const severities = ['critical', 'high', 'medium', 'low'];
+        const severityColors = {
+          critical: '#ef4444',
+          high: '#f97316',
+          medium: '#F0B100',
+          low: '#2B7FFF',
+        };
 
-      const wcagCard = document.createElement('div');
-      wcagCard.className = 'metric-card wcag-card list-card';
-      const itemsHtml = severities
-        .map((s) => {
-          const matchKey = wcagKeys.find((k) => k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`));
-          const value = matchKey ? scoreByKey[matchKey] : 0;
-          const color = severityColors[s] || '#6b7280';
-          const label = s.charAt(0).toUpperCase() + s.slice(1);
-          return `
+        const wcagCard = document.createElement('div');
+        wcagCard.className = 'metric-card wcag-card list-card';
+        const itemsHtml = severities
+          .map((s) => {
+            const matchKey = wcagKeys.find(
+              (k) => k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`),
+            );
+            const value = matchKey ? scoreByKey[matchKey] : 0;
+            const color = severityColors[s] || '#6b7280';
+            const label = s.charAt(0).toUpperCase() + s.slice(1);
+            return `
             <li class='wcag-${s}'>
               <span class='wcag-label'>${label}</span>
               <span class='wcag-value' style='color:${color}; font-weight:600'>${value}</span>
             </li>
           `;
-        })
-        .join('');
+          })
+          .join('');
 
-      wcagCard.innerHTML = `
+        wcagCard.innerHTML = `
         <h3>WCAG Violations</h3>
         <ul class='wcag-list'>
           ${itemsHtml}
         </ul>
       `;
 
-      grid.append(wcagCard);
-    }
-
-    const otherKeys = keys.filter((k) => !k.toLowerCase().includes('wcag'));
-    otherKeys.forEach((k) => {
-      const rawValue = scoreByKey[k];
-      const value = rawValue === undefined || rawValue === null ? '' : rawValue;
-
-      const matchingKeyword = keywords.find((kw) => k === `domains.${kw}` || k.startsWith(`domains.${kw}.`)) || primaryKeyword;
-
-      let label = formatLabel(k, matchingKeyword);
-      label = label
-        .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '')
-        .trim();
-
-      label = label.split(/\s+/).map((w) => (w.toLowerCase() === 'aria' ? 'ARIA' : w.charAt(0).toUpperCase() + w.slice(1))).join(' ');
-
-      let displayValue = value;
-      if (
-        k.toLowerCase().includes('percent')
-        || /percent/i.test(k)
-        || String(value).toLowerCase() === 'n/a'
-      ) {
-        if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
+        grid.append(wcagCard);
       }
 
-      const card = document.createElement('div');
-      card.className = 'metric-card';
-      card.innerHTML = `
+      const otherKeys = keys.filter((k) => !k.toLowerCase().includes('wcag'));
+      otherKeys.forEach((k) => {
+        const rawValue = scoreByKey[k];
+        const value = rawValue === undefined || rawValue === null ? '' : rawValue;
+        const matchingKeyword = keywords.find(
+          (kw) => k === `domains.${kw}` || k.startsWith(`domains.${kw}.`),
+        ) || primaryKeyword;
+
+        let label = formatLabel(k, matchingKeyword);
+        label = label
+          .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '')
+          .trim();
+
+        label = label.split(/\s+/).map((w) => {
+          if (w.toLowerCase() === 'aria') return 'ARIA';
+          return w.charAt(0).toUpperCase() + w.slice(1);
+        }).join(' ');
+
+        let displayValue = value;
+        if (
+          k.toLowerCase().includes('percent')
+          || /percent/i.test(k)
+          || String(value).toLowerCase() === 'n/a'
+        ) {
+          if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'metric-card';
+        card.innerHTML = `
         <div class='metric-value'>${displayValue}</div>
         <div class='metric-label'>${label}</div>
       `;
-      grid.append(card);
-    });
-  } else {
-    rows.forEach((row) => {
-      const list = row.querySelector('ul');
+        grid.append(card);
+      });
+    } else {
+      rows.forEach((row) => {
+        const list = row.querySelector('ul');
 
-      if (list) {
-        const listTitle = row.querySelector('p')?.textContent || '';
-        const items = Array.from(list.querySelectorAll('li'), (li) => li.textContent);
+        if (list) {
+          const listTitle = row.querySelector('p')?.textContent || '';
+          const items = Array.from(
+            list.querySelectorAll('li'),
+            (li) => li.textContent,
+          );
 
-        const wcagCard = document.createElement('div');
-        wcagCard.className = 'metric-card list-card';
+          const wcagCard = document.createElement('div');
+          wcagCard.className = 'metric-card list-card';
 
-        const itemsHtml = items
-          .map((item) => {
-            let severity = '0';
-            // try exact matches for each keyword domain (e.g., accessibility.SomeRule)
-            const exactKeyMatch = keywords.map((kw) => `${kw}.${item}`).find((candidate) => scoreByKey[candidate] !== undefined);
-            if (exactKeyMatch) {
-              severity = scoreByKey[exactKeyMatch];
-            } else {
-              const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
-              if (match) {
-                const [, v] = match;
-                severity = v;
+          const itemsHtml = items
+            .map((item) => {
+              let severity = '0';
+              // try exact matches for each keyword domain (e.g., accessibility.SomeRule)
+              const exactKeyMatch = keywords.map((kw) => `${kw}.${item}`).find((candidate) => scoreByKey[candidate] !== undefined);
+              if (exactKeyMatch) {
+                severity = scoreByKey[exactKeyMatch];
+              } else {
+                const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
+                if (match) {
+                  const [, v] = match;
+                  severity = v;
+                }
               }
-            }
 
-            const safeClass = item.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+              const safeClass = item.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
 
-            return `
+              return `
               <li class='${safeClass}'>
                 <span class='severity-value'>${item}</span>
                 <span class='severity-label'>${severity}</span>
               </li>
             `;
-          })
-          .join('');
+            })
+            .join('');
 
-        wcagCard.innerHTML = `
+          wcagCard.innerHTML = `
           <h3>${listTitle}</h3>
           <ul>
             ${itemsHtml}
           </ul>
         `;
 
-        grid.append(wcagCard);
-      } else {
-        const text = row.textContent.trim();
+          grid.append(wcagCard);
+        } else {
+          const text = row.textContent.trim();
 
-        if (!text) return;
+          if (!text) return;
 
-        const card = document.createElement('div');
-        card.className = 'metric-card';
+          const card = document.createElement('div');
+          card.className = 'metric-card';
 
-        card.innerHTML = `
+          card.innerHTML = `
           <div class='metric-value'></div>
           <div class='metric-label'>${text}</div>
         `;
 
-        grid.append(card);
-      }
-    });
+          grid.append(card);
+        }
+      });
+    }
+
+    block.append(grid);
   }
 
-  block.append(grid);
+  await renderMetrics();
+
+  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+    renderMetrics();
+  });
+
+  block.addEventListener('disconnected', () => {
+    unsubscribe();
+  });
 }
