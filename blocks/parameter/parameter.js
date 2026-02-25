@@ -182,9 +182,9 @@ export default async function decorate(block) {
 
         let displayValue = value;
         if (
-          k.toLowerCase().includes('percent') ||
-          /percent/i.test(k) ||
-          String(value).toLowerCase() === 'n/a'
+          k.toLowerCase().includes('percent')
+          || /percent/i.test(k)
+          || String(value).toLowerCase() === 'n/a'
         ) {
           if (String(value).match(/^\d+$/)) displayValue = `${value}%`;
         }
