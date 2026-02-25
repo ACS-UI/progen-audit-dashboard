@@ -175,14 +175,10 @@ export default async function decorate(block) {
           .replace(/\b(Count|Percent|Score|Failures|Issues)\b/gi, '')
           .trim();
 
-        label = label
-          .split(/\s+/)
-          .map((w) =>
-            w.toLowerCase() === 'aria'
-              ? 'ARIA'
-              : w.charAt(0).toUpperCase() + w.slice(1),
-          )
-          .join(' ');
+        label = label.split(/\s+/).map((w) => {
+          if (w.toLowerCase() === 'aria') return 'ARIA';
+          return w.charAt(0).toUpperCase() + w.slice(1);
+        }).join(' ');
 
         let displayValue = value;
         if (
@@ -219,17 +215,11 @@ export default async function decorate(block) {
             .map((item) => {
               let severity = '0';
               // try exact matches for each keyword domain (e.g., accessibility.SomeRule)
-              const exactKeyMatch = keywords
-                .map((kw) => `${kw}.${item}`)
-                .find((candidate) => scoreByKey[candidate] !== undefined);
+              const exactKeyMatch = keywords.map((kw) => `${kw}.${item}`).find((candidate) => scoreByKey[candidate] !== undefined);
               if (exactKeyMatch) {
                 severity = scoreByKey[exactKeyMatch];
               } else {
-                const match = Object.entries(scoreByKey).find(([k]) =>
-                  k
-                    .toLowerCase()
-                    .includes(item.toLowerCase().replace(/\s+/g, '')),
-                );
+                const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
                 if (match) {
                   const [, v] = match;
                   severity = v;
