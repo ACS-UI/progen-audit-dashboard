@@ -63,7 +63,7 @@
     transition: background 0.2s;
 }
 
-@media (min-width: 768px) {
+@media (width >= 768px) {
     .report-header.block {
         padding: 24px 32px;
     }
