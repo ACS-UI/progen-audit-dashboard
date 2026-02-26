@@ -39,7 +39,7 @@ async function downloadReportAsPDF() {
         y: 0,
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     };
 
     await window.html2pdf().set(options).from(element).save();
