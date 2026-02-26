@@ -26,20 +26,20 @@ async function downloadReportAsPDF() {
 
     const element = document.querySelector('main');
     const options = {
-      margin: [10,0,10,0],
+      margin: [10, 0, 10, 0],
       filename: `${fileName}.pdf`,
       image: { type: 'jpeg', quality: 1 },
-      html2canvas: { 
+      html2canvas: {
         scale: 3,
-        useCORS: true, 
+        useCORS: true,
         letterRendering: true,
         logging: false,
         windowWidth: 1100,
-        x:0,
-        y:0
+        x: 0,
+        y: 0,
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy']}
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     await window.html2pdf().set(options).from(element).save();
@@ -63,8 +63,7 @@ function parseAuthoredLabels(block) {
     buttonLabel = rows[1].querySelector('div:last-child')?.textContent.trim() || buttonLabel;
   } else if (firstCell) {
     const lines = firstCell.innerText.split('\n').map((t) => t.trim()).filter(Boolean);
-    if (lines[0]) auditLabel = lines[0];
-    if (lines[1]) buttonLabel = lines[1];
+    [auditLabel, buttonLabel] = lines;
   }
 
   return { auditLabel, buttonLabel };
