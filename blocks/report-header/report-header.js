@@ -85,26 +85,26 @@ export default async function decorate(block) {
     const date = new Date().toLocaleDateString('en-GB');
 
     container.innerHTML = `
-      <div class="report-header__main">
-        <div class="report-header__left">
-          <h1 class="report-header__title">${projectName}</h1>
-          <div class="report-header__meta">
+      <div class="report-header-main">
+        <div class="report-header-left">
+          <h1 class="report-header-title">${projectName}</h1>
+          <div class="report-header-meta">
             ${auditLabel} • ${date} ${commitId ? `• Commit Id - ${commitId}` : ''}
           </div>
         </div>
-        <div class="report-header__right">
-          <div class="report-header__version">
-            <span class="report-header__label">Checklist Version</span>
-            <span class="report-header__value">${version}</span>
+        <div class="report-header-right">
+          <div class="report-header-version">
+            <span class="report-header-label">Checklist Version</span>
+            <span class="report-header-value">${version}</span>
           </div>
-          <button class="report-header__button" aria-label="${buttonLabel}">
+          <button class="report-header-button" aria-label="${buttonLabel}">
             ${buttonLabel}
           </button>
         </div>
       </div>
     `;
 
-    const downloadBtn = container.querySelector('.report-header__button');
+    const downloadBtn = container.querySelector('.report-header-button');
     if (downloadBtn) {
       downloadBtn.addEventListener('click', downloadReportAsPDF);
     }
