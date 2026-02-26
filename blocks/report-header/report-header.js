@@ -13,8 +13,7 @@ function getMetricsFromStorage() {
   }
 }
 
-async function downloadReportAsPDF(event) {
-  const btn = event.currentTarget;
+async function downloadReportAsPDF() {
   const metrics = getMetricsFromStorage();
   const data = metrics?.data || [];
   const projectName = data.find((item) => item.key === 'metadata.projectName')?.value || 'Audit_Report';
