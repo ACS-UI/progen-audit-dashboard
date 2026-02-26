@@ -1,0 +1,129 @@
+.report-header.block {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0 24px;
+    background-color: var(--background-color);
+}
+
+.report-header__main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.report-header__title {
+    margin: 0;
+    font-size: var(--heading-font-size-m);
+    font-weight: 700;
+    color: var(--text-color);
+    text-transform: capitalize;
+}
+
+.report-header__meta {
+    font-size: var(--body-font-size-xs);
+    color: var(--text-light-color);
+    margin-top: 4px;
+}
+
+.report-header__right {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    align-items: flex-end;
+}
+
+.report-header__version {
+    text-align: right;
+}
+
+.report-header__label {
+    display: block;
+    font-size: var(--body-font-size-xxs);
+    color: var(--text-light-color);
+    text-transform: uppercase;
+}
+
+.report-header__value {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.report-header__button {
+    background-color: var(--link-color);
+    color: var(--background-color);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: var(--body-font-size-xxs);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.report-header__button:hover {
+    background-color: var(--link-hover-color);
+}
+
+@media (max-width: 768px) {
+    .report-header__main { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 1rem; 
+    }
+    .report-header__right { 
+        width: 100%; 
+        text-align: left; 
+    }
+    .report-header__version { 
+        text-align: left; 
+    }
+}
+
+/*pdf styling*/
+.pdf-export-mode {
+    display: flex;
+    justify-content: center;
+}
+
+.pdf-export-mode main {
+    width: 1100px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pdf-export-mode :is(
+  .section,
+  .report-header,
+  .overall-scores,
+  .summary,
+  .parameter,
+  .score-overview
+) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 30px;
+}
+
+.pdf-export-mode .parameter-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px;
+}
+
+.pdf-export-mode :is(
+  .nav-wrapper,
+  .footer-wrapper,
+  .report-header__button,
+  .drop-down-custom,
+  .dashboard-section,
+  .header-wrapper
+) {
+  display: none;
+}
