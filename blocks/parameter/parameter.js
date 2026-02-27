@@ -62,7 +62,7 @@ export default async function decorate(block) {
     const scoreByKey = getScoreByKeyFromStorage();
     const headerRow = rows.shift();
 
-  const iconNode = headerRow.querySelector('picture')?.cloneNode(true) || null;
+    const iconNode = headerRow.querySelector('picture')?.cloneNode(true) || null;
     const title = headerRow.querySelector('h1, h2, h3, h4, h5, h6')?.textContent || '';
     const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
     const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
