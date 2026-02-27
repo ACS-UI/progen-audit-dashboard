@@ -36,11 +36,25 @@ function getScoreByKeyFromStorage() {
 export default async function decorate(block) {
   const authoredRows = [...block.children];
   const section = block.closest('.section');
-  const keywordString = section?.dataset.keyword || '';
-  const keywords = keywordString
-    .split(',')
-    .map((k) => k.trim())
-    .filter(Boolean);
+  const classList = Array.from(block.classList || []);
+  const ignoredClasses = new Set(['parameter', 'block', 'decorated', 'section']);
+  const normalizeClassToken = (s) => s
+    .trim()
+    .replace(/-([a-zA-Z0-9])/g, (_m, chr) => chr.toUpperCase())
+    .replace(/[^a-zA-Z0-9_.]/g, '');
+
+  let keywords = classList
+    .map((c) => normalizeClassToken(c))
+    .filter((c) => c && !ignoredClasses.has(c) && !c.startsWith('align') && !c.startsWith('has'));
+
+  if (keywords.length === 0) {
+    const keywordString = section?.dataset.keyword || '';
+    keywords = keywordString
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean);
+  }
+
   const primaryKeyword = keywords[0] || '';
 
   async function renderMetrics() {
