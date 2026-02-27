@@ -77,7 +77,6 @@ export default async function decorate(block) {
     const riKey = `riskIndex.${primaryKeyword}`;
     const riskindex = scoreByKey[riKey];
 
-    // Build header DOM without using innerHTML
     const headerLeft = document.createElement('div');
     headerLeft.className = 'header-left';
 
