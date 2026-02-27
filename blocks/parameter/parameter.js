@@ -62,7 +62,7 @@ export default async function decorate(block) {
     const scoreByKey = getScoreByKeyFromStorage();
     const headerRow = rows.shift();
 
-    const icon = headerRow.querySelector('picture')?.outerHTML || '';
+  const iconNode = headerRow.querySelector('picture')?.cloneNode(true) || null;
     const title = headerRow.querySelector('h1, h2, h3, h4, h5, h6')?.textContent || '';
     const subtitle = headerRow.querySelectorAll('p')[1]?.textContent || '';
     const riskLabel = headerRow.querySelectorAll('p')[2]?.textContent || '';
@@ -77,24 +77,40 @@ export default async function decorate(block) {
     const riKey = `riskIndex.${primaryKeyword}`;
     const riskindex = scoreByKey[riKey];
 
-    let riskHtml = '';
-    if (headerScore) {
-      riskHtml = `<div class='risk-wrapper'>
-      <div class='risk-score'>${headerScore}</div>
-      <div class='risk-label'>${riskLabel}${riskindex ? `: ${riskindex}` : ''}</div>
-    </div>`;
-    }
+    // Build header DOM without using innerHTML
+    const headerLeft = document.createElement('div');
+    headerLeft.className = 'header-left';
 
-    header.innerHTML = `
-    <div class='header-left'>
-      <div class='icon-wrapper'>${icon}</div>
-      <div>
-        <h2 id='${titleClass}'>${title}</h2>
-        <p>${subtitle}</p>
-      </div>
-    </div>
-    ${riskHtml}
-    `;
+    const iconWrapper = document.createElement('div');
+    iconWrapper.className = 'icon-wrapper';
+    if (iconNode) iconWrapper.appendChild(iconNode);
+
+    const titleWrap = document.createElement('div');
+    const h2 = document.createElement('h2');
+    h2.id = titleClass;
+    h2.textContent = title;
+    const pSubtitle = document.createElement('p');
+    pSubtitle.textContent = subtitle;
+    titleWrap.append(h2, pSubtitle);
+
+    headerLeft.append(iconWrapper, titleWrap);
+    header.appendChild(headerLeft);
+
+    if (headerScore) {
+      const riskWrapper = document.createElement('div');
+      riskWrapper.className = 'risk-wrapper';
+
+      const riskScoreEl = document.createElement('div');
+      riskScoreEl.className = 'risk-score';
+      riskScoreEl.textContent = headerScore;
+
+      const riskLabelEl = document.createElement('div');
+      riskLabelEl.className = 'risk-label';
+      riskLabelEl.textContent = `${riskLabel}${riskindex ? `: ${riskindex}` : ''}`;
+
+      riskWrapper.append(riskScoreEl, riskLabelEl);
+      header.appendChild(riskWrapper);
+    }
 
     block.append(header);
 
@@ -149,30 +165,37 @@ export default async function decorate(block) {
 
         const wcagCard = document.createElement('div');
         wcagCard.className = 'metric-card wcag-card list-card';
-        const itemsHtml = severities
-          .map((s) => {
-            const matchKey = wcagKeys.find(
-              (k) => k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`),
-            );
-            const value = matchKey ? scoreByKey[matchKey] : 0;
-            const color = severityColors[s] || '#6b7280';
-            const label = s.charAt(0).toUpperCase() + s.slice(1);
-            return `
-            <li class='wcag-${s}'>
-              <span class='wcag-label'>${label}</span>
-              <span class='wcag-value' style='color:${color}; font-weight:600'>${value}</span>
-            </li>
-          `;
-          })
-          .join('');
+        const h3 = document.createElement('h3');
+        h3.textContent = 'WCAG Violations';
+        const ulEl = document.createElement('ul');
+        ulEl.className = 'wcag-list';
 
-        wcagCard.innerHTML = `
-        <h3>WCAG Violations</h3>
-        <ul class='wcag-list'>
-          ${itemsHtml}
-        </ul>
-      `;
+        severities.forEach((s) => {
+          const matchKey = wcagKeys.find(
+            (k) => k.toLowerCase().endsWith(`.${s}`) || k.toLowerCase().includes(`.${s}`),
+          );
+          const value = matchKey ? scoreByKey[matchKey] : 0;
+          const color = severityColors[s] || '#6b7280';
+          const label = s.charAt(0).toUpperCase() + s.slice(1);
 
+          const li = document.createElement('li');
+          li.className = `wcag-${s}`;
+
+          const spanLabel = document.createElement('span');
+          spanLabel.className = 'wcag-label';
+          spanLabel.textContent = label;
+
+          const spanValue = document.createElement('span');
+          spanValue.className = 'wcag-value';
+          spanValue.style.color = color;
+          spanValue.style.fontWeight = '600';
+          spanValue.textContent = value;
+
+          li.append(spanLabel, spanValue);
+          ulEl.appendChild(li);
+        });
+
+        wcagCard.append(h3, ulEl);
         grid.append(wcagCard);
       }
 
@@ -205,10 +228,13 @@ export default async function decorate(block) {
 
         const card = document.createElement('div');
         card.className = 'metric-card';
-        card.innerHTML = `
-        <div class='metric-value'>${displayValue}</div>
-        <div class='metric-label'>${label}</div>
-      `;
+        const valDiv = document.createElement('div');
+        valDiv.className = 'metric-value';
+        valDiv.textContent = displayValue === 'n/a' ? '-' : displayValue;
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'metric-label';
+        labelDiv.textContent = label;
+        card.append(valDiv, labelDiv);
         grid.append(card);
       });
     } else {
@@ -225,39 +251,40 @@ export default async function decorate(block) {
           const wcagCard = document.createElement('div');
           wcagCard.className = 'metric-card list-card';
 
-          const itemsHtml = items
-            .map((item) => {
-              let severity = '0';
-              // try exact matches for each keyword domain (e.g., accessibility.SomeRule)
-              const exactKeyMatch = keywords.map((kw) => `${kw}.${item}`).find((candidate) => scoreByKey[candidate] !== undefined);
-              if (exactKeyMatch) {
-                severity = scoreByKey[exactKeyMatch];
-              } else {
-                const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
-                if (match) {
-                  const [, v] = match;
-                  severity = v;
-                }
+          const h3 = document.createElement('h3');
+          h3.textContent = listTitle;
+          const ulEl = document.createElement('ul');
+
+          items.forEach((item) => {
+            let severity = '0';
+            // try exact matches for each keyword domain (e.g., accessibility.SomeRule)
+            const exactKeyMatch = keywords.map((kw) => `${kw}.${item}`).find((candidate) => scoreByKey[candidate] !== undefined);
+            if (exactKeyMatch) {
+              severity = scoreByKey[exactKeyMatch];
+            } else {
+              const match = Object.entries(scoreByKey).find(([k]) => k.toLowerCase().includes(item.toLowerCase().replace(/\s+/g, '')));
+              if (match) {
+                const [, v] = match;
+                severity = v;
               }
+            }
 
-              const safeClass = item.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+            const safeClass = item.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+            const li = document.createElement('li');
+            li.className = safeClass;
 
-              return `
-              <li class='${safeClass}'>
-                <span class='severity-value'>${item}</span>
-                <span class='severity-label'>${severity}</span>
-              </li>
-            `;
-            })
-            .join('');
+            const spanVal = document.createElement('span');
+            spanVal.className = 'severity-value';
+            spanVal.textContent = item;
+            const spanLabel = document.createElement('span');
+            spanLabel.className = 'severity-label';
+            spanLabel.textContent = severity;
 
-          wcagCard.innerHTML = `
-          <h3>${listTitle}</h3>
-          <ul>
-            ${itemsHtml}
-          </ul>
-        `;
+            li.append(spanVal, spanLabel);
+            ulEl.appendChild(li);
+          });
 
+          wcagCard.append(h3, ulEl);
           grid.append(wcagCard);
         } else {
           const text = row.textContent.trim();
@@ -266,12 +293,12 @@ export default async function decorate(block) {
 
           const card = document.createElement('div');
           card.className = 'metric-card';
-
-          card.innerHTML = `
-          <div class='metric-value'></div>
-          <div class='metric-label'>${text}</div>
-        `;
-
+          const valDiv = document.createElement('div');
+          valDiv.className = 'metric-value';
+          const labelDiv = document.createElement('div');
+          labelDiv.className = 'metric-label';
+          labelDiv.textContent = text;
+          card.append(valDiv, labelDiv);
           grid.append(card);
         }
       });
