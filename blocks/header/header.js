@@ -1,4 +1,4 @@
-import { getMetadata } from '../../scripts/aem.js';
+import { getMetadata, decorateIcons } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates desktop width
@@ -93,137 +93,164 @@ export default async function decorate(block) {
       // Store brand for mobile header
       brandElement = navBrand.cloneNode(true);
     }
+  }
 
-    // Extract navigation list
-    const navList = contentWrapper.querySelector('ul');
-    if (navList) {
-      const navMenu = document.createElement('ul');
-      navMenu.classList.add('nav-menu');
-      navMenu.setAttribute('role', 'list');
+  const navMenu = document.createElement('ul');
+  navMenu.classList.add('nav-menu');
+  navMenu.setAttribute('role', 'list');
 
-      const navItems = [];
+  const navItems =[];
 
-      // Function to update active navigation item based on current URL
-      const updateActiveNavItem = () => {
-        // Get current URL hash (e.g., #dashboard, #reports)
-        const currentHash = window.location.hash;
-        const currentPath = window.location.pathname;
-        let hasActiveItem = false;
+  const template = getMetadata('template');
+  
+  if (template === 'audit-dashboard' || document.body.classList.contains('audit-dashboard')) {
+    const main = document.querySelector('main');
+    const sections = main.querySelectorAll(':scope > .section');
 
-        navItems.forEach((item) => {
-          const { element, link, href } = item;
+    sections.forEach((section) => {
+      const heading = section.querySelector('h1, h2, h3');
+      let title = heading ? heading.textContent.trim() : null;
+      if (!title && section.dataset.keyword) title = section.dataset.keyword;
+      if (!title && section.dataset.style) title = section.dataset.style;
 
-          // Extract the hash or path from the nav item's href
-          let navHash = '';
-          let itemNavPath = '';
+      if (!title || title.toLowerCase() === 'metadata') return;
 
-          if (href.startsWith('#')) {
-            navHash = href;
-          } else {
-            try {
-              const url = new URL(href, window.location.origin);
-              navHash = url.hash;
-              itemNavPath = url.pathname;
-            } catch (e) {
-              // If href is invalid, skip this item
-              return;
+      let id = section.id || `section-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      section.id = id;
+
+      const navItem = document.createElement('li');
+      navItem.classList.add('nav-item');
+      navItem.setAttribute('role', 'listitem');
+      
+      const navLink = document.createElement('a');
+      navLink.href = `#${id}`;
+      navLink.textContent = title;
+      navLink.title = title;
+      navLink.classList.add('nav-link');
+
+      const iconName = section.dataset.keyword || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const iconSpan = document.createElement('span');
+      iconSpan.classList.add('icon', `icon-${iconName}`);
+      navLink.prepend(iconSpan);
+
+      navLink.addEventListener('click', () => {
+        if (!isDesktop.matches) toggleMenu(nav, false);
+      });
+
+      navItem.appendChild(navLink);
+      navMenu.appendChild(navItem);
+
+      navItems.push({ element: navItem, link: navLink, href: `#${id}`, text: title });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          navItems.forEach((item) => {
+            if (item.href === `#${entry.target.id}`) {
+              item.element.classList.add('active');
+              item.link.setAttribute('aria-current', 'page');
+            } else {
+              item.element.classList.remove('active');
+              item.link.removeAttribute('aria-current');
             }
-          }
-
-          // Check if this nav item matches the current URL
-          let isActive = false;
-
-          if (currentHash) {
-            // If there's a hash in the URL, match against nav item's hash
-            isActive = navHash && currentHash === navHash;
-          } else {
-            // If no hash, match against pathname
-            isActive = itemNavPath && itemNavPath !== '/' && currentPath.includes(itemNavPath);
-          }
-
-          // Update active state
-          if (isActive) {
-            element.classList.add('active');
-            link.setAttribute('aria-current', 'page');
-            hasActiveItem = true;
-          } else {
-            element.classList.remove('active');
-            link.removeAttribute('aria-current');
-          }
-        });
-
-        // If no item is active, highlight Dashboard by default
-        if (!hasActiveItem) {
-          const dashboardItem = navItems.find((item) => item.text.toLowerCase().includes('dashboard'));
-          if (dashboardItem) {
-            dashboardItem.element.classList.add('active');
-            dashboardItem.link.setAttribute('aria-current', 'page');
-          }
+          });
         }
-      };
-
-      // Process each navigation item
+      });
+    }, { rootMargin: '-20% 0px -79% 0px' });
+    sections.forEach((sec) => observer.observe(sec));
+    
+  } else {
+    const navList = contentWrapper?.querySelector('ul');
+    if (navList) {
       navList.querySelectorAll('li').forEach((item) => {
         const link = item.querySelector('a');
         const icon = item.querySelector('.icon');
-
         if (link) {
           // Create a list item wrapper
           const navItem = document.createElement('li');
           navItem.classList.add('nav-item');
           navItem.setAttribute('role', 'listitem');
-
-          // Create the nav link
+          
           const navLink = document.createElement('a');
-          // Clean up href - remove 'https://' if URL starts with 'https://#'
-          let cleanHref = link.href;
-          if (cleanHref.startsWith('https://#')) {
-            cleanHref = cleanHref.replace('https://', '');
-          }
+          let cleanHref = link.href.startsWith('https://#') ? link.href.replace('https://', '') : link.href;
           navLink.href = cleanHref;
           navLink.textContent = link.textContent;
           navLink.title = link.title || link.textContent;
           navLink.classList.add('nav-link');
 
-          // Clone the icon and add to link
           if (icon) {
             const clonedIcon = icon.cloneNode(true);
             clonedIcon.setAttribute('aria-hidden', 'true');
-            navLink.insertBefore(clonedIcon, navLink.firstChild);
+            navLink.prepend(clonedIcon);
           }
 
-          // Add click handler to close menu on mobile
           navLink.addEventListener('click', () => {
-            if (!isDesktop.matches) {
-              // Close the menu when a nav item is clicked on mobile
-              toggleMenu(nav, false);
-            }
+            if (!isDesktop.matches) toggleMenu(nav, false);
           });
 
           navItem.appendChild(navLink);
           navMenu.appendChild(navItem);
-
-          // Store reference for active state management
-          navItems.push({
-            element: navItem,
-            link: navLink,
-            href: cleanHref,
-            text: link.textContent.trim(),
-          });
+          navItems.push({ element: navItem, link: navLink, href: cleanHref, text: link.textContent.trim() });
         }
       });
-
-      nav.appendChild(navMenu);
-
-      // Set initial active state
-      updateActiveNavItem();
-
-      // Update active state when hash changes (browser back/forward or link clicks)
-      window.addEventListener('hashchange', updateActiveNavItem);
     }
   }
 
-  // hamburger for mobile
+  nav.appendChild(navMenu);
+
+  const updateActiveNavItem = () => {
+    const currentHash = window.location.hash;
+    const currentPath = window.location.pathname;
+    let hasActiveItem = false;
+
+    navItems.forEach((item) => {
+      const { element, link, href } = item;
+      let navHash = '';
+      let itemNavPath = '';
+
+      if (href.startsWith('#')) {
+        navHash = href;
+      } else {
+        try {
+          const url = new URL(href, window.location.origin);
+          navHash = url.hash;
+          itemNavPath = url.pathname;
+        } catch (e) { return; }
+      }
+
+      let isActive = false;
+      if (currentHash) {
+        isActive = navHash && currentHash === navHash;
+      } else {
+        isActive = itemNavPath && itemNavPath !== '/' && currentPath.includes(itemNavPath);
+      }
+
+      if (isActive) {
+        element.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+        hasActiveItem = true;
+      } else {
+        element.classList.remove('active');
+        link.removeAttribute('aria-current');
+      }
+    });
+
+    if (!hasActiveItem && navItems.length > 0) {
+      const dashboardItem = navItems.find((item) => item.text && item.text.toLowerCase().includes('dashboard'));
+      if (dashboardItem) {
+        dashboardItem.element.classList.add('active');
+        dashboardItem.link.setAttribute('aria-current', 'page');
+      } else {
+        navItems[0].element.classList.add('active');
+        navItems[0].link.setAttribute('aria-current', 'page');
+      }
+    }
+  };
+
+  updateActiveNavItem();
+  window.addEventListener('hashchange', updateActiveNavItem);
+
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
   hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation" aria-expanded="false">
@@ -267,5 +294,8 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(mobileHeader);
   navWrapper.append(nav);
+  
+  decorateIcons(navWrapper);
+
   block.append(navWrapper);
 }
