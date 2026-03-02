@@ -236,8 +236,8 @@ async function renderOverallScoreCards(ul, scoreByKey) {
 }
 
 export default async function decorate(block) {
-  const isOverallScoresBlock = !!block.closest('.overall-scores');
-  const isSummaryBlock = !!block.closest('.summary');
+  const isOverallScoresBlock = !!block.classList.contains('overall-scores');
+  const isSummaryBlock = !!block.classList.contains('summary');
 
   const ul = buildCardsList(block);
   block.replaceChildren(ul);
