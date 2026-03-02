@@ -99,10 +99,10 @@ export default async function decorate(block) {
   navMenu.classList.add('nav-menu');
   navMenu.setAttribute('role', 'list');
 
-  const navItems =[];
+  const navItems = [];
 
   const template = getMetadata('template');
-  
+
   if (template === 'audit-dashboard' || document.body.classList.contains('audit-dashboard')) {
     const main = document.querySelector('main');
     const sections = main.querySelectorAll(':scope > .section');
@@ -115,13 +115,13 @@ export default async function decorate(block) {
 
       if (!title || title.toLowerCase() === 'metadata') return;
 
-      let id = section.id || `section-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      const id = section.id || `section-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
       section.id = id;
 
       const navItem = document.createElement('li');
       navItem.classList.add('nav-item');
       navItem.setAttribute('role', 'listitem');
-      
+
       const navLink = document.createElement('a');
       navLink.href = `#${id}`;
       navLink.textContent = title;
@@ -140,7 +140,9 @@ export default async function decorate(block) {
       navItem.appendChild(navLink);
       navMenu.appendChild(navItem);
 
-      navItems.push({ element: navItem, link: navLink, href: `#${id}`, text: title });
+      navItems.push({
+        element: navItem, link: navLink, href: `#${id}`, text: title,
+      });
     });
 
     const observer = new IntersectionObserver((entries) => {
@@ -159,7 +161,6 @@ export default async function decorate(block) {
       });
     }, { rootMargin: '-20% 0px -79% 0px' });
     sections.forEach((sec) => observer.observe(sec));
-    
   } else {
     const navList = contentWrapper?.querySelector('ul');
     if (navList) {
@@ -171,9 +172,9 @@ export default async function decorate(block) {
           const navItem = document.createElement('li');
           navItem.classList.add('nav-item');
           navItem.setAttribute('role', 'listitem');
-          
+
           const navLink = document.createElement('a');
-          let cleanHref = link.href.startsWith('https://#') ? link.href.replace('https://', '') : link.href;
+          const cleanHref = link.href.startsWith('https://#') ? link.href.replace('https://', '') : link.href;
           navLink.href = cleanHref;
           navLink.textContent = link.textContent;
           navLink.title = link.title || link.textContent;
@@ -191,7 +192,9 @@ export default async function decorate(block) {
 
           navItem.appendChild(navLink);
           navMenu.appendChild(navItem);
-          navItems.push({ element: navItem, link: navLink, href: cleanHref, text: link.textContent.trim() });
+          navItems.push({
+            element: navItem, link: navLink, href: cleanHref, text: link.textContent.trim(),
+          });
         }
       });
     }
@@ -269,8 +272,8 @@ export default async function decorate(block) {
   if (brandElement) {
     mobileHeader.appendChild(brandElement);
   }
-  
-  //Desktop toggle button
+
+  // Desktop toggle button
   const toggleBtn = document.createElement('button');
   toggleBtn.className = 'nav-desktop-toggle';
   toggleBtn.setAttribute('aria-label', 'Toggle Desktop Navigation');
@@ -304,11 +307,11 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(mobileHeader);
   navWrapper.append(nav);
-  navWrapper.append(toggleBtn); 
+  navWrapper.append(toggleBtn);
   navWrapper.querySelectorAll('.icon').forEach((icon) => {
     icon.innerHTML = '';
   });
-  decorateIcons(navWrapper); 
+  decorateIcons(navWrapper);
 
   block.append(navWrapper);
 }
