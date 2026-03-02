@@ -1,108 +1,7 @@
-const MOCK_AUDIT_DATA = [
-  {
-    severity: 'Critical',
-    id: 'A11Y-001',
-    description: 'Missing alt text on product images',
-    standard: 'WCAG 2.1 AA',
-    location: {
-      file: 'ProductCard.tsx',
-      line: 45,
-    },
-    category: 'Accessibility',
-  },
-  {
-    severity: 'Critical',
-    id: 'PERF-003',
-    description: 'Large JavaScript bundle (>500KB)',
-    standard: 'Core Web Vitals',
-    location: {
-      file: 'App.tsx',
-      line: 1,
-    },
-    category: 'Performance',
-  },
-  {
-    severity: 'Critical',
-    id: 'A11Y-008',
-    description: 'Modal dialog not keyboard accessible',
-    standard: 'Keyboard Navigation',
-    location: {
-      file: 'Modal.tsx',
-      line: 23,
-    },
-    category: 'Accessibility',
-  },
-  {
-    severity: 'High',
-    id: 'CODE-012',
-    description: 'High cyclomatic complexity in checkout function',
-    standard: 'Complexity',
-    location: {
-      file: 'checkout.ts',
-      line: 78,
-    },
-    category: 'Code Quality',
-  },
-  {
-    severity: 'High',
-    id: 'UX-005',
-    description: 'Missing error messages on form inputs',
-    standard: 'Form Validation',
-    location: {
-      file: 'CheckoutForm.tsx',
-      line: 34,
-    },
-    category: 'UX',
-  },
-  {
-    severity: 'Quick Win',
-    id: 'A11Y-004',
-    description: 'Button text has insufficient contrast',
-    standard: 'Color Contrast',
-    location: {
-      file: 'Button.tsx',
-      line: 12,
-    },
-    category: 'Accessibility',
-  },
-  {
-    severity: 'Quick Win',
-    id: 'SEO-002',
-    description: 'Missing meta description',
-    standard: 'Meta Tags',
-    location: {
-      file: 'index.html',
-      line: 6,
-    },
-    category: 'SEO',
-  },
-];
+import { onLocalStorageKeyChange } from '../../scripts/utils.js';
 
 const COLUMNS = ['Severity', 'ID', 'Description', 'Location', 'Category'];
 const COMPONENTS_COLUMNS = ['Component', 'Failed Checks', 'Critical Failures', 'Health'];
-const MOCK_COMPONENTS_DATA = [
-  {
-    component: 'ProductCard.tsx',
-    path: '/src/components/ProductCard.tsx',
-    failedChecks: 12,
-    criticalFailures: 3,
-    health: 10,
-  },
-  {
-    component: 'CheckoutForm.tsx',
-    path: '/src/components/CheckoutForm.tsx',
-    failedChecks: 9,
-    criticalFailures: 2,
-    health: 35,
-  },
-  {
-    component: 'Modal.tsx',
-    path: '/src/components/Modal.tsx',
-    failedChecks: 7,
-    criticalFailures: 1,
-    health: 55,
-  },
-];
 
 function getSeverityClassName(value) {
   return `table-severity-${value.toLowerCase().replace(/\s+/g, '-')}`;
@@ -240,6 +139,150 @@ function createHealthCell(health) {
   return cell;
 }
 
+function getMetricsByKeyFromStorage() {
+  const metricsByKey = {};
+  let storedMetrics;
+
+  try {
+    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
+  } catch (e) {
+    storedMetrics = null;
+  }
+
+  if (!storedMetrics) return metricsByKey;
+
+  let parsedMetrics;
+  try {
+    parsedMetrics = JSON.parse(storedMetrics);
+  } catch (e) {
+    parsedMetrics = null;
+  }
+
+  const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
+  if (!Array.isArray(dataArray)) return metricsByKey;
+
+  dataArray.forEach((item) => {
+    if (item?.key && item?.value !== undefined) {
+      metricsByKey[item.key] = item.value;
+    }
+  });
+
+  return metricsByKey;
+}
+
+function getTopIssuesFromStorage(metricsByKey) {
+  const parsedCount = parseInt(metricsByKey['topIssues.count'], 10);
+  const countFromStorage = Number.isNaN(parsedCount) ? 0 : parsedCount;
+  const indexedKeys = Object.keys(metricsByKey)
+    .map((key) => {
+      const match = key.match(/^topIssues\.(\d+)\./);
+      return match ? parseInt(match[1], 10) : 0;
+    })
+    .filter((index) => index > 0);
+  const maxIndexedRow = indexedKeys.length ? Math.max(...indexedKeys) : 0;
+  const rowCount = Math.max(countFromStorage, maxIndexedRow);
+  const rows = [];
+
+  for (let index = 1; index <= rowCount; index += 1) {
+    const baseKey = `topIssues.${index}`;
+    const severity = metricsByKey[`${baseKey}.severity`] || '';
+    const id = metricsByKey[`${baseKey}.id`] || '';
+    const description = metricsByKey[`${baseKey}.description`] || '';
+    const standard = metricsByKey[`${baseKey}.subcategory`] || '';
+    const locationFile = metricsByKey[`${baseKey}.location.file`] || '';
+    const locationLine = metricsByKey[`${baseKey}.location.line`] || '';
+    const category = metricsByKey[`${baseKey}.category`] || '';
+
+    const hasAnyValue = severity
+      || id
+      || description
+      || standard
+      || locationFile
+      || locationLine
+      || category;
+
+    if (hasAnyValue) {
+      rows.push({
+        severity,
+        id,
+        description,
+        standard,
+        location: {
+          file: locationFile,
+          line: locationLine,
+        },
+        category,
+      });
+    }
+  }
+
+  return rows;
+}
+
+function getComponentsFromStorage(metricsByKey) {
+  const parsedCount = parseInt(metricsByKey['componentsRequiringAttention.count'], 10);
+  const countFromStorage = Number.isNaN(parsedCount) ? 0 : parsedCount;
+  const indexedKeys = Object.keys(metricsByKey)
+    .map((key) => {
+      const match = key.match(/^componentsRequiringAttention\.(\d+)\./);
+      return match ? parseInt(match[1], 10) : 0;
+    })
+    .filter((index) => index > 0);
+  const maxIndexedRow = indexedKeys.length ? Math.max(...indexedKeys) : 0;
+  const rowCount = Math.max(countFromStorage, maxIndexedRow);
+  const rows = [];
+
+  for (let index = 1; index <= rowCount; index += 1) {
+    const baseKey = `componentsRequiringAttention.${index}`;
+    const component = metricsByKey[`${baseKey}.name`] || '';
+    const path = metricsByKey[`${baseKey}.path`] || '';
+    const failedChecks = metricsByKey[`${baseKey}.failedChecks`] || '';
+    const criticalFailures = metricsByKey[`${baseKey}.criticalFailures`] || '';
+    const health = metricsByKey[`${baseKey}.healthScore`] || '';
+
+    const hasAnyValue = component || path || failedChecks || criticalFailures || health;
+
+    if (hasAnyValue) {
+      rows.push({
+        component,
+        path,
+        failedChecks,
+        criticalFailures,
+        health,
+      });
+    }
+  }
+
+  return rows;
+}
+
+function renderTopIssuesRows(tbody, rows) {
+  tbody.replaceChildren();
+
+  rows.forEach((row) => {
+    const tr = document.createElement('tr');
+    tr.append(createSeverityCell(row.severity));
+    tr.append(createCell('td', row.id));
+    tr.append(createDescriptionCell(row.description, row.standard));
+    tr.append(createLocationCell(row.location.file, row.location.line));
+    tr.append(createCategoryCell(row.category));
+    tbody.append(tr);
+  });
+}
+
+function renderComponentRows(tbody, rows) {
+  tbody.replaceChildren();
+
+  rows.forEach((row) => {
+    const tr = document.createElement('tr');
+    tr.append(createComponentCell(row.component, row.path));
+    tr.append(createMetricCell(row.failedChecks, 'failed-checks'));
+    tr.append(createMetricCell(row.criticalFailures, 'critical-failures'));
+    tr.append(createHealthCell(Number(row.health)));
+    tbody.append(tr);
+  });
+}
+
 export default function decorate(block) {
   const container = document.createElement('div');
   container.className = 'table-container';
@@ -256,29 +299,27 @@ export default function decorate(block) {
   });
   thead.append(headerRow);
 
-  if (isComponentsVariation) {
-    MOCK_COMPONENTS_DATA.forEach((row) => {
-      const tr = document.createElement('tr');
-      tr.append(createComponentCell(row.component, row.path));
-      tr.append(createMetricCell(row.failedChecks, 'failed-checks'));
-      tr.append(createMetricCell(row.criticalFailures, 'critical-failures'));
-      tr.append(createHealthCell(row.health));
-      tbody.append(tr);
-    });
-  } else {
-    MOCK_AUDIT_DATA.forEach((row) => {
-      const tr = document.createElement('tr');
+  const applyMetrics = () => {
+    const metricsByKey = getMetricsByKeyFromStorage();
 
-      const severityCell = createSeverityCell(row.severity);
-      tr.append(severityCell);
-      tr.append(createCell('td', row.id));
-      tr.append(createDescriptionCell(row.description, row.standard));
-      tr.append(createLocationCell(row.location.file, row.location.line));
-      tr.append(createCategoryCell(row.category));
+    if (isComponentsVariation) {
+      const rows = getComponentsFromStorage(metricsByKey);
+      renderComponentRows(tbody, rows);
+    } else {
+      const rows = getTopIssuesFromStorage(metricsByKey);
+      renderTopIssuesRows(tbody, rows);
+    }
+  };
 
-      tbody.append(tr);
-    });
-  }
+  applyMetrics();
+
+  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+    applyMetrics();
+  });
+
+  block.addEventListener('disconnected', () => {
+    unsubscribe();
+  });
 
   table.append(thead, tbody);
   container.append(table);
