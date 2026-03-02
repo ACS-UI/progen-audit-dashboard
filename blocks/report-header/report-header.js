@@ -88,30 +88,53 @@ export default async function decorate(block) {
     const status = findVal('metadata.status')?.toLowerCase() ?? 'green';
     const iconName = status === 'red' ? 'close' : 'check';
 
-    container.innerHTML = `
-      <div class="report-header-main">
-        <div class="report-header-left">
-          <h1 class="report-header-title">${projectName}<span class="icon icon-${iconName}"></span></h1>
-          <div class="report-header-meta">
-            ${auditLabel} • ${date} ${commitId ? `• Commit Id - ${commitId}` : ''}
-          </div>
-        </div>
-        <div class="report-header-right">
-          <div class="report-header-version">
-            <span class="report-header-label">Checklist Version</span>
-            <span class="report-header-value">${version}</span>
-          </div>
-          <button class="report-header-button" aria-label="${buttonLabel}">
-            ${buttonLabel}
-          </button>
-        </div>
-      </div>
-    `;
+    container.replaceChildren();
 
-    const downloadBtn = container.querySelector('.report-header-button');
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', downloadReportAsPDF);
-    }
+    const headerMain = document.createElement('div');
+    headerMain.className = 'report-header-main';
+
+    const headerLeft = document.createElement('div');
+    headerLeft.className = 'report-header-left';
+
+    const headerTitle = document.createElement('h1');
+    headerTitle.className = 'report-header-title';
+    headerTitle.textContent = projectName;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = `icon icon-${iconName}`;
+    headerTitle.append(iconSpan);
+
+    const headerMeta = document.createElement('div');
+    headerMeta.className = 'report-header-meta';
+    headerMeta.textContent = `${auditLabel} • ${date} ${commitId ? `• Commit Id - ${commitId}` : ''}`;
+
+    headerLeft.append(headerTitle, headerMeta);
+
+    const headerRight = document.createElement('div');
+    headerRight.className = 'report-header-right';
+
+    const headerVersion = document.createElement('div');
+    headerVersion.className = 'report-header-version';
+
+    const versionLabel = document.createElement('span');
+    versionLabel.className = 'report-header-label';
+    versionLabel.textContent = 'Checklist Version';
+
+    const versionValue = document.createElement('span');
+    versionValue.className = 'report-header-value';
+    versionValue.textContent = version;
+
+    headerVersion.append(versionLabel, versionValue);
+
+    const headerButton = document.createElement('button');
+    headerButton.className = 'report-header-button';
+    headerButton.setAttribute('aria-label', buttonLabel);
+    headerButton.textContent = buttonLabel;
+    headerButton.addEventListener('click', downloadReportAsPDF);
+    headerRight.append(headerVersion, headerButton);
+
+    headerMain.append(headerLeft, headerRight);
+    container.append(headerMain);
     decorateIcons(container);
   };
 
