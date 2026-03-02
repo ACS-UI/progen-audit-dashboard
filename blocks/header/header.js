@@ -101,7 +101,7 @@ export default async function decorate(block) {
 
   const navItems = [];
 
-  const isDynamicNav = ['true', 'yes', 'on'].includes(getMetadata('dynamic-nav')?.toLowerCase()) || document.body.classList.contains('dynamic-nav');
+  const isDynamicNav = ['true', 'yes'].includes(getMetadata('dynamic-nav')?.toLowerCase());
 
   if (isDynamicNav) {
     const main = document.querySelector('main');
