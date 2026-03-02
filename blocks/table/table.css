@@ -3,7 +3,7 @@
   overflow-x: auto;
   border-radius: 10px;
   border: 1px solid var(--table-container-border-color);
-  box-shadow: 0px 1px 3px 0px var(--table-container-shadow-color);
+  box-shadow: 0 1px 3px 0 var(--table-container-shadow-color);
 }
 
 .table table {
@@ -117,7 +117,7 @@
   border-radius: 50%;
   font-size: var(--table-font-size-icon);
   line-height: var(--table-line-height-icon);
-  background: currentColor;
+  background: currentcolor;
   color: var(--white-color);
 }
 
