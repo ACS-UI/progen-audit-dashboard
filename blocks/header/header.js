@@ -269,6 +269,15 @@ export default async function decorate(block) {
   if (brandElement) {
     mobileHeader.appendChild(brandElement);
   }
+  
+  //Desktop toggle button
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'nav-desktop-toggle';
+  toggleBtn.setAttribute('aria-label', 'Toggle Desktop Navigation');
+  toggleBtn.innerHTML = '<span class="icon icon-chevron-left"></span>';
+  toggleBtn.addEventListener('click', () => {
+    nav.classList.toggle('nav-collapsed');
+  });
 
   nav.setAttribute('aria-expanded', 'false');
 
@@ -283,6 +292,7 @@ export default async function decorate(block) {
     } else {
       // On mobile, close nav by default
       toggleMenu(nav, false);
+      nav.classList.remove('nav-collapsed');
     }
   };
 
@@ -294,8 +304,11 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(mobileHeader);
   navWrapper.append(nav);
-  
-  decorateIcons(navWrapper);
+  navWrapper.append(toggleBtn); 
+  navWrapper.querySelectorAll('.icon').forEach((icon) => {
+    icon.innerHTML = '';
+  });
+  decorateIcons(navWrapper); 
 
   block.append(navWrapper);
 }
