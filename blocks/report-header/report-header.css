@@ -17,6 +17,9 @@
     font-weight: 700;
     color: var(--text-color);
     text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .report-header-meta {
@@ -68,15 +71,15 @@
         padding: 24px 32px;
     }
 
+    .report-header-title {
+        font-size: var(--heading-font-size-l);
+    }
+
     .report-header-main {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         gap: 0;
-    }
-
-    .report-header-title {
-        font-size: var(--heading-font-size-m);
     }
 
     .report-header-right {
