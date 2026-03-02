@@ -101,17 +101,19 @@ export default async function decorate(block) {
 
   const navItems = [];
 
-  const template = getMetadata('template');
+  const isDynamicNav = ['true', 'yes', 'on'].includes(getMetadata('dynamic-nav')?.toLowerCase()) || document.body.classList.contains('dynamic-nav');
 
-  if (template === 'audit-dashboard' || document.body.classList.contains('audit-dashboard')) {
+  if (isDynamicNav) {
     const main = document.querySelector('main');
     const sections = main.querySelectorAll(':scope > .section');
 
     sections.forEach((section) => {
+      const iconName = section.dataset.icon;
+      if (!iconName) return;
+
       const heading = section.querySelector('h1, h2, h3');
-      let title = heading ? heading.textContent.trim() : null;
-      if (!title && section.dataset.keyword) title = section.dataset.keyword;
-      if (!title && section.dataset.style) title = section.dataset.style;
+      let title = section.dataset.navTitle || (heading ? heading.textContent.trim() : null);
+      if (!title) title = section.dataset.keyword || section.dataset.style;
 
       if (!title || title.toLowerCase() === 'metadata') return;
 
@@ -128,7 +130,6 @@ export default async function decorate(block) {
       navLink.title = title;
       navLink.classList.add('nav-link');
 
-      const iconName = section.dataset.keyword || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const iconSpan = document.createElement('span');
       iconSpan.classList.add('icon', `icon-${iconName}`);
       navLink.prepend(iconSpan);
