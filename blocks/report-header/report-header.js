@@ -1,4 +1,4 @@
-import { loadScript } from '../../scripts/aem.js';
+import { loadScript, decorateIcons } from '../../scripts/aem.js';
 import { onLocalStorageKeyChange } from '../../scripts/utils.js';
 
 const STORAGE_KEY = 'ui-audit-metrics';
@@ -84,10 +84,14 @@ export default async function decorate(block) {
     const version = findVal('metadata.checklistVersion');
     const date = new Date().toLocaleDateString('en-GB');
 
+    // Fetch the project status. Adjust 'metadata.status' to the actual key in JSON.
+    const status = findVal('metadata.status')?.toLowerCase() ?? 'green';
+    const iconName = status === 'red' ? 'close' : 'check';
+
     container.innerHTML = `
       <div class="report-header-main">
         <div class="report-header-left">
-          <h1 class="report-header-title">${projectName}</h1>
+          <h1 class="report-header-title">${projectName}<span class="icon icon-${iconName}"></span></h1>
           <div class="report-header-meta">
             ${auditLabel} • ${date} ${commitId ? `• Commit Id - ${commitId}` : ''}
           </div>
@@ -108,6 +112,7 @@ export default async function decorate(block) {
     if (downloadBtn) {
       downloadBtn.addEventListener('click', downloadReportAsPDF);
     }
+    decorateIcons(container);
   };
 
   block.replaceChildren(container);
