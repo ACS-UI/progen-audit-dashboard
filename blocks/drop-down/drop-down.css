@@ -1,3 +1,56 @@
+/* Period selector: mobile-first (stacked on small screens, row from 769px) */
+.section.period-selector.drop-down-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.section.period-selector .default-content-wrapper {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.section.period-selector .default-content-wrapper p {
+  margin: 0;
+  font-size: var(--body-font-size-xs, 0.875rem);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.section.period-selector .drop-down-wrapper {
+  margin: 0;
+}
+
+.section.period-selector .drop-down {
+  padding: 0;
+}
+
+.section.period-selector .drop-down-custom {
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .section.period-selector.drop-down-container {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0;
+  }
+
+  .section.period-selector .drop-down-wrapper {
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .section.period-selector .drop-down-custom {
+    min-width: 180px;
+    max-width: 320px;
+  }
+}
+
 .dashboard-section .drop-down {
   display: flex;
   justify-content: end;
@@ -7,16 +60,12 @@
   padding: 20px 0;
 }
 
-/* Hide the content div - it's only needed for data path */
-.drop-down-content {
-  display: none;
-}
-
 /* Custom dropdown container */
 .drop-down-custom {
   position: relative;
   width: 100%;
-  max-width: 250px;
+  min-width: 160px;
+  max-width: 320px;
   background-color: var(--white-color);
   border: 1px solid var(--dropdown-border-color);
   border-radius: 12px;

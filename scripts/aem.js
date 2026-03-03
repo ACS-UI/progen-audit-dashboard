@@ -680,6 +680,12 @@ async function loadSection(section, loadCallback) {
     }
     if (loadCallback) await loadCallback(section);
     section.dataset.sectionStatus = 'loaded';
+    // When metrics are blank (404), only show dashboard-section and period-selector
+    if (document.body?.getAttribute('data-metrics-blank') === 'true') {
+      const keepVisible = section.classList.contains('dashboard-section')
+        || section.classList.contains('period-selector');
+      if (!keepVisible) return;
+    }
     section.style.display = null;
   }
 }
