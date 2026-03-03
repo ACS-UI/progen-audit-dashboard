@@ -26,7 +26,7 @@
   font-size: var(--body-font-size-xs);
   color: var(--text-light-color);
   margin-top: 4px;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .report-header-right {

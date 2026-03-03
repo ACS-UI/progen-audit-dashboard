@@ -1,5 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { loadChartJs, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
+import {
+  loadChartJs, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT,
+} from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
   'overallScores.uiQualityScore',
@@ -100,7 +102,6 @@ function createProgressChart(canvas, score) {
     }],
   });
 }
-
 
 function buildCardsList(block) {
   const ul = document.createElement('ul');

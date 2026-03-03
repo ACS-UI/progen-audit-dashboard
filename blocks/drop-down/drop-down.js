@@ -95,7 +95,7 @@ export default async function decorate(block) {
       Folder: String(currentYear - i),
     }));
   } else if (isQuarter) {
-    // Quarter: block has direct div children (rows); each row has 2 divs (data-value, display-value)
+    // Quarter: block direct children are rows; each row has 2 divs (data-value, display-value)
     const rows = [...block.children].filter((row) => row.children.length >= 2);
     items = rows.map((row) => {
       const firstCol = row.children[0];

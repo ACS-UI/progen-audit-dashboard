@@ -1,4 +1,6 @@
-import { loadChartJs, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
+import {
+  loadChartJs, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT,
+} from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
   'overallScores.uiQualityScore',
@@ -19,7 +21,6 @@ const SCORE_LABELS = [
 ];
 
 const BAR_COLORS = ['#3B82F6', '#A855F7', '#10B981', '#F97316', '#6366F1', '#0EA5E9'];
-
 
 export default async function decorate(block) {
   const container = document.createElement('div');

@@ -1,4 +1,10 @@
-import { fetchFormJson, getFormUrl, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
+import {
+  fetchFormJson,
+  getFormUrl,
+  getUIAuditMetrics,
+  getScoreByKeyFromMetrics,
+  UI_AUDIT_METRICS_UPDATED_EVENT,
+} from '../../scripts/utils.js';
 
 function getScoreByKeyFromData(data) {
   const scoreByKey = {};

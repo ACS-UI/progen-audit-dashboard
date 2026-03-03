@@ -26,7 +26,7 @@ export const UI_AUDIT_METRICS_UPDATED_EVENT = 'ui-audit-metrics-updated';
  * @param {string} project - Project slug (e.g. 'myproject').
  * @param {string} year - Year (e.g. '2025').
  * @param {string} quarter - Quarter (e.g. 'q1').
- * @returns {string} Path like /reports/{project}/{year}/{quarter}/ui-audit-metrics.json
+ * @returns {string} Report metrics JSON path
  */
 export function getReportMetricsUrl(project, year, quarter) {
   const p = (project || '').trim().toLowerCase();
@@ -38,7 +38,7 @@ export function getReportMetricsUrl(project, year, quarter) {
 
 /**
  * Reads project, year, quarter from current URL search params.
- * @param {{ year?: string, quarter?: string }} [defaults] - Default year and quarter if missing in URL.
+ * @param {{ year?: string, quarter?: string }} [defaults] - Defaults if missing in URL.
  * @returns {{ project: string, year: string, quarter: string }}
  */
 export function getReportParamsFromUrl(defaults = {}) {
@@ -51,45 +51,18 @@ export function getReportParamsFromUrl(defaults = {}) {
   };
 }
 
-/**
- * Fetches report metrics from project/year/quarter URL and stores them (setUIAuditMetrics).
- * Dispatches UI_AUDIT_METRICS_UPDATED_EVENT on success.
- * @param {string} project - Project slug.
- * @param {string} [year] - Year (defaults from getReportParamsFromUrl).
- * @param {string} [quarter] - Quarter (defaults from getReportParamsFromUrl).
- * @returns {Promise<object|null>} Fetched metrics or null if project missing or fetch failed.
- */
-export async function fetchReportMetrics(project, year, quarter) {
-  const url = getReportMetricsUrl(project, year, quarter);
-  if (!url) return null;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      setUIAuditMetrics(null);
-      return null;
-    }
-    const metrics = await response.json();
-    setUIAuditMetrics(metrics);
-    return metrics;
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error('Error fetching report metrics:', url, e);
-    setUIAuditMetrics(null);
-    return null;
-  }
-}
-
 /** Section class names to keep visible when metrics are blank (404). */
 const SECTIONS_VISIBLE_WHEN_NO_METRICS = ['dashboard-section', 'period-selector'];
 
 const AUDIT_REPORT_UNAVAILABLE_ID = 'audit-report-unavailable';
 
 /**
- * Hides all main content except dashboard-section and period-selector when metrics are blank.
- * Shows a centered "Audit report not available" message. Reverses when metrics exist.
+ * Hides main content except dashboard-section and period-selector when metrics are blank.
+ * Shows "Audit report not available" when blank. Reverses when metrics exist.
  * @param {object|object[]|null} metrics - Current metrics (null = hide content).
  */
-/** Data attribute on body when metrics are blank (404); loadSection respects this to avoid re-showing hidden sections. */
+
+/** Body attr when metrics blank; loadSection uses it to avoid re-showing hidden sections. */
 export const METRICS_BLANK_ATTR = 'data-metrics-blank';
 
 export function setMainVisibilityByMetrics(metrics) {
@@ -101,7 +74,9 @@ export function setMainVisibilityByMetrics(metrics) {
   }
   const sections = main.querySelectorAll(':scope > .section');
   sections.forEach((section) => {
-    const keepVisible = SECTIONS_VISIBLE_WHEN_NO_METRICS.some((cls) => section.classList.contains(cls));
+    const keepVisible = SECTIONS_VISIBLE_WHEN_NO_METRICS.some(
+      (cls) => section.classList.contains(cls),
+    );
     if (hasMetrics) {
       section.style.display = '';
     } else if (!keepVisible) {
@@ -127,14 +102,16 @@ export function setMainVisibilityByMetrics(metrics) {
 
 /**
  * Stores UI audit metrics on the window object and dispatches a custom event.
- * When metrics are null, hides all main sections except dashboard-section and period-selector.
+ * When metrics are null, hides main sections except dashboard-section and period-selector.
  * @param {object|object[]} metrics - Metrics data (object or array format from API).
  */
 export function setUIAuditMetrics(metrics) {
+  /* eslint-disable no-underscore-dangle */
   if (!window.__UI_AUDIT__) {
     window.__UI_AUDIT__ = {};
   }
   window.__UI_AUDIT__[UI_AUDIT_METRICS_KEY] = metrics;
+  /* eslint-enable no-underscore-dangle */
   setMainVisibilityByMetrics(metrics);
   window.dispatchEvent(new CustomEvent(UI_AUDIT_METRICS_UPDATED_EVENT, {
     detail: { metrics },
@@ -142,13 +119,41 @@ export function setUIAuditMetrics(metrics) {
 }
 
 /**
+ * Fetches report metrics from project/year/quarter URL and stores them.
+ * @param {string} project - Project slug.
+ * @param {string} [year] - Year (defaults from getReportParamsFromUrl).
+ * @param {string} [quarter] - Quarter (defaults from getReportParamsFromUrl).
+ * @returns {Promise<object|null>} Fetched metrics or null.
+ */
+export async function fetchReportMetrics(project, year, quarter) {
+  const url = getReportMetricsUrl(project, year, quarter);
+  if (!url) return null;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      setUIAuditMetrics(null);
+      return null;
+    }
+    const metrics = await response.json();
+    setUIAuditMetrics(metrics);
+    return metrics;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching report metrics:', url, e);
+    setUIAuditMetrics(null);
+    return null;
+  }
+}
+
+/**
  * Reads UI audit metrics from the window object.
- * Other blocks use this on render: if data present, update view; then listen for UI_AUDIT_METRICS_UPDATED_EVENT.
  * @returns {object|object[]|null} Stored metrics or null.
  */
 export function getUIAuditMetrics() {
+  /* eslint-disable no-underscore-dangle */
   if (!window.__UI_AUDIT__) return null;
   return window.__UI_AUDIT__[UI_AUDIT_METRICS_KEY] ?? null;
+  /* eslint-enable no-underscore-dangle */
 }
 
 /**
