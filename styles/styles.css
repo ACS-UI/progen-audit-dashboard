@@ -20,6 +20,7 @@
   --link-color: #3b63fb;
   --link-hover-color: #1d3ecf;
   --white-color: #fff;
+  --background-grey: #f5f6fa
 
   /* navigation colors */
   --primary-color: #4F39F6;
@@ -60,8 +61,34 @@
   --heading-font-size-s: 24px;
   --heading-font-size-xs: 22px;
 
+  /* additional font-size tokens used by blocks */
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-18: 18px;
+  --fs-24: 24px;
+  --fs-26: 26px;
+  --fs-28: 28px;
+  --fs-30: 30px;
+  --fs-16: 16px;
+
   /* nav height */
   --nav-height: 64px;
+
+  /* semantic text colors used by blocks */
+  --text-muted: #6b7280; /* typical secondary text */
+  --text-muted-2: #4A5565; /* alternative muted tone */
+  --text-strong: #1f2937; /* strong heading/text */
+  --text-heading: #374151; /* heading level color */
+  --color-risk: #7c3aed; /* risk score color seen in parameter block */
+
+  /* severity colors for accessibility/wcag list */
+  --severity-critical: #ef4444;
+  --severity-high: #f97316;
+  --severity-medium: #f59e0b;
+  --severity-low: #3b82f6;
+  /* border tokens */
+  --cards-li-border-color: #dadada;
 }
 
 /* fallback fonts */

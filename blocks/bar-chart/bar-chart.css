@@ -1,10 +1,10 @@
 .bar-chart .bar-chart-content {
   display: block;
-  border: 1px solid #dadada;
+  border: 1px solid var(--cards-li-border-color);
   border-radius: 10px;
   padding: 20px;
   background-color: var(--background-color);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  box-shadow: 0 2px 8px var(--shadow-medium);
 }
 
 .bar-chart .bar-chart-card-body {
