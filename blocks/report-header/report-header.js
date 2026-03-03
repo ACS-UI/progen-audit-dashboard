@@ -1,20 +1,10 @@
 import { loadScript, decorateIcons } from '../../scripts/aem.js';
-import { onLocalStorageKeyChange } from '../../scripts/utils.js';
+import { getUIAuditMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
 
-const STORAGE_KEY = 'ui-audit-metrics';
 const PDF_LIB_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
 
-function getMetricsFromStorage() {
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
-  } catch {
-    return null;
-  }
-}
-
 async function downloadReportAsPDF() {
-  const metrics = getMetricsFromStorage();
+  const metrics = getUIAuditMetrics();
   const data = metrics?.data || [];
   const projectName = data.find((item) => item.key === 'metadata.projectName')?.value || 'Audit_Report';
   const fileName = `${projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
@@ -75,7 +65,7 @@ export default async function decorate(block) {
   container.className = 'report-header';
 
   const render = () => {
-    const metrics = getMetricsFromStorage();
+    const metrics = getUIAuditMetrics();
     const data = metrics?.data || [];
     const findVal = (key) => data.find((item) => item.key === key)?.value || '';
 
@@ -141,5 +131,8 @@ export default async function decorate(block) {
   block.replaceChildren(container);
   render();
 
-  onLocalStorageKeyChange(STORAGE_KEY, render);
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, render);
+  block.addEventListener('disconnected', () => {
+    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, render);
+  });
 }

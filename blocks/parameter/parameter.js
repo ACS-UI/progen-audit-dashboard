@@ -1,37 +1,4 @@
-import { onLocalStorageKeyChange } from '../../scripts/utils.js';
-
-function getScoreByKeyFromStorage() {
-  const scoreByKey = {};
-  let storedMetrics;
-
-  try {
-    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
-  } catch (e) {
-    storedMetrics = null;
-  }
-
-  if (!storedMetrics) return scoreByKey;
-
-  let parsedMetrics;
-  try {
-    parsedMetrics = JSON.parse(storedMetrics);
-  } catch (e) {
-    parsedMetrics = null;
-  }
-
-  const dataArray = Array.isArray(parsedMetrics)
-    ? parsedMetrics
-    : parsedMetrics?.data;
-  if (!Array.isArray(dataArray)) return scoreByKey;
-
-  dataArray.forEach((item) => {
-    if (item?.key && item?.value !== undefined) {
-      scoreByKey[item.key] = item.value;
-    }
-  });
-
-  return scoreByKey;
-}
+import { getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
 
 export default async function decorate(block) {
   const authoredRows = [...block.children];
@@ -59,7 +26,7 @@ export default async function decorate(block) {
 
   async function renderMetrics() {
     const rows = [...authoredRows];
-    const scoreByKey = getScoreByKeyFromStorage();
+    const scoreByKey = getScoreByKeyFromMetrics(getUIAuditMetrics());
     const headerRow = rows.shift();
 
     const iconNode = headerRow.querySelector('picture')?.cloneNode(true) || null;
@@ -306,13 +273,15 @@ export default async function decorate(block) {
     block.append(grid);
   }
 
+  // On render: use data from window if present, then listen for custom event
   await renderMetrics();
 
-  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+  const handleMetricsUpdate = () => {
     renderMetrics();
-  });
+  };
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
 
   block.addEventListener('disconnected', () => {
-    unsubscribe();
+    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
   });
 }
