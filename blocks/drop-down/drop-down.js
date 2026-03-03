@@ -157,7 +157,7 @@ export default async function decorate(block) {
         // eslint-disable-next-line no-use-before-define
         closeDropdown();
 
-        // On user interaction: set query params, then API call -> window -> custom event
+        // On user interaction: add data folder value to query params (project selector)
         if (isProjectSelector) {
           const url = new URL(window.location.href);
           url.searchParams.set('project', folderValue.toLowerCase());
@@ -253,6 +253,13 @@ export default async function decorate(block) {
         selectedOptionData.option.classList.add('selected');
         selectedOptionData.option.setAttribute('aria-selected', 'true');
         selectedDisplay.setAttribute('aria-activedescendant', selectedOptionData.option.id);
+
+        // Ensure data folder value is in query param on initial load (project selector)
+        if (isProjectSelector) {
+          const url = new URL(window.location.href);
+          url.searchParams.set('project', selectedOptionData.folderValue.toLowerCase());
+          window.history.replaceState({}, '', url);
+        }
 
         // Fetch project data for the initially selected option
         fetchProjectData(selectedOptionData.folderValue);
