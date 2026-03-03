@@ -32,6 +32,36 @@
   --dropdown-border-color: #e0e0e0;
   --dropdown-border-hover-color: #c0c0c0;
   --icon-color: #666;
+  
+  /* table colors */
+  --table-border-color: #eceef2;
+  --table-container-border-color: #e5e7eb;
+  --table-container-shadow-color: #0000001a;
+  --table-header-background-color: #f9fafb;
+  --table-header-text-color: #6a7282;
+  --table-body-text-color: #111827;
+  --table-row-hover-color: #f9fbff;
+  --table-severity-critical-text-color: #c10007;
+  --table-severity-critical-background-color: #ffe2e2;
+  --table-severity-high-text-color: #ca3500;
+  --table-severity-high-background-color: #ffedd4;
+  --table-severity-quick-win-text-color: #1447e6;
+  --table-severity-quick-win-background-color: #dbeafe;
+  --table-category-text-color: #364153;
+  --table-category-background-color: #f3f4f6;
+  --table-health-track-color: #d1d5db;
+  --table-health-fill-fallback-color: #fb2c36;
+  --table-health-value-fallback-color: #e7000b;
+
+  /* table typography */
+  --table-font-size-header: var(--body-font-size-xxs);
+  --table-font-size-body: 14px;
+  --table-font-size-meta: var(--body-font-size-xxs);
+  --table-font-size-icon: 10px;
+  --table-line-height-header: 16px;
+  --table-line-height-body: 1.45;
+  --table-line-height-meta: 16px;
+  --table-line-height-icon: 1;
 
   /* error colors */
   --error-color: #d32f2f;
@@ -332,3 +362,5 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+
