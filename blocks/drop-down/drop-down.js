@@ -1,4 +1,4 @@
-import { setLocalStorageItem } from '../../scripts/utils.js';
+import { setUIAuditMetrics } from '../../scripts/utils.js';
 
 export default async function decorate(block) {
   // Add class to the inner wrapper div if it exists
@@ -100,7 +100,7 @@ export default async function decorate(block) {
       optionsContainer.setAttribute('role', 'listbox');
       optionsContainer.setAttribute('aria-labelledby', labelId);
 
-      // Function to fetch project data and store in localStorage
+      // Function to fetch project data and store in window, then trigger custom event
       const fetchProjectData = async (selectedValue) => {
         if (!isProjectSelector) return;
 
@@ -114,10 +114,10 @@ export default async function decorate(block) {
 
           const metricsData = await metricsResponse.json();
 
-          // Store in localStorage
-          setLocalStorageItem('ui-audit-metrics', metricsData);
+          // Store in window and trigger custom event (other blocks listen and update)
+          setUIAuditMetrics(metricsData);
 
-          // Dispatch custom event with metrics data
+          // Block-level event for any block-specific listeners
           block.dispatchEvent(new CustomEvent('project-data-loaded', {
             detail: {
               project: selectedValue,
@@ -156,6 +156,13 @@ export default async function decorate(block) {
         // Close dropdown
         // eslint-disable-next-line no-use-before-define
         closeDropdown();
+
+        // On user interaction: set query params, then API call -> window -> custom event
+        if (isProjectSelector) {
+          const url = new URL(window.location.href);
+          url.searchParams.set('project', folderValue.toLowerCase());
+          window.history.replaceState({}, '', url);
+        }
 
         // Fetch project data if this is a project-selector using folder value
         await fetchProjectData(folderValue);

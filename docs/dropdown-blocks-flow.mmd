@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph Dropdown["Dropdown block"]
+        D1[On render]
+        D1 --> D2{Query params<br/>present?}
+        D2 -->|No| D3[Default project value<br/>selected in dropdown]
+        D2 -->|Yes| D4[Set dropdown value<br/>from query params]
+        D3 --> D5[API call]
+        D4 --> D5
+        D5 --> D6[Values stored in window]
+        D6 --> D7[Trigger custom event]
+
+        D8[On user interaction]
+        D8 --> D9[Set query params]
+        D9 --> D5
+    end
+
+    subgraph OtherBlocks["Other blocks"]
+        O1[On render]
+        O1 --> O2{Data in window?}
+        O2 -->|Yes| O3[Pick from window]
+        O2 -->|No| O4[Listen for custom event]
+        O3 --> O5[Update view]
+        O5 --> O4
+        O4 --> O6[Update view]
+    end
+
+    D7 -.->|custom event| O4
+
+    style D1 fill:#e1f5fe
+    style D8 fill:#e1f5fe
+    style O1 fill:#f3e5f5
+    style D7 fill:#c8e6c9
+    style O6 fill:#c8e6c9

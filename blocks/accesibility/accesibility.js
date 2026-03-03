@@ -1,4 +1,4 @@
-import { fetchFormJson, getFormUrl, onLocalStorageKeyChange } from '../../scripts/utils.js';
+import { fetchFormJson, getFormUrl, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
 
 function getScoreByKeyFromData(data) {
   const scoreByKey = {};
@@ -14,24 +14,8 @@ function getScoreByKeyFromData(data) {
   return scoreByKey;
 }
 
-function getScoreByKeyFromStorage() {
-  let storedMetrics;
-  try {
-    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
-  } catch (e) {
-    storedMetrics = null;
-  }
-
-  if (!storedMetrics) return {};
-
-  let parsedMetrics;
-  try {
-    parsedMetrics = JSON.parse(storedMetrics);
-  } catch (e) {
-    parsedMetrics = null;
-  }
-
-  return getScoreByKeyFromData(parsedMetrics);
+function getScoreByKeyFromWindow() {
+  return getScoreByKeyFromMetrics(getUIAuditMetrics());
 }
 
 export default async function decorate(block) {
@@ -244,20 +228,22 @@ export default async function decorate(block) {
   };
 
   const applyMetrics = () => {
-    const localScoreByKey = getScoreByKeyFromStorage();
+    const localScoreByKey = getScoreByKeyFromWindow();
     const scoreByKey = Object.keys(localScoreByKey).length > 0
       ? localScoreByKey
       : fallbackScoreByKey;
     render(scoreByKey);
   };
 
+  // On render: use data from window if present, then listen for custom event
   applyMetrics();
 
-  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+  const handleMetricsUpdate = () => {
     applyMetrics();
-  });
+  };
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
 
   block.addEventListener('disconnected', () => {
-    unsubscribe();
+    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
   });
 }

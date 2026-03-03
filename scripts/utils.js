@@ -16,6 +16,54 @@ export async function loadChartJs() {
 
 const LOCAL_STORAGE_CHANGE_EVENT = 'local-storage-change';
 
+/** Window storage namespace for UI audit metrics (replaces localStorage for this flow). */
+const UI_AUDIT_METRICS_KEY = 'uiAuditMetrics';
+/** Custom event name when metrics are updated (dropdown stores in window and dispatches this). */
+export const UI_AUDIT_METRICS_UPDATED_EVENT = 'ui-audit-metrics-updated';
+
+/**
+ * Stores UI audit metrics on the window object and dispatches a custom event.
+ * Used by the dropdown: after API call, values stored in window and this event notifies other blocks.
+ * @param {object|object[]} metrics - Metrics data (object or array format from API).
+ */
+export function setUIAuditMetrics(metrics) {
+  if (!window.__UI_AUDIT__) {
+    window.__UI_AUDIT__ = {};
+  }
+  window.__UI_AUDIT__[UI_AUDIT_METRICS_KEY] = metrics;
+  window.dispatchEvent(new CustomEvent(UI_AUDIT_METRICS_UPDATED_EVENT, {
+    detail: { metrics },
+  }));
+}
+
+/**
+ * Reads UI audit metrics from the window object.
+ * Other blocks use this on render: if data present, update view; then listen for UI_AUDIT_METRICS_UPDATED_EVENT.
+ * @returns {object|object[]|null} Stored metrics or null.
+ */
+export function getUIAuditMetrics() {
+  if (!window.__UI_AUDIT__) return null;
+  return window.__UI_AUDIT__[UI_AUDIT_METRICS_KEY] ?? null;
+}
+
+/**
+ * Builds a scoreByKey map from metrics (array or { data: array } of { key, value }).
+ * @param {object|object[]|null} metrics - From getUIAuditMetrics().
+ * @returns {Record<string, *>} Map of key -> value.
+ */
+export function getScoreByKeyFromMetrics(metrics) {
+  const scoreByKey = {};
+  if (metrics == null) return scoreByKey;
+  const dataArray = Array.isArray(metrics) ? metrics : metrics?.data;
+  if (!Array.isArray(dataArray)) return scoreByKey;
+  dataArray.forEach((item) => {
+    if (item?.key && item?.value !== undefined) {
+      scoreByKey[item.key] = item.value;
+    }
+  });
+  return scoreByKey;
+}
+
 /**
  * Writes a value to localStorage and emits a same-tab change event.
  * @param {string} key - Storage key.

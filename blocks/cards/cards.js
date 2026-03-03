@@ -1,5 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { loadChartJs, onLocalStorageKeyChange } from '../../scripts/utils.js';
+import { loadChartJs, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
   'overallScores.uiQualityScore',
@@ -101,37 +101,6 @@ function createProgressChart(canvas, score) {
   });
 }
 
-function getScoreByKeyFromStorage() {
-  const scoreByKey = {};
-  let storedMetrics;
-
-  try {
-    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
-  } catch (e) {
-    storedMetrics = null;
-  }
-
-  if (!storedMetrics) return scoreByKey;
-
-  let parsedMetrics;
-  try {
-    parsedMetrics = JSON.parse(storedMetrics);
-  } catch (e) {
-    parsedMetrics = null;
-  }
-
-  // Data can be stored either as an array or as { data: [...] }.
-  const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
-  if (!Array.isArray(dataArray)) return scoreByKey;
-
-  dataArray.forEach((item) => {
-    if (item?.key && item?.value !== undefined) {
-      scoreByKey[item.key] = item.value;
-    }
-  });
-
-  return scoreByKey;
-}
 
 function buildCardsList(block) {
   const ul = document.createElement('ul');
@@ -243,7 +212,7 @@ export default async function decorate(block) {
   block.replaceChildren(ul);
 
   const applyMetrics = async () => {
-    const scoreByKey = getScoreByKeyFromStorage();
+    const scoreByKey = getScoreByKeyFromMetrics(getUIAuditMetrics());
 
     if (isSummaryBlock) {
       renderSummaryCards(ul, scoreByKey);
@@ -254,13 +223,15 @@ export default async function decorate(block) {
     }
   };
 
+  // On render: use data from window if present, then listen for custom event
   await applyMetrics();
 
-  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+  const handleMetricsUpdate = () => {
     applyMetrics();
-  });
+  };
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
 
   block.addEventListener('disconnected', () => {
-    unsubscribe();
+    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
   });
 }

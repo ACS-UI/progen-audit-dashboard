@@ -1,4 +1,4 @@
-import { loadChartJs, onLocalStorageKeyChange } from '../../scripts/utils.js';
+import { loadChartJs, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
   'overallScores.uiQualityScore',
@@ -20,36 +20,6 @@ const SCORE_LABELS = [
 
 const BAR_COLORS = ['#3B82F6', '#A855F7', '#10B981', '#F97316', '#6366F1', '#0EA5E9'];
 
-function getScoreByKeyFromStorage() {
-  const scoreByKey = {};
-  let storedMetrics;
-
-  try {
-    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
-  } catch (e) {
-    storedMetrics = null;
-  }
-
-  if (!storedMetrics) return scoreByKey;
-
-  let parsedMetrics;
-  try {
-    parsedMetrics = JSON.parse(storedMetrics);
-  } catch (e) {
-    parsedMetrics = null;
-  }
-
-  const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
-  if (!Array.isArray(dataArray)) return scoreByKey;
-
-  dataArray.forEach((item) => {
-    if (item?.key && item?.value !== undefined) {
-      scoreByKey[item.key] = item.value;
-    }
-  });
-
-  return scoreByKey;
-}
 
 export default async function decorate(block) {
   const container = document.createElement('div');
@@ -57,7 +27,7 @@ export default async function decorate(block) {
   block.replaceChildren(container);
 
   const renderChart = async () => {
-    const scoreByKey = getScoreByKeyFromStorage();
+    const scoreByKey = getScoreByKeyFromMetrics(getUIAuditMetrics());
     const isMobile = window.matchMedia('(max-width: 1200px)').matches;
     const barThickness = isMobile ? 28 : 130;
 
@@ -212,14 +182,16 @@ export default async function decorate(block) {
     });
   };
 
+  // On render: use data from window if present, then listen for custom event
   await renderChart();
 
-  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
+  const handleMetricsUpdate = () => {
     renderChart();
-  });
+  };
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
 
   block.addEventListener('disconnected', () => {
-    unsubscribe();
+    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
     if (block.barChartInstance) {
       block.barChartInstance.destroy();
       delete block.barChartInstance;
