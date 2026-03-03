@@ -1,4 +1,8 @@
-import { onLocalStorageKeyChange } from '../../scripts/utils.js';
+import {
+  getUIAuditMetrics,
+  getScoreByKeyFromMetrics,
+  UI_AUDIT_METRICS_UPDATED_EVENT,
+} from '../../scripts/utils.js';
 
 const COLUMNS = ['Severity', 'ID', 'Description', 'Location', 'Category'];
 const COMPONENTS_COLUMNS = ['Component', 'Failed Checks', 'Critical Failures', 'Health'];
@@ -139,38 +143,7 @@ function createHealthCell(health) {
   return cell;
 }
 
-function getMetricsByKeyFromStorage() {
-  const metricsByKey = {};
-  let storedMetrics;
-
-  try {
-    storedMetrics = window.localStorage.getItem('ui-audit-metrics');
-  } catch (e) {
-    storedMetrics = null;
-  }
-
-  if (!storedMetrics) return metricsByKey;
-
-  let parsedMetrics;
-  try {
-    parsedMetrics = JSON.parse(storedMetrics);
-  } catch (e) {
-    parsedMetrics = null;
-  }
-
-  const dataArray = Array.isArray(parsedMetrics) ? parsedMetrics : parsedMetrics?.data;
-  if (!Array.isArray(dataArray)) return metricsByKey;
-
-  dataArray.forEach((item) => {
-    if (item?.key && item?.value !== undefined) {
-      metricsByKey[item.key] = item.value;
-    }
-  });
-
-  return metricsByKey;
-}
-
-function getTopIssuesFromStorage(metricsByKey) {
+function getTopIssuesFromMetrics(metricsByKey) {
   const parsedCount = parseInt(metricsByKey['topIssues.count'], 10);
   const countFromStorage = Number.isNaN(parsedCount) ? 0 : parsedCount;
   const indexedKeys = Object.keys(metricsByKey)
@@ -219,7 +192,7 @@ function getTopIssuesFromStorage(metricsByKey) {
   return rows;
 }
 
-function getComponentsFromStorage(metricsByKey) {
+function getComponentsFromMetrics(metricsByKey) {
   const parsedCount = parseInt(metricsByKey['componentsRequiringAttention.count'], 10);
   const countFromStorage = Number.isNaN(parsedCount) ? 0 : parsedCount;
   const indexedKeys = Object.keys(metricsByKey)
@@ -300,25 +273,22 @@ export default function decorate(block) {
   thead.append(headerRow);
 
   const applyMetrics = () => {
-    const metricsByKey = getMetricsByKeyFromStorage();
+    const metricsByKey = getScoreByKeyFromMetrics(getUIAuditMetrics());
 
     if (isComponentsVariation) {
-      const rows = getComponentsFromStorage(metricsByKey);
+      const rows = getComponentsFromMetrics(metricsByKey);
       renderComponentRows(tbody, rows);
     } else {
-      const rows = getTopIssuesFromStorage(metricsByKey);
+      const rows = getTopIssuesFromMetrics(metricsByKey);
       renderTopIssuesRows(tbody, rows);
     }
   };
 
   applyMetrics();
 
-  const unsubscribe = onLocalStorageKeyChange('ui-audit-metrics', () => {
-    applyMetrics();
-  });
-
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, applyMetrics);
   block.addEventListener('disconnected', () => {
-    unsubscribe();
+    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, applyMetrics);
   });
 
   table.append(thead, tbody);
