@@ -175,7 +175,7 @@
 /* Individual option */
 .drop-down-option {
   padding: 12px 20px;
-  font-size: 16px;
+  font-size: var(--fs-16);
   font-weight: 500;
   color: var(--text-color);
   cursor: pointer;
@@ -218,7 +218,7 @@
 /* Error state */
 .drop-down-error {
   color: var(--error-color);
-  font-size: 14px;
+  font-size: var(--fs-14);
   padding: 12px 20px;
   background-color: var(--error-background-color);
   border-radius: 12px;

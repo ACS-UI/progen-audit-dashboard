@@ -8,7 +8,7 @@
 }
 
 .cards > ul > li {
-  border: 1px solid #dadada;
+  border: 1px solid var(--cards-li-border-color);
   background-color: var(--background-color);
 }
 
@@ -45,11 +45,11 @@
 }
 
 .overall-scores.cards .cards-card-body > p:nth-of-type(2){
-  font-size: 14px;
+  font-size: var(--fs-14);
   font-weight: 500;
   letter-spacing: -0.15px;
   line-height: 20px;
-  color: #4A5565;
+  color: var(--text-muted-2);
 }
 
 .overall-scores.cards > ul > li img {
@@ -59,11 +59,11 @@
 
 .overall-scores.cards .cards-ui-quality-score-number {
   display: block;
-  font-size: 30px;
+  font-size: var(--fs-30);
   font-weight: 700;
   letter-spacing: 0.4px;
   line-height: 36px;
-  color: #1f2937;
+  color: var(--text-strong);
   float: right;
 }
 
@@ -105,7 +105,7 @@
 }
 
 .summary .cards-summary-value {
-  font-size: 24px;
+  font-size: var(--fs-24);
   font-weight: 700;
   line-height: 32px;
 }
@@ -116,11 +116,11 @@
 }
 
 .summary .cards-card-body p {
-  font-size: 14px;
+  font-size: var(--fs-14);
   font-weight: 400;
   line-height: 20px;
   margin-top: 0;
-  color: #4A5565;
+  color: var(--text-muted-2);
 }
 
 .summary .cards-card-body p:last-child {
