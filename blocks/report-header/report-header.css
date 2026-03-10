@@ -67,6 +67,37 @@
   transition: background 0.2s;
 }
 
+.report-header-status {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-header-status-text {
+  font-size: var(--body-font-size-s);
+  font-weight: 500;
+}
+
+.status-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-circle.status-red {
+  background-color: var(--status-red);
+}
+
+.status-circle.status-amber {
+  background-color: var(--status-amber);
+}
+
+.status-circle.status-green {
+  background-color: var(--status-green);
+}
+
 @media (width >=768px) {
   .report-header.block {
     padding: 24px 32px;

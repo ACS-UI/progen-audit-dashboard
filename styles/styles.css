@@ -63,6 +63,11 @@
   --table-line-height-meta: 16px;
   --table-line-height-icon: 1;
 
+  /* project status colors */
+  --status-red: #dc2626;
+  --status-amber: #f59e0b;
+  --status-green: #16a34a;
+  
   /* error colors */
   --error-color: #d32f2f;
   --error-background-color: #ffebee;

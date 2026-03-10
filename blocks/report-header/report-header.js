@@ -45,22 +45,24 @@ function parseAuthoredLabels(block) {
   const rows = [...block.children];
   let auditLabel = 'Audit';
   let buttonLabel = 'Download Report';
+  let statusLabel = 'Project Status';
 
   const firstCell = rows[0]?.querySelector('div:last-child');
 
-  if (rows.length >= 2) {
+  if (rows.length >= 3) {
     auditLabel = rows[0].querySelector('div:last-child')?.textContent.trim() || auditLabel;
     buttonLabel = rows[1].querySelector('div:last-child')?.textContent.trim() || buttonLabel;
+    statusLabel = rows[2].querySelector('div:last-child')?.textContent.trim() || statusLabel;
   } else if (firstCell) {
     const lines = firstCell.innerText.split('\n').map((t) => t.trim()).filter(Boolean);
-    [auditLabel, buttonLabel] = lines;
+    [auditLabel, buttonLabel, statusLabel] = lines;
   }
 
-  return { auditLabel, buttonLabel };
+  return { auditLabel, buttonLabel, statusLabel };
 }
 
 export default async function decorate(block) {
-  const { auditLabel, buttonLabel } = parseAuthoredLabels(block);
+  const { auditLabel, buttonLabel, statusLabel } = parseAuthoredLabels(block);
   const container = document.createElement('div');
   container.className = 'report-header';
 
@@ -75,8 +77,11 @@ export default async function decorate(block) {
     const date = new Date().toLocaleDateString('en-GB');
 
     // Fetch the project status. Adjust 'metadata.status' to the actual key in JSON.
-    const status = findVal('metadata.status')?.toLowerCase() ?? 'green';
-    const iconName = status === 'red' ? 'close' : 'check';
+    const statusVal = (
+      findVal('overallStatus.ragRating') || 'green'
+    ).toLowerCase();
+
+    const statusClass = statusVal;
 
     container.replaceChildren();
 
@@ -90,16 +95,19 @@ export default async function decorate(block) {
     headerTitle.className = 'report-header-title';
     headerTitle.textContent = projectName;
 
-    const iconSpan = document.createElement('span');
-    iconSpan.className = `icon icon-${iconName}`;
-    headerTitle.append(iconSpan);
-
+    const headerStatus = document.createElement('div');
+    headerStatus.className = 'report-header-status';
+    const statusCircle = document.createElement('span');
+    statusCircle.className = `status-circle status-${statusClass}`;
+    const headerStatusText = document.createElement('span');
+    headerStatusText.className = 'report-header-status-text';
+    headerStatusText.textContent = `${statusLabel}: `;
     const headerMeta = document.createElement('div');
     headerMeta.className = 'report-header-meta';
     headerMeta.textContent = `${auditLabel} • ${date} ${commitId ? `• Commit Id - ${commitId}` : ''}`;
 
-    headerLeft.append(headerTitle, headerMeta);
-
+    headerStatus.append(headerStatusText, statusCircle);
+    headerLeft.append(headerTitle, headerMeta, headerStatus);
     const headerRight = document.createElement('div');
     headerRight.className = 'report-header-right';
 
