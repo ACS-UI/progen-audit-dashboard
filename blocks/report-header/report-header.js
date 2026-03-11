@@ -121,7 +121,7 @@ export default async function decorate(block) {
     headerButton.setAttribute('aria-label', buttonLabel);
     headerButton.textContent = buttonLabel;
     headerButton.addEventListener('click', downloadReportAsPDF);
-    headerMeta.append(headerButton);
+    headerLeft.append(headerButton);
     headerMain.append(headerLeft, headerRight);
     container.append(headerMain);
     decorateIcons(container);

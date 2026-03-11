@@ -448,3 +448,13 @@ header .nav-desktop-toggle {
     margin-left: 80px !important;
   }
 }
+
+@media (width <= 768px) {
+  body[data-metrics-blank="true"] .report-header-wrapper {
+    display: none;
+  }
+
+  body[data-metrics-blank="false"] .report-header-wrapper {
+    display: block;
+  }
+}

@@ -19,8 +19,7 @@
   color: var(--text-color);
   text-transform: capitalize;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: flex-start;
 }
 
 .report-header-meta {
@@ -136,8 +135,8 @@
   }
 
   .report-header-button {
-    width: auto;
     margin: 1rem 0;
+    width: fit-content;
   }
 
   .report-header-wrapper {

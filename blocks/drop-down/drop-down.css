@@ -1,12 +1,16 @@
 /* Period selector: mobile-first (stacked on small screens, row from 769px) */
 .section.period-selector.drop-down-container {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 0.75rem;
   padding-top: 0;
   padding-bottom: 0.5rem;
   margin-top: 80px;
+}
+
+.section.period-selector .report-header-wrapper {
+  width: 100%;
 }
 
 .section.period-selector .default-content-wrapper p {
@@ -18,9 +22,15 @@
 }
 
 .section.period-selector .drop-down-wrapper {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   margin: 0;
   padding: 0;
+  width: 100%;
+}
+
+.section.period-selector .drop-down-wrapper:nth-last-child(2),
+.section.period-selector .drop-down-wrapper:nth-last-child(1) {
+  width: calc(50% - 0.375rem); /* Exactly half the width minus half the 0.75rem flex gap */
 }
 
 .section.period-selector .drop-down {
@@ -44,6 +54,18 @@
     padding: 0;
     flex-shrink: 0;
   }
+
+    .section.period-selector .report-header-wrapper,
+  .section.period-selector .drop-down-wrapper,
+  .section.period-selector .drop-down-wrapper:nth-last-child(2),
+  .section.period-selector .drop-down-wrapper:nth-last-child(1) {
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .section.period-selector .drop-down-custom {
+    width: 150px;
+  }
 }
 
 @media (width <= 1024px) {
@@ -65,13 +87,11 @@
 /* Custom dropdown container */
 .drop-down-custom {
   position: relative;
-  width: fit-content;
-  max-width: unset;
   background-color: var(--white-color);
   box-shadow: 0 1px 2px var(--shadow-light);
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  min-width: 150px;
+  min-width: 120px;
   border: 1px solid #d1d1d1;
   border-radius: 8px;
 }
@@ -105,11 +125,6 @@
   }
 }
 
-.drop-down-selected:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
 .drop-down-selected:focus:not(:focus-visible) {
   outline: none;
 }
@@ -120,6 +135,9 @@
   color: var(--text-color);
   line-height: 1.44;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .drop-down-status {
@@ -132,8 +150,8 @@
 /* Dropdown arrow */
 .drop-down-arrow {
   position: absolute;
-  right: 20px;
-  top: 50%;
+  right: 5px;
+  top: 40%;
   transform: translateY(-50%);
   width: 12px;
   height: 8px;
@@ -259,7 +277,6 @@
   gap: 10px;
 }
 
-/* Horizontal line as requested in your sketch */
 .section.period-selector::after {
   content: "";
   display: block;
