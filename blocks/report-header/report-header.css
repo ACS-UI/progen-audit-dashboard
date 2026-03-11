@@ -19,7 +19,7 @@
   color: var(--text-color);
   text-transform: capitalize;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .report-header-meta {
