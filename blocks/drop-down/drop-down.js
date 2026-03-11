@@ -129,7 +129,17 @@ export default async function decorate(block) {
 
     const selectedStatus = document.createElement('span');
     selectedStatus.className = 'drop-down-status';
-    selectedStatus.textContent = 'Active';
+
+    if (isProjectSelector) {
+      selectedStatus.textContent = 'Project';
+    } else if (isYear) {
+      selectedStatus.textContent = 'Year';
+    } else if (isQuarter) {
+      selectedStatus.textContent = 'Quarter';
+    } else {
+      selectedStatus.textContent = 'Active';
+    }
+
     selectedStatus.setAttribute('aria-live', 'polite');
 
     selectedDisplay.appendChild(selectedTitle);

@@ -1,8 +1,9 @@
 .report-header.block {
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 20px 16px;
   background-color: var(--background-color);
+}
+
+.report-header-container {
+  margin-bottom: 0 !important;
 }
 
 .report-header-main {
@@ -19,11 +20,10 @@
   text-transform: capitalize;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
 .report-header-meta {
-  font-size: var(--body-font-size-xs);
+  font-size: var(--body-font-size-xxs);
   color: var(--text-light-color);
   margin-top: 4px;
   overflow-wrap: break-word;
@@ -51,7 +51,7 @@
 .report-header-value {
   font-weight: 700;
   color: var(--text-color);
-  font-size: var(--body-font-size-s);
+  font-size: var(--body-font-size-xxs);
 }
 
 .report-header-button {
@@ -65,6 +65,7 @@
   cursor: pointer;
   width: 100%;
   transition: background 0.2s;
+  margin:1rem 0;
 }
 
 .report-header-status {
@@ -79,30 +80,39 @@
   font-weight: 500;
 }
 
-.status-circle {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+.project-status-badge {
   display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px; /* pill */
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  vertical-align: middle;
+  text-transform: none;
+  box-shadow: none;
+  border: 1px solid transparent;
 }
 
-.status-circle.status-red {
-  background-color: var(--status-red);
+.project-status-badge.status-green {
+  color: var(--status-green);
+  background-color: var(--status-green-bg);
+  border-color: rgb(11 107 58 / 8%);
 }
 
-.status-circle.status-amber {
-  background-color: var(--status-amber);
+.project-status-badge.status-amber {
+  color: var(--status-amber);
+  background-color: var(--status-amber-bg);
+  border-color: rgb(138 90 0 / 8%);
 }
 
-.status-circle.status-green {
-  background-color: var(--status-green);
+.project-status-badge.status-red {
+  color: var(--status-red);
+  background-color: var(--status-red-bg);
+  border-color: rgb(136 23 29 / 8%);
 }
 
 @media (width >=768px) {
-  .report-header.block {
-    padding: 24px 32px;
-  }
-
   .report-header-title {
     font-size: var(--heading-font-size-l);
   }
@@ -121,18 +131,36 @@
 
   .report-header-version {
     text-align: right;
+    display: flex;
   }
 
   .report-header-button {
-    width: auto;
+    margin: 1rem 0;
+    width: fit-content;
+  }
+
+  .report-header-wrapper {
+    padding: 0 !important;
+  }
+
+  .project-status-badge {
+    font-size: 0.9rem;
+    padding: 0.1875rem 0.625rem;
   }
 }
 
-/* PDF Styling */
 .pdf-export-mode {
   display: flex;
   justify-content: center;
   background-color: white;
+  min-height: 100vh;
+}
+
+.pdf-export-mode .project-status-badge {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  box-shadow: none;
+  border-color: transparent;
 }
 
 .pdf-export-mode main {
@@ -160,4 +188,58 @@
 
 .pdf-export-mode :is(.nav-wrapper, .footer-wrapper, .report-header-button, .drop-down-custom, .dashboard-section, .header-wrapper) {
   display: none;
+}
+
+.report-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section.report-header-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 0;
+}
+
+.report-header-wrapper {
+  flex: 1;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.section.report-header-container .drop-down-wrapper {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.pdf-export-mode .section:first-of-type {
+  break-inside: auto !important;
+  break-after: avoid !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 10px !important;
+}
+
+.pdf-export-mode .section:nth-of-type(2) {
+  break-before: avoid !important;
+  margin-top: 0 !important;
+}
+
+.pdf-export-mode .section {
+  break-inside: avoid;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.pdf-export-mode .report-header.block {
+  margin-bottom: 0 !important;
+  padding: 10px 0 !important;
+}
+
+.pdf-export-mode .overall-scores.block {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }

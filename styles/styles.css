@@ -64,10 +64,13 @@
   --table-line-height-icon: 1;
 
   /* project status colors */
-  --status-red: #dc2626;
-  --status-amber: #f59e0b;
-  --status-green: #16a34a;
-  
+  --status-green: #0b6b3a;       
+  --status-green-bg: #e6f6ec;    
+  --status-amber: #8a5a00;       
+  --status-amber-bg: #fff4d9;    
+  --status-red: #88171d;         
+  --status-red-bg: #fdecea;
+
   /* error colors */
   --error-color: #d32f2f;
   --error-background-color: #ffebee;
@@ -168,7 +171,9 @@ body {
 }
 
 body.appear {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 header .header,
@@ -246,7 +251,10 @@ main>div {
   margin: 40px 16px;
 }
 
-
+main {
+  flex: 1 0 auto;
+  min-height: 0;
+}
 /* Adjust for sidebar navigation on desktop */
 @media (width >=900px) {
   main {
@@ -369,3 +377,6 @@ main .section.highlight {
 }
 
 
+main:has(.audit-report-unavailable) ~ .report-header-wrapper{
+  display: none;
+}

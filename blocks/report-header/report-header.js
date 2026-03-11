@@ -34,7 +34,6 @@ async function downloadReportAsPDF() {
 
     await window.html2pdf().set(options).from(element).save();
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('PDF Export Error:', err);
   } finally {
     document.body.classList.remove('pdf-export-mode');
@@ -45,24 +44,22 @@ function parseAuthoredLabels(block) {
   const rows = [...block.children];
   let auditLabel = 'Audit';
   let buttonLabel = 'Download Report';
-  let statusLabel = 'Project Status';
 
   const firstCell = rows[0]?.querySelector('div:last-child');
 
-  if (rows.length >= 3) {
+  if (rows.length >= 2) {
     auditLabel = rows[0].querySelector('div:last-child')?.textContent.trim() || auditLabel;
     buttonLabel = rows[1].querySelector('div:last-child')?.textContent.trim() || buttonLabel;
-    statusLabel = rows[2].querySelector('div:last-child')?.textContent.trim() || statusLabel;
   } else if (firstCell) {
     const lines = firstCell.innerText.split('\n').map((t) => t.trim()).filter(Boolean);
-    [auditLabel, buttonLabel, statusLabel] = lines;
+    [auditLabel, buttonLabel] = lines;
   }
 
-  return { auditLabel, buttonLabel, statusLabel };
+  return { auditLabel, buttonLabel };
 }
 
 export default async function decorate(block) {
-  const { auditLabel, buttonLabel, statusLabel } = parseAuthoredLabels(block);
+  const { auditLabel, buttonLabel } = parseAuthoredLabels(block);
   const container = document.createElement('div');
   container.className = 'report-header';
 
@@ -72,17 +69,16 @@ export default async function decorate(block) {
     const findVal = (key) => data.find((item) => item.key === key)?.value || '';
 
     const projectName = findVal('metadata.projectName');
-    const commitId = findVal('metadata.commitId');
     const version = findVal('metadata.checklistVersion');
     const date = new Date().toLocaleDateString('en-GB');
 
-    // Fetch the project status. Adjust 'metadata.status' to the actual key in JSON.
-    const statusVal = (
-      findVal('overallStatus.ragRating') || 'green'
-    ).toLowerCase();
+    const rawStatus = findVal('overallStatus.ragRating');
 
-    const statusClass = statusVal;
+    const normalizedStatus = rawStatus
+      ? rawStatus.toString().trim().toLowerCase()
+      : '';
 
+    const isValidStatus = ['green', 'amber', 'red'].includes(normalizedStatus);
     container.replaceChildren();
 
     const headerMain = document.createElement('div');
@@ -93,44 +89,39 @@ export default async function decorate(block) {
 
     const headerTitle = document.createElement('h1');
     headerTitle.className = 'report-header-title';
+    headerTitle.setAttribute('aria-label', `Project name: ${projectName}`);
     headerTitle.textContent = projectName;
 
-    const headerStatus = document.createElement('div');
-    headerStatus.className = 'report-header-status';
-    const statusCircle = document.createElement('span');
-    statusCircle.className = `status-circle status-${statusClass}`;
-    const headerStatusText = document.createElement('span');
-    headerStatusText.className = 'report-header-status-text';
-    headerStatusText.textContent = `${statusLabel}: `;
+    if (isValidStatus) {
+      const statusLabelTextMap = {
+        green: 'Green',
+        amber: 'Amber',
+        red: 'Red',
+      };
+
+      const projectBadge = document.createElement('span');
+      projectBadge.className = `project-status-badge status-${normalizedStatus}`;
+      projectBadge.setAttribute('role', 'status');
+      projectBadge.setAttribute('aria-label', `Project status: ${statusLabelTextMap[normalizedStatus]}`);
+      projectBadge.textContent = statusLabelTextMap[normalizedStatus];
+
+      headerTitle.appendChild(projectBadge);
+    }
     const headerMeta = document.createElement('div');
     headerMeta.className = 'report-header-meta';
-    headerMeta.textContent = `${auditLabel} • ${date} ${commitId ? `• Commit Id - ${commitId}` : ''}`;
+    headerMeta.textContent = `${auditLabel} • ${date} | Checklist Version: ${version}`;
 
-    headerStatus.append(headerStatusText, statusCircle);
-    headerLeft.append(headerTitle, headerMeta, headerStatus);
+    headerLeft.append(headerTitle, headerMeta);
+
     const headerRight = document.createElement('div');
     headerRight.className = 'report-header-right';
-
-    const headerVersion = document.createElement('div');
-    headerVersion.className = 'report-header-version';
-
-    const versionLabel = document.createElement('span');
-    versionLabel.className = 'report-header-label';
-    versionLabel.textContent = 'Checklist Version';
-
-    const versionValue = document.createElement('span');
-    versionValue.className = 'report-header-value';
-    versionValue.textContent = version;
-
-    headerVersion.append(versionLabel, versionValue);
 
     const headerButton = document.createElement('button');
     headerButton.className = 'report-header-button';
     headerButton.setAttribute('aria-label', buttonLabel);
     headerButton.textContent = buttonLabel;
     headerButton.addEventListener('click', downloadReportAsPDF);
-    headerRight.append(headerVersion, headerButton);
-
+    headerLeft.append(headerButton);
     headerMain.append(headerLeft, headerRight);
     container.append(headerMain);
     decorateIcons(container);

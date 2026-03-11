@@ -87,6 +87,12 @@ export function setMainVisibilityByMetrics(metrics) {
   let messageEl = document.getElementById(AUDIT_REPORT_UNAVAILABLE_ID);
   if (hasMetrics) {
     if (messageEl) messageEl.style.display = 'none';
+
+    // Show report-header-wrapper when metrics are available
+    const reportHeaderWrappers = document.querySelectorAll('.report-header-wrapper');
+    reportHeaderWrappers.forEach((el) => {
+      el.style.visibility = 'visible';
+    });
   } else {
     if (!messageEl) {
       messageEl = document.createElement('div');
@@ -97,6 +103,12 @@ export function setMainVisibilityByMetrics(metrics) {
       main.appendChild(messageEl);
     }
     messageEl.style.display = 'block';
+
+    // Hide report-header-wrapper when metrics are unavailable
+    const reportHeaderWrappers = document.querySelectorAll('.report-header-wrapper');
+    reportHeaderWrappers.forEach((el) => {
+      el.style.visibility = 'hidden';
+    });
   }
 }
 
