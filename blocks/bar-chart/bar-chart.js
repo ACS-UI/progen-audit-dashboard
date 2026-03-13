@@ -1,5 +1,8 @@
 import {
-  loadChartJs, getUIAuditMetrics, getScoreByKeyFromMetrics, UI_AUDIT_METRICS_UPDATED_EVENT,
+  loadChartJs,
+  getUIAuditMetrics,
+  getScoreByKeyFromMetrics,
+  UI_AUDIT_METRICS_UPDATED_EVENT,
 } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
@@ -20,7 +23,14 @@ const SCORE_LABELS = [
   'UX Compliance',
 ];
 
-const BAR_COLORS = ['#3B82F6', '#A855F7', '#10B981', '#F97316', '#6366F1', '#0EA5E9'];
+const BAR_COLORS = [
+  '#3B82F6',
+  '#A855F7',
+  '#10B981',
+  '#F97316',
+  '#6366F1',
+  '#0EA5E9',
+];
 
 export default async function decorate(block) {
   const container = document.createElement('div');
@@ -29,9 +39,6 @@ export default async function decorate(block) {
 
   const renderChart = async () => {
     const scoreByKey = getScoreByKeyFromMetrics(getUIAuditMetrics());
-    const isMobile = window.matchMedia('(max-width: 1200px)').matches;
-    const barThickness = isMobile ? 28 : 130;
-
     const chartValues = SCORE_KEYS.map((key) => {
       const parsedScore = parseInt(scoreByKey[key], 10);
       if (Number.isNaN(parsedScore)) return null;
@@ -121,7 +128,8 @@ export default async function decorate(block) {
               bottomRight: 0,
             },
             borderSkipped: false,
-            barThickness,
+            barThicknessValue: window.innerWidth / SCORE_KEYS.length,
+            maxBarThickness: 120,
           },
         ],
       },
@@ -134,7 +142,7 @@ export default async function decorate(block) {
               display: false,
               drawOnChartArea: false,
               drawTicks: true,
-              tickLength: 6,
+              tickLength: SCORE_KEYS.length,
               color: '#E5E7EB',
             },
             border: {
@@ -176,7 +184,7 @@ export default async function decorate(block) {
         },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: false },
+          tooltip: { enabled: true },
         },
       },
       plugins: [dashedGridPlugin],
@@ -191,8 +199,17 @@ export default async function decorate(block) {
   };
   window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
 
+  window.addEventListener('resize', () => {
+    if (block.barChartInstance) {
+      renderChart();
+    }
+  });
+
   block.addEventListener('disconnected', () => {
-    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
+    window.removeEventListener(
+      UI_AUDIT_METRICS_UPDATED_EVENT,
+      handleMetricsUpdate,
+    );
     if (block.barChartInstance) {
       block.barChartInstance.destroy();
       delete block.barChartInstance;

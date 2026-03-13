@@ -65,7 +65,7 @@
   cursor: pointer;
   width: 100%;
   transition: background 0.2s;
-  margin:1rem 0;
+  margin: 1rem 0;
 }
 
 .report-header-status {
@@ -164,8 +164,6 @@
 }
 
 .pdf-export-mode main {
-  width: 1100px;
-  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 0;
   display: flex;
@@ -173,7 +171,15 @@
   align-items: center;
 }
 
-.pdf-export-mode :is(.section, .report-header, .overall-scores, .summary, .parameter, .score-overview) {
+.pdf-export-mode
+  :is(
+    .section,
+    .report-header,
+    .overall-scores,
+    .summary,
+    .parameter,
+    .score-overview
+  ) {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -186,7 +192,15 @@
   gap: 20px;
 }
 
-.pdf-export-mode :is(.nav-wrapper, .footer-wrapper, .report-header-button, .drop-down-custom, .dashboard-section, .header-wrapper) {
+.pdf-export-mode
+  :is(
+    .nav-wrapper,
+    .footer-wrapper,
+    .report-header-button,
+    .drop-down-custom,
+    .dashboard-section,
+    .header-wrapper
+  ) {
   display: none;
 }
 

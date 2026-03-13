@@ -258,6 +258,7 @@ export default async function decorate(block) {
     };
 
     const closeDropdown = () => {
+      if (!dropdownContainer.classList.contains('open')) return;
       dropdownContainer.classList.remove('open');
       dropdownContainer.setAttribute('aria-expanded', 'false');
       selectedDisplay.focus();

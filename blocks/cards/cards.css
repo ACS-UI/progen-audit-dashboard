@@ -41,10 +41,10 @@
 }
 
 .overall-scores.cards .cards-card-body {
-    margin: unset;
+  margin: unset;
 }
 
-.overall-scores.cards .cards-card-body > p:nth-of-type(2){
+.overall-scores.cards .cards-card-body > p:nth-of-type(2) {
   font-size: var(--fs-14);
   font-weight: 500;
   letter-spacing: -0.15px;
@@ -112,7 +112,7 @@
 
 .summary .cards-card-body {
   padding: 17px;
-  margin:unset;
+  margin: unset;
 }
 
 .summary .cards-card-body p {
