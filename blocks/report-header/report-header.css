@@ -83,8 +83,8 @@
 .project-status-badge {
   display: inline-block;
   margin-left: 0.5rem;
-  padding: 0.125rem 0.5rem;/* pill */
-  border-radius: 999px;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;/* pill */
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
