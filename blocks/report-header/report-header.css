@@ -65,7 +65,7 @@
   cursor: pointer;
   width: 100%;
   transition: background 0.2s;
-  margin: 1rem 0;
+  margin:1rem 0;
 }
 
 .report-header-status {
@@ -83,7 +83,7 @@
 .project-status-badge {
   display: inline-block;
   margin-left: 0.5rem;
-  padding: 0.125rem 0.5rem;
+  padding: 0.125rem 0.5rem;/* pill */
   border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 600;
