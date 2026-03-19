@@ -7,9 +7,7 @@
     "lint:js": "npx eslint .",
     "lint:css": "npx stylelint \"blocks/**/*.css\" \"styles/fonts.css\" \"styles/lazy-styles.css\" \"styles/styles.css\"",
     "lint": "npm run lint:js && npm run lint:css",
-    "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix",
-    "tailwind:build": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind-generated.css --minify",
-    "tailwind:watch": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind-generated.css --watch"
+    "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix"
   },
   "repository": {
     "type": "git",
@@ -23,12 +21,10 @@
   "homepage": "https://github.com/adobe/aem-boilerplate#readme",
   "devDependencies": {
     "@babel/eslint-parser": "7.28.6",
-    "@tailwindcss/cli": "^4.2.1",
     "eslint": "8.57.1",
     "eslint-config-airbnb-base": "15.0.0",
     "eslint-plugin-import": "2.32.0",
     "stylelint": "17.1.1",
-    "stylelint-config-standard": "40.0.0",
-    "tailwindcss": "^4.2.1"
+    "stylelint-config-standard": "40.0.0"
   }
 }

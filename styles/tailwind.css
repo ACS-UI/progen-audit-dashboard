@@ -1,6 +1,0 @@
-@import "tailwindcss";
-
-@source "../*.html";
-@source "../blocks";
-@source "../scripts";
-@source "../styles";

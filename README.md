@@ -17,7 +17,6 @@ Before using the aem-boilerplate, we recommand you to go through the documentati
 
 ```sh
 npm i
-npm run tailwind:build
 ```
 
 ## Linting
@@ -25,22 +24,6 @@ npm run tailwind:build
 ```sh
 npm run lint
 ```
-
-## Tailwind CSS
-
-This project uses Tailwind CSS v4 through the standalone CLI so it works cleanly with the existing EDS/AEM setup.
-
-```sh
-npm run tailwind:build
-```
-
-For local development, keep Tailwind rebuilding in a separate terminal:
-
-```sh
-npm run tailwind:watch
-```
-
-The Tailwind source file lives at `styles/tailwind.css`, and the generated stylesheet is written to `styles/tailwind-generated.css`.
 
 ## Local development
 
