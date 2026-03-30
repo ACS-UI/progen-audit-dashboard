@@ -19,6 +19,17 @@ Before using the aem-boilerplate, we recommand you to go through the documentati
 npm i
 ```
 
+## Git Hooks
+
+Install the repo-managed hooks with:
+
+```sh
+npm run hooks:install
+```
+
+The `post-merge` hook runs only when a merge completes on the `dev` branch.
+It deletes generated `blocks/**/*.css` files first, while preserving `blocks/**/*.tw.css`, and then runs `npm run build` so the CSS is recreated cleanly and merge conflicts are reduced.
+
 ## Linting
 
 ```sh

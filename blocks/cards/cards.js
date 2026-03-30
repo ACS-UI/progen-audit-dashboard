@@ -166,61 +166,27 @@ function renderSummaryCards(ul, scoreByKey) {
   });
 }
 
-async function renderOverallScoreCards(ul, scoreByKey) {
-  const scoreValues = SCORE_KEYS
-    .map((key) => scoreByKey[key])
-    .filter((value) => value !== undefined && value !== null);
-  if (scoreValues.length === 0) return;
-
-  await loadChartJs();
-
-  const cards = [...ul.querySelectorAll('li')];
-  cards.forEach((card, index) => {
-    const scoreKey = SCORE_KEYS[index];
-    const scoreValue = scoreByKey[scoreKey];
-    if (scoreValue === undefined || scoreValue === null) return;
-
-    const cardBody = card.querySelector('.cards-card-body');
-    if (!cardBody) return;
-
-    const existingScoreNumber = cardBody.querySelector('.cards-ui-quality-score-number');
-    if (existingScoreNumber) existingScoreNumber.remove();
-
-    const existingChart = cardBody.querySelector('.cards-ui-quality-score');
-    if (existingChart) existingChart.remove();
-
-    const scoreNumber = document.createElement('span');
-    scoreNumber.className = 'cards-ui-quality-score-number';
-    scoreNumber.textContent = scoreValue;
-    scoreNumber.style.color = getScoreColor(scoreValue);
-    cardBody.prepend(scoreNumber);
-
-    const chartContainer = document.createElement('div');
-    chartContainer.className = 'cards-ui-quality-score';
-    const canvas = document.createElement('canvas');
-    chartContainer.appendChild(canvas);
-    cardBody.append(chartContainer);
-
-    createProgressChart(canvas, scoreValue);
-  });
+async function renderOverallScoreCards(block) {
+  // block.innerHTML = '';
+  console.log(block);
+  block.classList.add('cmp-card');
 }
 
 export default async function decorate(block) {
   const isOverallScoresBlock = !!block.classList.contains('overall-scores');
   const isSummaryBlock = !!block.classList.contains('summary');
 
-  const ul = buildCardsList(block);
-  block.replaceChildren(ul);
-
   const applyMetrics = async () => {
     const scoreByKey = getScoreByKeyFromMetrics(getUIAuditMetrics());
 
     if (isSummaryBlock) {
+      const ul = buildCardsList(block);
+      block.replaceChildren(ul);
       renderSummaryCards(ul, scoreByKey);
     }
 
     if (isOverallScoresBlock) {
-      await renderOverallScoreCards(ul, scoreByKey);
+      await renderOverallScoreCards(block);
     }
   };
 

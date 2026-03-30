@@ -1,4 +1,7 @@
-/* Period selector: mobile-first (stacked on small screens, row from 769px) */
+@reference '../../styles/global.tw.css';
+
+@layer components {
+    /* Period selector: mobile-first (stacked on small screens, row from 769px) */
 .section.period-selector.drop-down-container {
   display: flex;
   flex-wrap: wrap;
@@ -286,4 +289,6 @@
   position: absolute;
   bottom: -10px;
   left: 0;
+}
+
 }

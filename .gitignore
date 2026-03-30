@@ -7,3 +7,7 @@ helix-importer-ui
 .DS_Store
 *.bak
 .idea
+blocks/**/*.css
+!blocks/**/*.tw.css
+styles/global.css
+!styles/global.tw.css
