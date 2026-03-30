@@ -3,16 +3,37 @@
 @theme static {
   --font-sans: roboto, ui-sans-serif, system-ui, sans-serif;
   --color-theme-bg: #fff;
+  --color-card-bg: var(--color-white);
+  --color-card-foreground: var(--color-slate-500);
+  --color-card-border: color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent);
+  --color-background-color: color-mix(in oklab,var(--color-slate-200)80%,transparent);
+  --color-card-shadow: var(--tw-shadow-color);
   --breakpoint-xs: 768px;
   --spacing-section: 2.5rem;
 }
 
 [data-theme="dark"] {
-  --color-theme-bg: oklch(96.7% 0.003 264.542deg);
+  --color-background-color: #0b0e14;
+  --color-card-bg: #161b22;
+  --color-card-foreground: #8b949e;
+  --color-card-border: #30363d;
+  --color-card-shadow: 0 1px 3px rgba(0,0,0,0.35);
 }
 
 @layer base {
   body {
-    background-color: oklch(96.7% 0.003 264.542deg);
+    @apply bg-background-color;
+    @apply font-sans;
+  }
+
+  .main-container {
+    @apply mx-auto container px-4 py-4 sm:px-6 sm:py-5 lg:py-6 ml-auto!;
+  }
+
+  .section.period-selector.report-header-container.drop-down-container, .header-wrapper, .footer-wrapper {
+    @apply hidden!;
+  }
+  .cmp-container {
+    @apply grid grid-cols-12 gap-4;
   }
 }

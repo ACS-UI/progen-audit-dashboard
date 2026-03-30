@@ -1,11 +1,11 @@
 @reference "../../styles/global.tw.css";
 
 @layer components {
-  .cmp-card {
+  .cmp-overview {
     @apply rounded-2xl border border-card-border bg-card-bg p-3 pt-3 shadow-sm text-card-foreground sm:p-4 sm:pt-4;
   }
 
-  .overall-scores-container {
+  .overview-grid {
     @apply col-span-3;
   }
 }

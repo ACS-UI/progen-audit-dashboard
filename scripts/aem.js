@@ -492,7 +492,11 @@ function decorateIcons(element, prefix = '') {
  * @param {Element} main The container element
  */
 function decorateSections(main) {
-  main.querySelectorAll(':scope > div').forEach((section) => {
+  const sections = [...main.querySelectorAll(':scope > div')];
+  const sectionsContainer = document.createElement('div');
+  sectionsContainer.classList.add('cmp-container');
+
+  sections.forEach((section) => {
     const wrappers = [];
     let defaultContent = false;
     [...section.children].forEach((e) => {
@@ -527,6 +531,9 @@ function decorateSections(main) {
       sectionMeta.parentNode.remove();
     }
   });
+  sectionsContainer.append(...sections);
+  main.replaceChildren(sectionsContainer);
+  main.classList.add('main-container');
 }
 
 /**
