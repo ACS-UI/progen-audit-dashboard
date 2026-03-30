@@ -59,9 +59,9 @@
     }
 
     .parameter-grid {
-        display: grid;
-        grid-template-columns: 1fr;
+        display: flex;
         gap: 20px;
+        flex-wrap: wrap;
         /* Mobile */
         @media (width >= 600px) {
             grid-template-columns: repeat(2, 1fr);
@@ -83,6 +83,7 @@
             border-radius: 14px;
             display: flex;
             flex-direction: column;
+            min-width: 200px;
 
             .metric-value {
                 font-size: var(--fs-26);
