@@ -4,6 +4,8 @@
   "version": "1.3.0",
   "description": "Starter project for Adobe Helix",
   "scripts": {
+    "build": "npm run tw:build",
+    "hooks:install": "git config core.hooksPath .githooks",
     "lint:js": "npx eslint .",
     "lint:css": "npx stylelint \"blocks/**/*.css\" \"styles/*.css\"",
     "lint": "npm run lint:js && npm run lint:css",

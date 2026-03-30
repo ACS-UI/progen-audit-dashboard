@@ -19,6 +19,16 @@ Before using the aem-boilerplate, we recommand you to go through the documentati
 npm i
 ```
 
+## Git Hooks
+
+Install the repo-managed hooks with:
+
+```sh
+npm run hooks:install
+```
+
+The hooks run `npm run build` whenever a merge completes on the `dev` branch, and also after checking out the `dev` branch.
+
 ## Linting
 
 ```sh

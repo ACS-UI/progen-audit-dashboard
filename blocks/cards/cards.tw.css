@@ -2,7 +2,7 @@
 
 @layer components {
   .cmp-card {
-    @apply shadow xs:bg-theme-bg;
+    @apply shadow-xl xs:bg-theme-bg;
 
     p {
       color: oklch(51.1% 0.262 276.966);
