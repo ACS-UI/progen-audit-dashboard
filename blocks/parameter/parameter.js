@@ -107,7 +107,7 @@ export default async function decorate(block) {
 
     const domainTokenPresent = keywords.length > 0;
 
-    const domainPrefixes = keywords.map((kw) => `domains.${kw}`);
+    const domainPrefixes = [keywords.join('.')];
     let keys = Object.keys(scoreByKey).filter((k) => {
       if (!domainTokenPresent) return false;
       return domainPrefixes.some(

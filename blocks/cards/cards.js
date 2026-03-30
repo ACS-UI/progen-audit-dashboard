@@ -4,12 +4,24 @@ import {
 } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
-  'overallScores.uiQualityScore',
-  'overallScores.accessibilityScore',
-  'overallScores.performanceScore',
-  'overallScores.codeQualityScore',
-  'overallScores.securityScore',
-  'overallScores.uxComplianceScore',
+  'scores.overall',
+  'scores.discovery',
+  'scores.contentQuality',
+  'scores.internationalization',
+  'scores.design',
+  'scores.userExperience',
+  'scores.visualDesign',
+  'scores.setup',
+  'scores.development',
+  'scores.architectureReview',
+  'scores.testing',
+  'scores.security',
+  'scores.performance',
+  'scores.accessibility',
+  'scores.authorValidation',
+  'scores.preGoLive',
+  'scores.postGoLive',
+  'scores.processGovernance',
 ];
 
 const SUMMARY_KEYS = [

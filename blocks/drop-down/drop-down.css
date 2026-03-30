@@ -7,6 +7,7 @@
   padding-top: 0;
   padding-bottom: 0.5rem;
   margin-top: 80px;
+  position: relative;
 }
 
 .section.period-selector .report-header-wrapper {
