@@ -1,0 +1,20 @@
+@import "tailwindcss" source(none);
+
+@theme static {
+  --font-sans: roboto, ui-sans-serif, system-ui, sans-serif;
+
+  --color-theme-bg: #ffffff;
+
+  --breakpoint-xs: 768px;
+  --spacing-section: 2.5rem;
+}
+
+[data-theme="dark"] {
+  --color-theme-bg: oklch(96.7% 0.003 264.542);
+}
+
+@layer base {
+  body {
+    background-color: oklch(96.7% 0.003 264.542);
+  }
+}
