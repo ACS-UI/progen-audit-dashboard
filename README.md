@@ -27,7 +27,8 @@ Install the repo-managed hooks with:
 npm run hooks:install
 ```
 
-The hooks run `npm run build` whenever a merge completes on the `dev` branch, and also after checking out the `dev` branch.
+The `post-merge` hook runs only when a merge completes on the `dev` branch.
+It deletes generated `blocks/**/*.css` files first, while preserving `blocks/**/*.tw.css`, and then runs `npm run build` so the CSS is recreated cleanly and merge conflicts are reduced.
 
 ## Linting
 
