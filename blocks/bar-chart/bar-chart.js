@@ -6,24 +6,25 @@ import {
 } from '../../scripts/utils.js';
 
 const SCORE_KEYS = [
-  'overallScores.uiQualityScore',
-  'overallScores.accessibilityScore',
-  'overallScores.performanceScore',
-  'overallScores.codeQualityScore',
-  'overallScores.securityScore',
-  'overallScores.uxComplianceScore',
+  'trend.totalIssues',
+  'trend.criticalIssues',
+  'trend.accessibilityCompliance',
+  'trend.performanceCompliance',
+  'trend.securityCompliance',
+  'trend.developmentCompliance',
 ];
 
 const SCORE_LABELS = [
-  'UI Quality',
+  'Total Issues',
+  'Critical Issues',
   'Accessibility',
   'Performance',
-  'Code Quality',
   'Security',
-  'UX Compliance',
+  'Code Quality',
 ];
 
 const BAR_COLORS = [
+  '#EF4444',
   '#3B82F6',
   '#A855F7',
   '#10B981',

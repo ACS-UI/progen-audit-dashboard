@@ -4,8 +4,21 @@ import {
   UI_AUDIT_METRICS_UPDATED_EVENT,
 } from '../../scripts/utils.js';
 
-const COLUMNS = ['Severity', 'ID', 'Description', 'Location', 'Category'];
-const COMPONENTS_COLUMNS = ['Component', 'Failed Checks', 'Critical Failures', 'Health'];
+const COLUMNS = [
+  'Audit Type',
+  'Phase',
+  'Group / Sub Group',
+  'Severity',
+  'Mandatory',
+  'Description',
+  'Evidence',
+];
+const COMPONENTS_COLUMNS = [
+  'Component',
+  'Failed Checks',
+  'Critical Failures',
+  'Health',
+];
 
 function getSeverityClassName(value) {
   return `table-severity-${value.toLowerCase().replace(/\s+/g, '-')}`;
@@ -76,11 +89,14 @@ function createLocationCell(file, line) {
   fileLabel.textContent = file;
   fileText.append(fileLabel);
 
-  const lineText = document.createElement('div');
-  lineText.className = 'table-location-line';
-  lineText.textContent = `Line ${line}`;
-
-  cell.append(fileText, lineText);
+  if (line) {
+    const lineText = document.createElement('div');
+    lineText.className = 'table-location-line';
+    lineText.textContent = `Line ${line}`;
+    cell.append(fileText, lineText);
+  } else {
+    cell.append(fileText);
+  }
   return cell;
 }
 
@@ -158,33 +174,34 @@ function getTopIssuesFromMetrics(metricsByKey) {
 
   for (let index = 1; index <= rowCount; index += 1) {
     const baseKey = `topIssues.${index}`;
+    const auditType = metricsByKey[`${baseKey}.auditType`] || '';
+    const phase = metricsByKey[`${baseKey}.phase`] || '';
+    const group = metricsByKey[`${baseKey}.group`] || '';
+    const subGroup = metricsByKey[`${baseKey}.subGroup`] || '';
     const severity = metricsByKey[`${baseKey}.severity`] || '';
-    const id = metricsByKey[`${baseKey}.id`] || '';
+    const mandatory = metricsByKey[`${baseKey}.mandatory`] || '';
     const description = metricsByKey[`${baseKey}.description`] || '';
-    const standard = metricsByKey[`${baseKey}.subcategory`] || '';
-    const locationFile = metricsByKey[`${baseKey}.location.file`] || '';
-    const locationLine = metricsByKey[`${baseKey}.location.line`] || '';
-    const category = metricsByKey[`${baseKey}.category`] || '';
+    const evidence = metricsByKey[`${baseKey}.evidence`] || '';
 
-    const hasAnyValue = severity
-      || id
+    const hasAnyValue = auditType
+      || phase
+      || group
+      || subGroup
+      || severity
+      || mandatory
       || description
-      || standard
-      || locationFile
-      || locationLine
-      || category;
+      || evidence;
 
     if (hasAnyValue) {
       rows.push({
+        auditType,
+        phase,
+        group,
+        subGroup,
         severity,
-        id,
+        mandatory,
         description,
-        standard,
-        location: {
-          file: locationFile,
-          line: locationLine,
-        },
-        category,
+        evidence,
       });
     }
   }
@@ -193,11 +210,11 @@ function getTopIssuesFromMetrics(metricsByKey) {
 }
 
 function getComponentsFromMetrics(metricsByKey) {
-  const parsedCount = parseInt(metricsByKey['componentsRequiringAttention.count'], 10);
+  const parsedCount = parseInt(metricsByKey['components.count'], 10);
   const countFromStorage = Number.isNaN(parsedCount) ? 0 : parsedCount;
   const indexedKeys = Object.keys(metricsByKey)
     .map((key) => {
-      const match = key.match(/^componentsRequiringAttention\.(\d+)\./);
+      const match = key.match(/^components\.(\d+)\./);
       return match ? parseInt(match[1], 10) : 0;
     })
     .filter((index) => index > 0);
@@ -206,7 +223,7 @@ function getComponentsFromMetrics(metricsByKey) {
   const rows = [];
 
   for (let index = 1; index <= rowCount; index += 1) {
-    const baseKey = `componentsRequiringAttention.${index}`;
+    const baseKey = `components.${index}`;
     const component = metricsByKey[`${baseKey}.name`] || '';
     const path = metricsByKey[`${baseKey}.path`] || '';
     const failedChecks = metricsByKey[`${baseKey}.failedChecks`] || '';
@@ -234,11 +251,15 @@ function renderTopIssuesRows(tbody, rows) {
 
   rows.forEach((row) => {
     const tr = document.createElement('tr');
+    tr.append(createCategoryCell(row.auditType));
+    tr.append(createCell('td', row.phase));
+    tr.append(createDescriptionCell(row.group, row.subGroup));
+    // tr.append(createCategoryCell(row.group));
+    // tr.append(createCategoryCell(row.subGroup));
     tr.append(createSeverityCell(row.severity));
-    tr.append(createCell('td', row.id));
-    tr.append(createDescriptionCell(row.description, row.standard));
-    tr.append(createLocationCell(row.location.file, row.location.line));
-    tr.append(createCategoryCell(row.category));
+    tr.append(createCell('td', row.mandatory));
+    tr.append(createCell('td', row.description));
+    tr.append(createLocationCell(row.evidence));
     tbody.append(tr);
   });
 }

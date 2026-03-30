@@ -69,10 +69,10 @@ export default async function decorate(block) {
     const findVal = (key) => data.find((item) => item.key === key)?.value || '';
 
     const projectName = findVal('metadata.projectName');
-    const version = findVal('metadata.checklistVersion');
+    const version = findVal('metadata.auditVersion');
     const date = new Date().toLocaleDateString('en-GB');
 
-    const rawStatus = findVal('overallStatus.ragRating');
+    const rawStatus = findVal('status.ragRating');
 
     const normalizedStatus = rawStatus
       ? rawStatus.toString().trim().toLowerCase()
