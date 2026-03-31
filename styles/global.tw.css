@@ -4,20 +4,34 @@
   --font-sans: roboto, ui-sans-serif, system-ui, sans-serif;
   --color-theme-bg: #fff;
   --color-card-bg: var(--color-white);
+  --color-foreground-opposite: var(--color-black);
   --color-card-foreground: var(--color-slate-500);
   --color-card-border: color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent);
-  --color-background-color: color-mix(in oklab,var(--color-slate-200)80%,transparent);
+  --color-background-color: color-mix(in oklab,var(--color-slate-50)80%,transparent);
   --color-card-shadow: var(--tw-shadow-color);
+  --color-overview-progress-active: #e67900;
+  --color-overview-progress-inactive: #eef3fa;
+  --color-overview-metric-label: var(--color-slate-600);
+  --color-overview-success: var(--color-emerald-600);
+  --color-overview-danger: var(--color-red-600);
+  --color-overview-total: var(--color-slate-900);
   --breakpoint-xs: 768px;
   --spacing-section: 2.5rem;
 }
 
 [data-theme="dark"] {
+   --color-foreground-opposite: var(--color-white);
   --color-background-color: #0b0e14;
   --color-card-bg: #161b22;
   --color-card-foreground: #8b949e;
   --color-card-border: #30363d;
   --color-card-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  --color-overview-progress-active: #f59e0b;
+  --color-overview-progress-inactive: #273142;
+  --color-overview-metric-label: #8b949e;
+  --color-overview-success: var(--color-emerald-300);
+  --color-overview-danger: var(--color-red-300);
+  --color-overview-total: #e6edf3;
 }
 
 @layer base {
@@ -27,13 +41,13 @@
   }
 
   .main-container {
-    @apply mx-auto container px-4 py-4 sm:px-6 sm:py-5 lg:py-6 ml-auto!;
+    @apply mx-auto max-w-[80rem] px-4 py-4 sm:px-6 sm:py-5 lg:py-6 ml-auto!;
   }
 
   .section.period-selector.report-header-container.drop-down-container, .header-wrapper, .footer-wrapper {
     @apply hidden!;
   }
   .cmp-container {
-    @apply grid grid-cols-12 gap-4;
+    @apply grid grid-cols-12 gap-4 max-w-[80rem];
   }
 }

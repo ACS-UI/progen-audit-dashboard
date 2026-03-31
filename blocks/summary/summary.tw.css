@@ -1,0 +1,167 @@
+@reference "../../styles/global.tw.css";
+
+@layer components {
+  .cmp-summary {
+    @apply h-full rounded-2xl border border-card-border bg-card-bg p-3 pt-3 shadow-sm text-card-foreground sm:p-4 sm:pt-4;
+    --summary-ring-green: #16a34a;
+    --summary-ring-red: #dc2626;
+
+    :is(h1, h2, h3, h4, h5, h6) {
+      @apply text-xs font-semibold uppercase tracking-wider text-card-foreground;
+    }
+
+    .summary__description {
+      @apply mb-2 hidden shrink-0 text-[10px] leading-snug text-slate-400 dark:text-[#6e7681] min-[560px]:block;
+    }
+
+    .summary__graph {
+      @apply relative mx-auto my-4 grid w-[200px] lg:w-full place-items-center aspect-square;
+    }
+
+    .summary__graph-rings {
+      @apply relative grid h-full w-full place-items-center;
+    }
+
+    .summary__ring-layer {
+      @apply absolute z-[1] outline-none;
+      width: var(--ring-size);
+      height: var(--ring-size);
+    }
+
+    .summary__ring-layer:focus-visible .summary__ring {
+      @apply ring-2 ring-white/70 ring-offset-2 ring-offset-card-bg;
+    }
+
+    .summary__ring {
+      @apply absolute rounded-full -rotate-90;
+      width: var(--ring-size);
+      height: var(--ring-size);
+      -webkit-mask: radial-gradient(
+        farthest-side,
+        transparent calc(100% - var(--ring-thickness)),
+        #000 calc(100% - var(--ring-thickness))
+      );
+      mask: radial-gradient(
+        farthest-side,
+        transparent calc(100% - var(--ring-thickness)),
+        #000 calc(100% - var(--ring-thickness))
+      );
+    }
+
+    .summary__graph-popover {
+      @apply pointer-events-none absolute z-40 min-w-[8.5rem] rounded-xl border border-white/10 bg-slate-950/95 px-3 py-2 text-left text-slate-100 opacity-0 shadow-xl transition-opacity duration-150 ease-out;
+    }
+
+    .summary__graph-popover[data-visible="true"] {
+      @apply opacity-100;
+    }
+
+    .summary__ring-popover-title {
+      @apply mb-1 text-sm font-semibold tracking-tight text-white;
+    }
+
+    .summary__ring-popover-row {
+      @apply mb-0.5 flex items-center gap-2 text-xs text-slate-200;
+    }
+
+    .summary__ring-popover-dot {
+      @apply inline-block h-2.5 w-2.5 rounded-full;
+    }
+
+    .summary__ring-popover-dot.is-passed {
+      background-color: var(--summary-ring-green);
+    }
+
+    .summary__ring-popover-dot.is-failed {
+      background-color: var(--summary-ring-red);
+    }
+
+    .summary__ring-popover-rate {
+      @apply mt-1 text-xs text-slate-300;
+    }
+
+    .summary__graph-score {
+      @apply pointer-events-none absolute inset-0 z-0 flex items-center justify-center text-center font-semibold text-foreground-opposite;
+    }
+
+    .summary__graph-score-value {
+      @apply text-lg leading-none tracking-tight tabular-nums sm:text-lg;
+    }
+
+    .summary__graph-score-unit {
+      @apply ml-1 text-lg leading-none text-foreground-opposite sm:text-lg;
+    }
+
+    .summary__metrics-container {
+      @apply mt-3 flex flex-col gap-3;
+    }
+
+    .summary__audit-card {
+      @apply rounded-lg border border-red-200/90 bg-slate-50/50 px-2.5 py-2 dark:border-red-900/45 dark:bg-[#0d1117] sm:px-3 sm:py-2.5;
+    }
+
+    .summary__audit-card.is-complete {
+      @apply border-emerald-200/90 dark:border-emerald-900/45;
+    }
+
+    .summary__audit-title {
+      @apply text-[11px] font-bold leading-tight text-slate-900 sm:text-xs dark:text-[#e6edf3];
+    }
+
+    .summary__audit-rate {
+      @apply mt-0.5 text-[10px] tabular-nums text-slate-500 dark:text-[#8b949e];
+    }
+
+    .summary__audit-metrics {
+      @apply mt-2 grid grid-cols-2 gap-2 text-[10px] sm:text-xs;
+    }
+
+    .summary__audit-metric {
+      @apply min-w-0;
+    }
+
+    .summary__audit-metric-label {
+      @apply font-semibold leading-tight text-slate-800 dark:text-[#e6edf3];
+    }
+
+    .summary__audit-bar {
+      @apply mt-1 h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-[#30363d] sm:h-1.5;
+    }
+
+    .summary__audit-bar-fill {
+      @apply block h-full h-full rounded-full bg-[#108976] dark:bg-teal-400 rounded-full transition-[width] duration-700 ease-out;
+    }
+
+    .summary__audit-bar-fill.is-passed {
+      background-color: var(--summary-ring-green);
+    }
+
+    .summary__audit-bar-fill.is-failed {
+      background-color: var(--summary-ring-red);
+    }
+
+    .summary__audit-metric-value {
+      @apply mt-0.5 tabular-nums text-slate-500 dark:text-[#8b949e];
+    }
+  }
+
+  .dark .cmp-summary {
+    --summary-ring-green: #35d1c6;
+    --summary-ring-red: #fb6b84;
+  }
+
+  .summary__content {
+    @apply flex flex-col lg:flex-row items-center;
+
+    > * {
+      @apply w-full lg:w-1/2 lg:max-w-1/2 flex-none;
+    }
+  }
+  .summary-grid {
+    @apply col-span-12 lg:col-span-5 flex h-full w-full items-stretch;
+
+    .summary-wrapper {
+      @apply w-full;
+    }
+  }
+}
