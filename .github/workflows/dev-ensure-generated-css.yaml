@@ -1,0 +1,72 @@
+name: Ensure Generated CSS On Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dev-ensure-generated-css
+  cancel-in-progress: true
+
+jobs:
+  ensure-generated-css:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for missing generated CSS
+        id: generated_css_check
+        run: |
+          MISSING_COUNT=$(find ./blocks -type f -name '*.tw.css' | while read -r file; do
+            generated_file="${file%.tw.css}.css"
+            if [ ! -f "$generated_file" ]; then
+              echo "$generated_file"
+            fi
+          done | wc -l | tr -d ' ')
+
+          if [ ! -f ./styles/global.css ]; then
+            MISSING_COUNT=$((MISSING_COUNT + 1))
+          fi
+
+          echo "missing_count=$MISSING_COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Use Node.js 24
+        if: steps.generated_css_check.outputs.missing_count != '0'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.generated_css_check.outputs.missing_count != '0'
+        run: npm ci
+
+      - name: Build generated CSS
+        if: steps.generated_css_check.outputs.missing_count != '0'
+        run: npm run build
+
+      - name: Commit generated CSS to dev
+        if: steps.generated_css_check.outputs.missing_count != '0'
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          find ./blocks -type f -name '*.css' ! -name '*.tw.css' -exec git add -f {} +
+          git add -f styles/global.css
+
+          if git diff --cached --quiet; then
+            echo "No generated CSS changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore(dev): restore generated CSS"
+          git push
