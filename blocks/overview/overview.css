@@ -1,0 +1,149 @@
+@layer components {
+  .cmp-overview {
+    height: 100%;
+    border-radius: var(--radius-2xl, 1rem);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--color-card-border, color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent));
+    background-color: var(--color-card-bg, var(--color-white));
+    padding: calc(var(--spacing, 0.25rem) * 3);
+    padding-top: calc(var(--spacing, 0.25rem) * 3);
+    color: var(--color-card-foreground, var(--color-slate-500));
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    @media (width >= 40rem) {
+      padding: calc(var(--spacing, 0.25rem) * 4);
+    }
+    @media (width >= 40rem) {
+      padding-top: calc(var(--spacing, 0.25rem) * 4);
+    }
+    --overview-progress-color: hsl(0 72% 45%);
+    :is(h1, h2, h3, h4, h5, h6) {
+      font-size: var(--text-xs, 0.75rem);
+      line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      --tw-tracking: var(--tracking-wider, 0.05em);
+      letter-spacing: var(--tracking-wider, 0.05em);
+      color: var(--color-card-foreground, var(--color-slate-500));
+      text-transform: uppercase;
+    }
+    .overall__graph {
+      position: relative;
+      margin-inline: auto;
+      margin-block: calc(var(--spacing, 0.25rem) * 4);
+      display: grid;
+      height: calc(var(--spacing, 0.25rem) * 36);
+      width: calc(var(--spacing, 0.25rem) * 36);
+      place-items: center;
+    }
+    .overall__graph-ring {
+      position: relative;
+      border-radius: calc(infinity * 1px);
+      width: 100%;
+      height: 100%;
+    }
+    .overall__graph-segment {
+      position: absolute;
+      top: calc(1 / 2 * 100%);
+      left: calc(1 / 2 * 100%);
+      display: block;
+      height: calc(var(--spacing, 0.25rem) * 3);
+      width: calc(var(--spacing, 0.25rem) * 1.5);
+      background-color: var(--color-overview-progress-inactive, #eef3fa);
+      opacity: 35%;
+      transform: translate(-50%, -50%) rotate(calc(var(--segment-index) * 10deg)) translateY(-4rem);
+      transform-origin: center;
+      transition: background-color 280ms ease, opacity 280ms ease, box-shadow 280ms ease;
+    }
+    .overall__graph-segment.is-active {
+      opacity: 100%;
+      background-color: var(--segment-color);
+      box-shadow: 0 0 12px var(--segment-color);
+      @supports (color: color-mix(in lab, red, red)) {
+        box-shadow: 0 0 12px color-mix(in srgb, var(--segment-color) 30%, transparent);
+      }
+    }
+    .overall__graph-score {
+      position: absolute;
+      inset: calc(var(--spacing, 0.25rem) * 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      color: var(--overview-progress-color);
+      transition: color 220ms ease;
+    }
+    .overall__graph-score-value, .overall__graph-score-unit {
+      font-size: var(--text-2xl, 1.5rem);
+      line-height: var(--tw-leading, var(--text-2xl--line-height, calc(2 / 1.5)));
+    }
+    .overall__graph-score-value {
+      --tw-numeric-spacing: tabular-nums;
+      font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+    }
+    .overall__metrics-container {
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--spacing, 0.25rem) * 2);
+    }
+    .overall__metrics-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: var(--radius-lg, 0.5rem);
+      border-style: var(--tw-border-style);
+      border-width: 1px;
+      border-color: var(--color-card-border, color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent));
+      background-color: var(--color-background-color, color-mix(in srgb,oklch(98.4% 0.003 247.858)80%,transparent));
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: var(--color-background-color, color-mix(in oklab,var(--color-slate-50)80%,transparent));
+      }
+      padding-inline: calc(var(--spacing, 0.25rem) * 3);
+      padding-block: calc(var(--spacing, 0.25rem) * 2);
+      font-size: var(--text-sm, 0.875rem);
+      line-height: var(--tw-leading, var(--text-sm--line-height, calc(1.25 / 0.875)));
+      --tw-font-weight: var(--font-weight-medium, 500);
+      font-weight: var(--font-weight-medium, 500);
+      --tw-numeric-spacing: tabular-nums;
+      font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+      span {
+        &:first-of-type {
+          font-size: var(--text-xs, 0.75rem);
+          line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+        }
+        &:first-of-type {
+          --tw-font-weight: var(--font-weight-light, 300);
+          font-weight: var(--font-weight-light, 300);
+        }
+      }
+      span:first-of-type {
+        color: var(--color-overview-metric-label, var(--color-slate-600));
+      }
+    }
+    .overall__metrics-item:first-of-type {
+      color: var(--color-overview-success, var(--color-emerald-600));
+    }
+    .overall__metrics-item:nth-of-type(2) {
+      color: var(--color-overview-danger, var(--color-red-600));
+    }
+    .overall__metrics-item:nth-of-type(3) {
+      color: var(--color-overview-total, var(--color-slate-900));
+    }
+  }
+  .overview-grid {
+    grid-column: span 12 / span 12;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: stretch;
+    @media (width >= 64rem) {
+      grid-column: span 3 / span 3;
+    }
+    .overview-wrapper {
+      width: 100%;
+    }
+  }
+}
