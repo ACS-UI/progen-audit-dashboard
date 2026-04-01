@@ -1,0 +1,100 @@
+@reference "../../styles/global.tw.css";
+
+@layer components {
+  .cmp-top-issues {
+    @apply h-full;
+
+    :is(h1, h2, h3, h4, h5, h6) {
+      @apply text-base font-semibold text-top-issues-title;
+    }
+
+    .top-issues__list {
+      @apply mt-4 flex flex-col gap-3 sm:mt-6 sm:gap-4;
+    }
+
+    .top-issues__pagination-shell {
+      @apply mt-4;
+    }
+
+    .top-issues__pagination {
+      @apply flex flex-wrap items-center justify-between gap-3;
+    }
+
+    .top-issues__pagination-actions {
+      @apply flex flex-wrap items-center justify-end gap-2;
+    }
+
+    .top-issues__page-list {
+      @apply flex flex-wrap items-center gap-2;
+    }
+
+    .top-issues__jump-label {
+      @apply text-sm font-medium text-top-issues-item-details;
+    }
+
+    .top-issues__jump-select {
+      @apply rounded-lg border border-card-border bg-card-bg px-3 py-1.5 text-sm font-medium text-card-foreground transition-colors;
+    }
+
+    .top-issues__nav-button,
+    .top-issues__page-button {
+      @apply rounded-lg border border-card-border bg-card-bg px-3 py-1.5 text-sm font-medium text-card-foreground transition-colors;
+    }
+
+    .top-issues__nav-button:hover:not(:disabled),
+    .top-issues__page-button:hover:not(.is-active) {
+      @apply bg-background-color text-foreground-opposite;
+    }
+
+    .top-issues__nav-button:disabled {
+      @apply cursor-not-allowed opacity-50;
+    }
+
+    .top-issues__page-button--ellipsis:disabled {
+      @apply cursor-default opacity-70;
+    }
+
+    .top-issues__page-button.is-active {
+      @apply text-white;
+      background-color: var(--color-top-issues-icon-fg);
+      border-color: var(--color-top-issues-icon-fg);
+    }
+
+    .top-issues__item {
+      @apply rounded-xl border border-top-issues-card-border bg-top-issues-card-bg p-4 shadow-sm;
+      box-shadow: var(--color-top-issues-card-shadow);
+    }
+
+    .top-issues__item-row {
+      @apply flex items-start gap-3;
+    }
+
+    .top-issues__item-icon {
+      @apply mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-xl bg-top-issues-icon-bg text-top-issues-icon-fg;
+    }
+
+    .top-issues__item-icon svg {
+      @apply h-[14px] w-[14px];
+    }
+
+    .top-issues__item-content {
+      @apply min-w-0 flex-1 pt-0.5;
+    }
+
+    .top-issues__item-title {
+      @apply text-sm font-medium leading-snug text-top-issues-item-title;
+    }
+
+    .top-issues__item-details {
+      @apply mt-2 text-xs leading-relaxed text-top-issues-item-details;
+    }
+  }
+
+  .top-issues-grid {
+    @apply col-span-12 lg:col-span-8 flex h-full w-full items-stretch;
+
+    .top-issues-wrapper {
+      @apply w-full;
+    }
+  }
+}

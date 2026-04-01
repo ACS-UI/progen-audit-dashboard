@@ -98,7 +98,7 @@ function getStatusTone(label, value) {
 }
 
 function getStatusCards(block) {
-  const authoredContainer = block.querySelector('.overall-status') || block;
+  const authoredContainer = block.querySelector('.program-status, .overall-status') || block;
   const rows = [...authoredContainer.children]
     .map((row) => getRowCells(row))
     .filter((cells) => cells.length);
@@ -120,9 +120,9 @@ function getStatusCards(block) {
 
 function getCardMarkup({ label, value, tone }) {
   return `
-    <article class="overall-status__card is-${tone}">
-      <div class="overall-status__card-label">${label}</div>
-      <div class="overall-status__card-value">${value}</div>
+    <article class="program-status__card is-${tone}">
+      <div class="program-status__card-label">${label}</div>
+      <div class="program-status__card-value">${value}</div>
     </article>
   `;
 }
@@ -133,11 +133,11 @@ export default function decorate(block) {
 
   block.innerHTML = `
     ${headingMarkup}
-    <div class="overall-status__grid">
+    <div class="program-status__grid">
       ${cards.map((card) => getCardMarkup(card)).join('')}
     </div>
   `;
 
-  block.classList.add('cmp-overall-status');
-  block?.closest('.overall-status-container')?.classList.add('overall-status-grid');
+  block.classList.add('cmp-program-status');
+  block?.closest('.program-status-container, .overall-status-container')?.classList.add('program-status-grid');
 }

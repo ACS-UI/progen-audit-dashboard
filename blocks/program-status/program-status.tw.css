@@ -1,0 +1,91 @@
+@reference "../../styles/global.tw.css";
+
+@layer components {
+  .cmp-program-status {
+    @apply h-full rounded-2xl border p-4 shadow-sm;
+    background-color: var(--color-program-status-bg);
+    border-color: var(--color-program-status-border);
+    box-shadow: var(--color-program-status-shadow);
+
+    :is(h1, h2, h3, h4, h5, h6) {
+      @apply text-xs font-semibold uppercase tracking-wide sm:text-sm;
+      color: var(--color-program-status-title);
+    }
+
+    .program-status__grid {
+      @apply mt-3 grid grid-cols-2 gap-2 sm:gap-3;
+    }
+
+    .program-status__card {
+      @apply rounded-lg border px-2 py-1.5 sm:px-2.5 sm:py-2;
+    }
+
+    .program-status__card.is-warning {
+      background-color: var(--color-program-status-warning-bg);
+      border-color: var(--color-program-status-warning-border);
+    }
+
+    .program-status__card.is-danger {
+      background-color: var(--color-program-status-danger-bg);
+      border-color: var(--color-program-status-danger-border);
+    }
+
+    .program-status__card.is-success {
+      background-color: var(--color-program-status-success-bg);
+      border-color: var(--color-program-status-success-border);
+    }
+
+    .program-status__card.is-neutral {
+      background-color: var(--color-program-status-neutral-bg);
+      border-color: var(--color-program-status-neutral-border);
+    }
+
+    .program-status__card-label {
+      @apply text-[10px] font-medium leading-tight sm:text-xs;
+    }
+
+    .program-status__card.is-warning .program-status__card-label {
+      color: var(--color-program-status-warning-label);
+    }
+
+    .program-status__card.is-danger .program-status__card-label {
+      color: var(--color-program-status-danger-label);
+    }
+
+    .program-status__card.is-success .program-status__card-label {
+      color: var(--color-program-status-success-label);
+    }
+
+    .program-status__card.is-neutral .program-status__card-label {
+      color: var(--color-program-status-neutral-label);
+    }
+
+    .program-status__card-value {
+      @apply mt-0.5 text-xs font-semibold tabular-nums sm:text-sm;
+    }
+
+    .program-status__card.is-warning .program-status__card-value {
+      color: var(--color-program-status-warning-value);
+    }
+
+    .program-status__card.is-danger .program-status__card-value {
+      color: var(--color-program-status-danger-value);
+    }
+
+    .program-status__card.is-success .program-status__card-value {
+      color: var(--color-program-status-success-value);
+    }
+
+    .program-status__card.is-neutral .program-status__card-value {
+      color: var(--color-program-status-neutral-value);
+    }
+  }
+
+  .program-status-grid {
+    @apply col-span-12 lg:col-span-4 flex h-full w-full items-stretch;
+
+    .program-status-wrapper {
+      @apply w-full;
+    }
+  }
+}
