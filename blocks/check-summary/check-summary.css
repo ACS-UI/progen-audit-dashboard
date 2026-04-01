@@ -1,0 +1,114 @@
+@layer components {
+  .cmp-check-summary {
+    display: flex;
+    height: 100%;
+    min-height: calc(var(--spacing, 0.25rem) * 0);
+    width: 100%;
+    flex-direction: column;
+    border-radius: var(--radius-2xl, 1rem);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    padding: calc(var(--spacing, 0.25rem) * 4);
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    background-color: var(--color-check-summary-bg);
+    border-color: var(--color-check-summary-border);
+    box-shadow: var(--color-check-summary-shadow);
+    :is(h1, h2, h3, h4, h5, h6) {
+      font-size: var(--text-sm, 0.875rem);
+      line-height: var(--tw-leading, var(--text-sm--line-height, calc(1.25 / 0.875)));
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      color: var(--color-check-summary-title);
+    }
+    .check-summary__sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    .check-summary__grid {
+      margin-top: calc(var(--spacing, 0.25rem) * 2);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: calc(var(--spacing, 0.25rem) * 1.5);
+      @media (width >= 40rem) {
+        margin-top: calc(var(--spacing, 0.25rem) * 3);
+      }
+      @media (width >= 40rem) {
+        gap: calc(var(--spacing, 0.25rem) * 2);
+      }
+    }
+    .check-summary__item {
+      border-radius: var(--radius-lg, 0.5rem);
+      border-style: var(--tw-border-style);
+      border-width: 1px;
+      padding-inline: calc(var(--spacing, 0.25rem) * 2);
+      padding-block: calc(var(--spacing, 0.25rem) * 1.5);
+      --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+      @media (width >= 40rem) {
+        padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
+      }
+      @media (width >= 40rem) {
+        padding-block: calc(var(--spacing, 0.25rem) * 2);
+      }
+      background-color: var(--color-check-summary-card-bg);
+      border-color: var(--color-check-summary-card-border);
+      box-shadow: var(--color-check-summary-card-shadow);
+    }
+    .check-summary__item-label {
+      font-size: 10px;
+      --tw-leading: var(--leading-tight, 1.25);
+      line-height: var(--leading-tight, 1.25);
+      --tw-font-weight: var(--font-weight-medium, 500);
+      font-weight: var(--font-weight-medium, 500);
+      @media (width >= 40rem) {
+        font-size: var(--text-xs, 0.75rem);
+        line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+      }
+      color: var(--color-check-summary-label);
+    }
+    .check-summary__item-value {
+      margin-top: calc(var(--spacing, 0.25rem) * 0.5);
+      font-size: var(--text-sm, 0.875rem);
+      line-height: var(--tw-leading, var(--text-sm--line-height, calc(1.25 / 0.875)));
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      --tw-numeric-spacing: tabular-nums;
+      font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+      @media (width >= 40rem) {
+        font-size: var(--text-base, 1rem);
+        line-height: var(--tw-leading, var(--text-base--line-height, calc(1.5 / 1)));
+      }
+      color: var(--color-check-summary-value);
+    }
+    .check-summary__item-value.is-success {
+      color: var(--color-check-summary-success);
+    }
+    .check-summary__item-value.is-danger {
+      color: var(--color-check-summary-danger);
+    }
+    .check-summary__item-value.is-warning {
+      color: var(--color-check-summary-warning);
+    }
+  }
+  .check-summary-grid {
+    grid-column: span 12 / span 12;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: stretch;
+    @media (width >= 64rem) {
+      grid-column: span 4 / span 4;
+    }
+    .check-summary-wrapper {
+      width: 100%;
+    }
+  }
+}
