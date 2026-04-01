@@ -18,7 +18,17 @@
             ]
           }
         ],
-        "import-notation": null
+        "import-notation": null,
+        "selector-class-pattern": null,
+        "declaration-empty-line-before": null,
+        "rule-empty-line-before": null,
+        "custom-property-empty-line-before": null,
+        "property-no-vendor-prefix": null,
+        "hue-degree-notation": null,
+        "color-function-alias-notation": null,
+        "color-function-notation": null,
+        "alpha-value-notation": null,
+        "color-hex-length": null
       }
     }
   ],

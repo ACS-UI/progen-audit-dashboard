@@ -1,12 +1,23 @@
 @layer components {
   .cmp-card {
-    --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    border-radius: var(--radius-2xl, 1rem);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--color-card-border, color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent));
+    background-color: var(--color-card-bg, var(--color-white));
+    padding: calc(var(--spacing, 0.25rem) * 3);
+    padding-top: calc(var(--spacing, 0.25rem) * 3);
+    color: var(--color-card-foreground, var(--color-slate-500));
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    @media (width >= 768px) {
-      background-color: var(--color-theme-bg, #fff);
+    @media (width >= 40rem) {
+      padding: calc(var(--spacing, 0.25rem) * 4);
     }
-    p {
-      color: oklch(51.1% 0.262 276.966deg);
+    @media (width >= 40rem) {
+      padding-top: calc(var(--spacing, 0.25rem) * 4);
     }
+  }
+  .overall-scores-container {
+    grid-column: span 3 / span 3;
   }
 }

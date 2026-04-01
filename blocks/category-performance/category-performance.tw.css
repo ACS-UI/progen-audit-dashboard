@@ -2,14 +2,10 @@
 
 @layer components {
   .cmp-category-performance {
-    @apply flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border p-4 pb-4 shadow-sm sm:p-4;
-    background-color: var(--color-category-performance-bg);
-    border-color: var(--color-category-performance-border);
-    box-shadow: var(--color-category-performance-shadow);
+    @apply flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border border-surface-panel-border bg-surface-panel-bg p-4 pb-4 shadow-surface-panel sm:p-4;
 
     :is(h1, h2, h3, h4, h5, h6) {
-      @apply shrink-0 text-sm font-semibold;
-      color: var(--color-category-performance-title);
+      @apply shrink-0 text-sm font-semibold text-surface-panel-title;
     }
 
     .category-performance__chart-shell {
@@ -21,29 +17,23 @@
     }
 
     .category-performance__tooltip {
-      @apply pointer-events-none absolute z-20 max-w-[14rem] rounded-lg border px-2.5 py-2 text-left text-xs;
-      background-color: var(--color-category-performance-tooltip-bg);
-      border-color: var(--color-category-performance-tooltip-border);
-      box-shadow: var(--color-category-performance-tooltip-shadow);
+      @apply pointer-events-none absolute z-20 max-w-[14rem] rounded-lg border border-tooltip-border bg-tooltip-bg px-2.5 py-2 text-left text-xs shadow-tooltip;
     }
 
     .category-performance__tooltip-title {
-      @apply font-semibold;
-      color: var(--color-category-performance-tooltip-title);
+      @apply font-semibold text-tooltip-title;
     }
 
     .category-performance__tooltip-body {
-      @apply mt-1 space-y-0.5;
-      color: var(--color-category-performance-tooltip-text);
+      @apply mt-1 space-y-0.5 text-tooltip-text;
     }
 
     .category-performance__tooltip-muted {
-      color: var(--color-category-performance-tooltip-muted);
+      @apply text-tooltip-muted;
     }
 
     .category-performance__tooltip-value {
-      @apply font-medium tabular-nums;
-      color: var(--color-category-performance-tooltip-value);
+      @apply font-medium tabular-nums text-tooltip-value;
     }
   }
 

@@ -105,11 +105,11 @@
     }
 
     .summary__audit-title {
-      @apply text-[11px] font-bold leading-tight sm:text-xs text-summary-audit-title;
+      @apply text-[11px] font-bold leading-tight text-surface-panel-title sm:text-xs;
     }
 
     .summary__audit-rate {
-      @apply mt-0.5 text-[10px] tabular-nums text-summary-audit-muted;
+      @apply mt-0.5 text-[10px] tabular-nums text-surface-panel-muted;
     }
 
     .summary__audit-metrics {
@@ -121,11 +121,11 @@
     }
 
     .summary__audit-metric-label {
-      @apply font-semibold leading-tight text-summary-audit-title;
+      @apply font-semibold leading-tight text-surface-panel-title;
     }
 
     .summary__audit-bar {
-      @apply mt-1 h-1 overflow-hidden rounded-full sm:h-1.5 bg-summary-audit-track;
+      @apply mt-1 h-1 overflow-hidden rounded-full bg-surface-track sm:h-1.5;
     }
 
     .summary__audit-bar-fill {
@@ -141,7 +141,7 @@
     }
 
     .summary__audit-metric-value {
-      @apply mt-0.5 tabular-nums text-summary-audit-muted;
+      @apply mt-0.5 tabular-nums text-surface-panel-muted;
     }
   }
 

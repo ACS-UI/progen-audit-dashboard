@@ -5,12 +5,27 @@ on:
     branches:
       - '**'
 
+permissions:
+  contents: write
+
+concurrency:
+  group: branch-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-generated-assets:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare artifact name
+        run: |
+          SAFE_REF_NAME=$(echo "${{ github.ref_name }}" | tr '/\\:*?\"<>|' '-')
+          echo "SAFE_REF_NAME=$SAFE_REF_NAME" >> "$GITHUB_ENV"
 
       - name: Use Node.js 24
         uses: actions/setup-node@v6
@@ -21,5 +36,35 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Remove generated CSS
+        run: |
+          find ./blocks -type f -name '*.css' ! -name '*.tw.css' -delete
+          rm -f ./styles/global.css
+
       - name: Build project
         run: npm run build
+
+      - name: Upload generated CSS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-css-${{ env.SAFE_REF_NAME }}
+          path: |
+            blocks/**/*.css
+            styles/global.css
+          if-no-files-found: error
+
+      - name: Commit generated CSS to source branch
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          find ./blocks -type f -name '*.css' ! -name '*.tw.css' -exec git add -f {} +
+          git add -f styles/global.css
+
+          if git diff --cached --quiet; then
+            echo "No generated CSS changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore(css): generate CSS for ${{ github.ref_name }}"
+          git push
