@@ -2,14 +2,10 @@
 
 @layer components {
   .cmp-program-status {
-    @apply h-full rounded-2xl border p-4 shadow-sm;
-    background-color: var(--color-program-status-bg);
-    border-color: var(--color-program-status-border);
-    box-shadow: var(--color-program-status-shadow);
+    @apply h-full rounded-2xl border border-surface-panel-border bg-surface-panel-bg p-4 shadow-surface-panel;
 
     :is(h1, h2, h3, h4, h5, h6) {
-      @apply text-xs font-semibold uppercase tracking-wide sm:text-sm;
-      color: var(--color-program-status-title);
+      @apply text-xs font-semibold uppercase tracking-wide text-surface-panel-title sm:text-sm;
     }
 
     .program-status__grid {

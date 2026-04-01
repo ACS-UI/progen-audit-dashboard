@@ -2,14 +2,10 @@
 
 @layer components {
   .cmp-check-summary {
-    @apply flex h-full min-h-0 w-full flex-col rounded-2xl border p-4 shadow-sm;
-    background-color: var(--color-check-summary-bg);
-    border-color: var(--color-check-summary-border);
-    box-shadow: var(--color-check-summary-shadow);
+    @apply flex h-full min-h-0 w-full flex-col rounded-2xl border border-surface-panel-border bg-surface-panel-bg p-4 shadow-surface-panel;
 
     :is(h1, h2, h3, h4, h5, h6) {
-      @apply text-sm font-semibold;
-      color: var(--color-check-summary-title);
+      @apply text-sm font-semibold text-surface-panel-title;
     }
 
     .check-summary__sr-only {
@@ -21,32 +17,27 @@
     }
 
     .check-summary__item {
-      @apply rounded-lg border px-2 py-1.5 shadow-sm sm:px-2.5 sm:py-2;
-      background-color: var(--color-check-summary-card-bg);
-      border-color: var(--color-check-summary-card-border);
-      box-shadow: var(--color-check-summary-card-shadow);
+      @apply rounded-lg border border-surface-inset-border bg-surface-inset-bg px-2 py-1.5 shadow-surface-inset sm:px-2.5 sm:py-2;
     }
 
     .check-summary__item-label {
-      @apply text-[10px] font-medium leading-tight sm:text-xs;
-      color: var(--color-check-summary-label);
+      @apply text-[10px] font-medium leading-tight text-surface-panel-muted sm:text-xs;
     }
 
     .check-summary__item-value {
-      @apply mt-0.5 text-sm font-semibold tabular-nums sm:text-base;
-      color: var(--color-check-summary-value);
+      @apply mt-0.5 text-sm font-semibold tabular-nums text-surface-panel-value sm:text-base;
     }
 
     .check-summary__item-value.is-success {
-      color: var(--color-check-summary-success);
+      @apply text-semantic-success;
     }
 
     .check-summary__item-value.is-danger {
-      color: var(--color-check-summary-danger);
+      @apply text-semantic-danger;
     }
 
     .check-summary__item-value.is-warning {
-      color: var(--color-check-summary-warning);
+      @apply text-semantic-warning;
     }
   }
 

@@ -240,7 +240,7 @@
       line-height: var(--leading-tight, 1.25);
       --tw-font-weight: var(--font-weight-bold, 700);
       font-weight: var(--font-weight-bold, 700);
-      color: var(--color-summary-audit-title, var(--color-slate-900));
+      color: var(--color-surface-panel-title, var(--color-slate-900));
       @media (width >= 40rem) {
         font-size: var(--text-xs, 0.75rem);
         line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
@@ -249,7 +249,7 @@
     .summary__audit-rate {
       margin-top: calc(var(--spacing, 0.25rem) * 0.5);
       font-size: 10px;
-      color: var(--color-summary-audit-muted, var(--color-slate-500));
+      color: var(--color-surface-panel-muted, var(--color-slate-500));
       --tw-numeric-spacing: tabular-nums;
       font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
     }
@@ -272,14 +272,14 @@
       line-height: var(--leading-tight, 1.25);
       --tw-font-weight: var(--font-weight-semibold, 600);
       font-weight: var(--font-weight-semibold, 600);
-      color: var(--color-summary-audit-title, var(--color-slate-900));
+      color: var(--color-surface-panel-title, var(--color-slate-900));
     }
     .summary__audit-bar {
       margin-top: calc(var(--spacing, 0.25rem) * 1);
       height: calc(var(--spacing, 0.25rem) * 1);
       overflow: hidden;
       border-radius: calc(infinity * 1px);
-      background-color: var(--color-summary-audit-track, var(--color-slate-200));
+      background-color: var(--color-surface-track, var(--color-slate-200));
       @media (width >= 40rem) {
         height: calc(var(--spacing, 0.25rem) * 1.5);
       }
@@ -304,7 +304,7 @@
     }
     .summary__audit-metric-value {
       margin-top: calc(var(--spacing, 0.25rem) * 0.5);
-      color: var(--color-summary-audit-muted, var(--color-slate-500));
+      color: var(--color-surface-panel-muted, var(--color-slate-500));
       --tw-numeric-spacing: tabular-nums;
       font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
     }

@@ -51,17 +51,17 @@
         @apply first-of-type:text-xs first-of-type:font-light;
       }
       span:first-of-type {
-        @apply text-overview-metric-label;
+        @apply text-surface-panel-text;
       }
     }
     .overall__metrics-item:first-of-type {
-      @apply text-overview-success;
+      @apply text-semantic-success;
     }
     .overall__metrics-item:nth-of-type(2) {
-      @apply text-overview-danger;
+      @apply text-semantic-danger;
     }
     .overall__metrics-item:nth-of-type(3) {
-      @apply text-overview-total;
+      @apply text-surface-panel-title;
     }
   }
   .overview-grid {

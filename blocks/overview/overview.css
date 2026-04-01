@@ -120,17 +120,17 @@
         }
       }
       span:first-of-type {
-        color: var(--color-overview-metric-label, var(--color-slate-600));
+        color: var(--color-surface-panel-text, var(--color-slate-600));
       }
     }
     .overall__metrics-item:first-of-type {
-      color: var(--color-overview-success, var(--color-emerald-600));
+      color: var(--color-semantic-success, var(--color-emerald-600));
     }
     .overall__metrics-item:nth-of-type(2) {
-      color: var(--color-overview-danger, var(--color-red-600));
+      color: var(--color-semantic-danger, var(--color-red-600));
     }
     .overall__metrics-item:nth-of-type(3) {
-      color: var(--color-overview-total, var(--color-slate-900));
+      color: var(--color-surface-panel-title, var(--color-slate-900));
     }
   }
   .overview-grid {

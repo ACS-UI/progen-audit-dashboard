@@ -6,7 +6,7 @@
       line-height: var(--tw-leading, var(--text-base--line-height, calc(1.5 / 1)));
       --tw-font-weight: var(--font-weight-semibold, 600);
       font-weight: var(--font-weight-semibold, 600);
-      color: var(--color-top-issues-title, var(--color-slate-900));
+      color: var(--color-surface-panel-title, var(--color-slate-900));
     }
     .top-issues__list {
       margin-top: calc(var(--spacing, 0.25rem) * 4);
@@ -48,7 +48,7 @@
       line-height: var(--tw-leading, var(--text-sm--line-height, calc(1.25 / 0.875)));
       --tw-font-weight: var(--font-weight-medium, 500);
       font-weight: var(--font-weight-medium, 500);
-      color: var(--color-top-issues-item-details, var(--color-slate-600));
+      color: var(--color-surface-panel-text, var(--color-slate-600));
     }
     .top-issues__jump-select {
       border-radius: var(--radius-lg, 0.5rem);
@@ -117,9 +117,8 @@
         background-color: var(--color-top-issues-card-bg, color-mix(in srgb, var(--color-red-50) 40%, transparent));
       }
       padding: calc(var(--spacing, 0.25rem) * 4);
-      --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+      --tw-shadow: 0 1px 3px var(--tw-shadow-color, rgb(15 23 42 / 8%));
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-      box-shadow: var(--color-top-issues-card-shadow);
     }
     .top-issues__item-row {
       display: flex;
@@ -154,7 +153,7 @@
       line-height: var(--leading-snug, 1.375);
       --tw-font-weight: var(--font-weight-medium, 500);
       font-weight: var(--font-weight-medium, 500);
-      color: var(--color-top-issues-item-title, var(--color-slate-900));
+      color: var(--color-surface-panel-title, var(--color-slate-900));
     }
     .top-issues__item-details {
       margin-top: calc(var(--spacing, 0.25rem) * 2);
@@ -162,7 +161,7 @@
       line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
       --tw-leading: var(--leading-relaxed, 1.625);
       line-height: var(--leading-relaxed, 1.625);
-      color: var(--color-top-issues-item-details, var(--color-slate-600));
+      color: var(--color-surface-panel-text, var(--color-slate-600));
     }
   }
   .top-issues-grid {

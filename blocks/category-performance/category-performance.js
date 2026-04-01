@@ -84,11 +84,11 @@ function getThemeColors(block) {
   const styles = window.getComputedStyle(block);
 
   return {
-    tick: styles.getPropertyValue('--color-category-performance-tick').trim() || '#98a2b3',
-    grid: styles.getPropertyValue('--color-category-performance-grid').trim() || 'rgba(148, 163, 184, 0.22)',
-    success: styles.getPropertyValue('--color-category-performance-success').trim() || '#22c55e',
-    warning: styles.getPropertyValue('--color-category-performance-warning').trim() || '#f59e0b',
-    danger: styles.getPropertyValue('--color-category-performance-danger').trim() || '#ef4444',
+    tick: styles.getPropertyValue('--color-chart-tick').trim() || '#98a2b3',
+    grid: styles.getPropertyValue('--color-chart-grid').trim() || 'rgb(148 163 184 / 22%)',
+    success: styles.getPropertyValue('--color-chart-success').trim() || '#22c55e',
+    warning: styles.getPropertyValue('--color-chart-warning').trim() || '#f59e0b',
+    danger: styles.getPropertyValue('--color-chart-danger').trim() || '#ef4444',
   };
 }
 

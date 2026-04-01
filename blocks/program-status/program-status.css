@@ -4,12 +4,11 @@
     border-radius: var(--radius-2xl, 1rem);
     border-style: var(--tw-border-style);
     border-width: 1px;
+    border-color: var(--color-surface-panel-border, var(--color-card-border));
+    background-color: var(--color-surface-panel-bg, var(--color-white));
     padding: calc(var(--spacing, 0.25rem) * 4);
-    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    --tw-shadow: 0 1px 3px var(--tw-shadow-color, rgb(15 23 42 / 8%));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    background-color: var(--color-program-status-bg);
-    border-color: var(--color-program-status-border);
-    box-shadow: var(--color-program-status-shadow);
     :is(h1, h2, h3, h4, h5, h6) {
       font-size: var(--text-xs, 0.75rem);
       line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
@@ -17,12 +16,12 @@
       font-weight: var(--font-weight-semibold, 600);
       --tw-tracking: var(--tracking-wide, 0.025em);
       letter-spacing: var(--tracking-wide, 0.025em);
+      color: var(--color-surface-panel-title, var(--color-slate-900));
       text-transform: uppercase;
       @media (width >= 40rem) {
         font-size: var(--text-sm, 0.875rem);
         line-height: var(--tw-leading, var(--text-sm--line-height, calc(1.25 / 0.875)));
       }
-      color: var(--color-program-status-title);
     }
     .program-status__grid {
       margin-top: calc(var(--spacing, 0.25rem) * 3);
