@@ -1,0 +1,343 @@
+@layer components {
+  .cmp-summary {
+    height: 100%;
+    border-radius: var(--radius-2xl, 1rem);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--color-card-border, color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent));
+    background-color: var(--color-card-bg, var(--color-white));
+    padding: calc(var(--spacing, 0.25rem) * 3);
+    padding-top: calc(var(--spacing, 0.25rem) * 3);
+    color: var(--color-card-foreground, var(--color-slate-500));
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    @media (width >= 40rem) {
+      padding: calc(var(--spacing, 0.25rem) * 4);
+    }
+    @media (width >= 40rem) {
+      padding-top: calc(var(--spacing, 0.25rem) * 4);
+    }
+    --summary-ring-green: var(--color-summary-ring-green);
+    --summary-ring-red: var(--color-summary-ring-red);
+    :is(h1, h2, h3, h4, h5, h6) {
+      font-size: var(--text-xs, 0.75rem);
+      line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      --tw-tracking: var(--tracking-wider, 0.05em);
+      letter-spacing: var(--tracking-wider, 0.05em);
+      color: var(--color-card-foreground, var(--color-slate-500));
+      text-transform: uppercase;
+    }
+    .summary__description {
+      margin-bottom: calc(var(--spacing, 0.25rem) * 2);
+      display: none;
+      flex-shrink: 0;
+      font-size: 10px;
+      --tw-leading: var(--leading-snug, 1.375);
+      line-height: var(--leading-snug, 1.375);
+      color: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+      @media (width >= 560px) {
+        display: block;
+      }
+      @media (prefers-color-scheme: dark) {
+        color: #6e7681;
+      }
+    }
+    .summary__graph {
+      position: relative;
+      margin-inline: auto;
+      margin-block: calc(var(--spacing, 0.25rem) * 4);
+      display: grid;
+      aspect-ratio: 1 / 1;
+      width: 200px;
+      place-items: center;
+      @media (width >= 64rem) {
+        width: 100%;
+      }
+    }
+    .summary__graph-rings {
+      position: relative;
+      display: grid;
+      height: 100%;
+      width: 100%;
+      place-items: center;
+    }
+    .summary__ring-layer {
+      position: absolute;
+      z-index: 1;
+      --tw-outline-style: none;
+      outline-style: none;
+      width: var(--ring-size);
+      height: var(--ring-size);
+    }
+    .summary__ring-layer:focus-visible .summary__ring {
+      --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+      --tw-ring-color: color-mix(in srgb, #fff 70%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        --tw-ring-color: color-mix(in oklab, var(--color-white, #fff) 70%, transparent);
+      }
+      --tw-ring-offset-width: 2px;
+      --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+      --tw-ring-offset-color: var(--color-card-bg, var(--color-white));
+    }
+    .summary__ring {
+      position: absolute;
+      rotate: calc(90deg * -1);
+      border-radius: calc(infinity * 1px);
+      width: var(--ring-size);
+      height: var(--ring-size);
+      -webkit-mask: radial-gradient( farthest-side, transparent calc(100% - var(--ring-thickness)), #000 calc(100% - var(--ring-thickness)) );
+      mask: radial-gradient( farthest-side, transparent calc(100% - var(--ring-thickness)), #000 calc(100% - var(--ring-thickness)) );
+    }
+    .summary__graph-popover {
+      pointer-events: none;
+      position: absolute;
+      z-index: 40;
+      min-width: 8.5rem;
+      border-radius: var(--radius-xl, 0.75rem);
+      border-style: var(--tw-border-style);
+      border-width: 1px;
+      border-color: color-mix(in srgb, #fff 10%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        border-color: color-mix(in oklab, var(--color-white, #fff) 10%, transparent);
+      }
+      background-color: color-mix(in srgb, oklch(12.9% 0.042 264.695) 95%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--color-slate-950, oklch(12.9% 0.042 264.695)) 95%, transparent);
+      }
+      padding-inline: calc(var(--spacing, 0.25rem) * 3);
+      padding-block: calc(var(--spacing, 0.25rem) * 2);
+      text-align: left;
+      color: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+      opacity: 0%;
+      --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+      transition-property: opacity;
+      transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
+      transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+      --tw-duration: 150ms;
+      transition-duration: 150ms;
+      --tw-ease: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+      transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+    }
+    .summary__graph-popover[data-visible="true"] {
+      opacity: 100%;
+    }
+    .summary__ring-popover-title {
+      margin-bottom: calc(var(--spacing, 0.25rem) * 1);
+      font-size: var(--text-sm, 0.875rem);
+      line-height: var(--tw-leading, var(--text-sm--line-height, calc(1.25 / 0.875)));
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      --tw-tracking: var(--tracking-tight, -0.025em);
+      letter-spacing: var(--tracking-tight, -0.025em);
+      color: var(--color-white, #fff);
+    }
+    .summary__ring-popover-row {
+      margin-bottom: calc(var(--spacing, 0.25rem) * 0.5);
+      display: flex;
+      align-items: center;
+      gap: calc(var(--spacing, 0.25rem) * 2);
+      font-size: var(--text-xs, 0.75rem);
+      line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+      color: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+    }
+    .summary__ring-popover-dot {
+      display: inline-block;
+      height: calc(var(--spacing, 0.25rem) * 2.5);
+      width: calc(var(--spacing, 0.25rem) * 2.5);
+      border-radius: calc(infinity * 1px);
+    }
+    .summary__ring-popover-dot.is-passed {
+      background-color: var(--color-summary-ring-green, var(--color-emerald-600));
+    }
+    .summary__ring-popover-dot.is-failed {
+      background-color: var(--color-summary-ring-red, var(--color-red-600));
+    }
+    .summary__ring-popover-rate {
+      margin-top: calc(var(--spacing, 0.25rem) * 1);
+      font-size: var(--text-xs, 0.75rem);
+      line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+      color: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+    }
+    .summary__graph-score {
+      pointer-events: none;
+      position: absolute;
+      inset: calc(var(--spacing, 0.25rem) * 0);
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      color: var(--color-foreground-opposite, var(--color-black));
+    }
+    .summary__graph-score-value {
+      font-size: var(--text-lg, 1.125rem);
+      line-height: var(--tw-leading, var(--text-lg--line-height, calc(1.75 / 1.125)));
+      --tw-leading: 1;
+      line-height: 1;
+      --tw-tracking: var(--tracking-tight, -0.025em);
+      letter-spacing: var(--tracking-tight, -0.025em);
+      --tw-numeric-spacing: tabular-nums;
+      font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+      @media (width >= 40rem) {
+        font-size: var(--text-lg, 1.125rem);
+        line-height: var(--tw-leading, var(--text-lg--line-height, calc(1.75 / 1.125)));
+      }
+    }
+    .summary__graph-score-unit {
+      margin-left: calc(var(--spacing, 0.25rem) * 1);
+      font-size: var(--text-lg, 1.125rem);
+      line-height: var(--tw-leading, var(--text-lg--line-height, calc(1.75 / 1.125)));
+      --tw-leading: 1;
+      line-height: 1;
+      color: var(--color-foreground-opposite, var(--color-black));
+      @media (width >= 40rem) {
+        font-size: var(--text-lg, 1.125rem);
+        line-height: var(--tw-leading, var(--text-lg--line-height, calc(1.75 / 1.125)));
+      }
+    }
+    .summary__metrics-container {
+      margin-top: calc(var(--spacing, 0.25rem) * 3);
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--spacing, 0.25rem) * 3);
+    }
+    .summary__audit-card {
+      border-radius: var(--radius-lg, 0.5rem);
+      border-style: var(--tw-border-style);
+      border-width: 1px;
+      border-color: var(--color-summary-audit-card-border, color-mix(in srgb, oklch(88.5% 0.062 18.334) 90%, transparent));
+      @supports (color: color-mix(in lab, red, red)) {
+        border-color: var(--color-summary-audit-card-border, color-mix(in srgb, var(--color-red-200) 90%, transparent));
+      }
+      background-color: var(--color-summary-audit-card-bg, color-mix(in srgb, oklch(98.4% 0.003 247.858) 50%, transparent));
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: var(--color-summary-audit-card-bg, color-mix(in srgb, var(--color-slate-50) 50%, transparent));
+      }
+      padding-inline: calc(var(--spacing, 0.25rem) * 2.5);
+      padding-block: calc(var(--spacing, 0.25rem) * 2);
+      @media (width >= 40rem) {
+        padding-inline: calc(var(--spacing, 0.25rem) * 3);
+      }
+      @media (width >= 40rem) {
+        padding-block: calc(var(--spacing, 0.25rem) * 2.5);
+      }
+    }
+    .summary__audit-card.is-complete {
+      border-color: var(--color-summary-audit-card-border-complete, color-mix(in srgb, oklch(90.5% 0.093 164.15) 90%, transparent));
+      @supports (color: color-mix(in lab, red, red)) {
+        border-color: var(--color-summary-audit-card-border-complete, color-mix(in srgb, var(--color-emerald-200) 90%, transparent));
+      }
+    }
+    .summary__audit-title {
+      font-size: 11px;
+      --tw-leading: var(--leading-tight, 1.25);
+      line-height: var(--leading-tight, 1.25);
+      --tw-font-weight: var(--font-weight-bold, 700);
+      font-weight: var(--font-weight-bold, 700);
+      color: var(--color-surface-panel-title, var(--color-slate-900));
+      @media (width >= 40rem) {
+        font-size: var(--text-xs, 0.75rem);
+        line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+      }
+    }
+    .summary__audit-rate {
+      margin-top: calc(var(--spacing, 0.25rem) * 0.5);
+      font-size: 10px;
+      color: var(--color-surface-panel-muted, var(--color-slate-500));
+      --tw-numeric-spacing: tabular-nums;
+      font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+    }
+    .summary__audit-metrics {
+      margin-top: calc(var(--spacing, 0.25rem) * 2);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: calc(var(--spacing, 0.25rem) * 2);
+      font-size: 10px;
+      @media (width >= 40rem) {
+        font-size: var(--text-xs, 0.75rem);
+        line-height: var(--tw-leading, var(--text-xs--line-height, calc(1 / 0.75)));
+      }
+    }
+    .summary__audit-metric {
+      min-width: calc(var(--spacing, 0.25rem) * 0);
+    }
+    .summary__audit-metric-label {
+      --tw-leading: var(--leading-tight, 1.25);
+      line-height: var(--leading-tight, 1.25);
+      --tw-font-weight: var(--font-weight-semibold, 600);
+      font-weight: var(--font-weight-semibold, 600);
+      color: var(--color-surface-panel-title, var(--color-slate-900));
+    }
+    .summary__audit-bar {
+      margin-top: calc(var(--spacing, 0.25rem) * 1);
+      height: calc(var(--spacing, 0.25rem) * 1);
+      overflow: hidden;
+      border-radius: calc(infinity * 1px);
+      background-color: var(--color-surface-track, var(--color-slate-200));
+      @media (width >= 40rem) {
+        height: calc(var(--spacing, 0.25rem) * 1.5);
+      }
+    }
+    .summary__audit-bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: calc(infinity * 1px);
+      transition-property: width;
+      transition-timing-function: var(--tw-ease, var(--default-transition-timing-function, cubic-bezier(0.4, 0, 0.2, 1)));
+      transition-duration: var(--tw-duration, var(--default-transition-duration, 150ms));
+      --tw-duration: 700ms;
+      transition-duration: 700ms;
+      --tw-ease: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+      transition-timing-function: var(--ease-out, cubic-bezier(0, 0, 0.2, 1));
+    }
+    .summary__audit-bar-fill.is-passed {
+      background-color: var(--color-summary-ring-green, var(--color-emerald-600));
+    }
+    .summary__audit-bar-fill.is-failed {
+      background-color: var(--color-summary-ring-red, var(--color-red-600));
+    }
+    .summary__audit-metric-value {
+      margin-top: calc(var(--spacing, 0.25rem) * 0.5);
+      color: var(--color-surface-panel-muted, var(--color-slate-500));
+      --tw-numeric-spacing: tabular-nums;
+      font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+    }
+  }
+  .summary__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    @media (width >= 64rem) {
+      flex-direction: row;
+    }
+    > * {
+      width: 100%;
+      flex: none;
+      @media (width >= 64rem) {
+        width: calc(1 / 2 * 100%);
+      }
+      @media (width >= 64rem) {
+        max-width: calc(1 / 2 * 100%);
+      }
+    }
+  }
+  .summary-grid {
+    grid-column: span 12 / span 12;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: stretch;
+    @media (width >= 64rem) {
+      grid-column: span 5 / span 5;
+    }
+    .summary-wrapper {
+      width: 100%;
+    }
+  }
+}
