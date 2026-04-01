@@ -3,8 +3,8 @@
 @layer components {
   .cmp-summary {
     @apply h-full rounded-2xl border border-card-border bg-card-bg p-3 pt-3 shadow-sm text-card-foreground sm:p-4 sm:pt-4;
-    --summary-ring-green: #16a34a;
-    --summary-ring-red: #dc2626;
+    --summary-ring-green: var(--color-summary-ring-green);
+    --summary-ring-red: var(--color-summary-ring-red);
 
     :is(h1, h2, h3, h4, h5, h6) {
       @apply text-xs font-semibold uppercase tracking-wider text-card-foreground;
@@ -69,11 +69,11 @@
     }
 
     .summary__ring-popover-dot.is-passed {
-      background-color: var(--summary-ring-green);
+      @apply bg-summary-ring-green;
     }
 
     .summary__ring-popover-dot.is-failed {
-      background-color: var(--summary-ring-red);
+      @apply bg-summary-ring-red;
     }
 
     .summary__ring-popover-rate {
@@ -97,19 +97,19 @@
     }
 
     .summary__audit-card {
-      @apply rounded-lg border border-red-200/90 bg-slate-50/50 px-2.5 py-2 dark:border-red-900/45 dark:bg-[#0d1117] sm:px-3 sm:py-2.5;
+      @apply rounded-lg border px-2.5 py-2 sm:px-3 sm:py-2.5 bg-summary-audit-card-bg border-summary-audit-card-border;
     }
 
     .summary__audit-card.is-complete {
-      @apply border-emerald-200/90 dark:border-emerald-900/45;
+      @apply border-summary-audit-card-border-complete
     }
 
     .summary__audit-title {
-      @apply text-[11px] font-bold leading-tight text-slate-900 sm:text-xs dark:text-[#e6edf3];
+      @apply text-[11px] font-bold leading-tight sm:text-xs text-summary-audit-title;
     }
 
     .summary__audit-rate {
-      @apply mt-0.5 text-[10px] tabular-nums text-slate-500 dark:text-[#8b949e];
+      @apply mt-0.5 text-[10px] tabular-nums text-summary-audit-muted;
     }
 
     .summary__audit-metrics {
@@ -121,33 +121,28 @@
     }
 
     .summary__audit-metric-label {
-      @apply font-semibold leading-tight text-slate-800 dark:text-[#e6edf3];
+      @apply font-semibold leading-tight text-summary-audit-title;
     }
 
     .summary__audit-bar {
-      @apply mt-1 h-1 overflow-hidden rounded-full bg-slate-200 dark:bg-[#30363d] sm:h-1.5;
+      @apply mt-1 h-1 overflow-hidden rounded-full sm:h-1.5 bg-summary-audit-track;
     }
 
     .summary__audit-bar-fill {
-      @apply block h-full h-full rounded-full bg-[#108976] dark:bg-teal-400 rounded-full transition-[width] duration-700 ease-out;
+      @apply block h-full rounded-full transition-[width] duration-700 ease-out;
     }
 
     .summary__audit-bar-fill.is-passed {
-      background-color: var(--summary-ring-green);
+      @apply bg-summary-ring-green
     }
 
     .summary__audit-bar-fill.is-failed {
-      background-color: var(--summary-ring-red);
+      @apply bg-summary-ring-red
     }
 
     .summary__audit-metric-value {
-      @apply mt-0.5 tabular-nums text-slate-500 dark:text-[#8b949e];
+      @apply mt-0.5 tabular-nums text-summary-audit-muted;
     }
-  }
-
-  .dark .cmp-summary {
-    --summary-ring-green: #35d1c6;
-    --summary-ring-red: #fb6b84;
   }
 
   .summary__content {

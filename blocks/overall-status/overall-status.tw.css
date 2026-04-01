@@ -1,0 +1,91 @@
+@reference "../../styles/global.tw.css";
+
+@layer components {
+  .cmp-overall-status {
+    @apply h-full rounded-2xl border p-4 shadow-sm;
+    background-color: var(--color-overall-status-bg);
+    border-color: var(--color-overall-status-border);
+    box-shadow: var(--color-overall-status-shadow);
+
+    :is(h1, h2, h3, h4, h5, h6) {
+      @apply text-xs font-semibold uppercase tracking-wide sm:text-sm;
+      color: var(--color-overall-status-title);
+    }
+
+    .overall-status__grid {
+      @apply mt-3 grid grid-cols-2 gap-2 sm:gap-3;
+    }
+
+    .overall-status__card {
+      @apply rounded-lg border px-2 py-1.5 sm:px-2.5 sm:py-2;
+    }
+
+    .overall-status__card.is-warning {
+      background-color: var(--color-overall-status-warning-bg);
+      border-color: var(--color-overall-status-warning-border);
+    }
+
+    .overall-status__card.is-danger {
+      background-color: var(--color-overall-status-danger-bg);
+      border-color: var(--color-overall-status-danger-border);
+    }
+
+    .overall-status__card.is-success {
+      background-color: var(--color-overall-status-success-bg);
+      border-color: var(--color-overall-status-success-border);
+    }
+
+    .overall-status__card.is-neutral {
+      background-color: var(--color-overall-status-neutral-bg);
+      border-color: var(--color-overall-status-neutral-border);
+    }
+
+    .overall-status__card-label {
+      @apply text-[10px] font-medium leading-tight sm:text-xs;
+    }
+
+    .overall-status__card.is-warning .overall-status__card-label {
+      color: var(--color-overall-status-warning-label);
+    }
+
+    .overall-status__card.is-danger .overall-status__card-label {
+      color: var(--color-overall-status-danger-label);
+    }
+
+    .overall-status__card.is-success .overall-status__card-label {
+      color: var(--color-overall-status-success-label);
+    }
+
+    .overall-status__card.is-neutral .overall-status__card-label {
+      color: var(--color-overall-status-neutral-label);
+    }
+
+    .overall-status__card-value {
+      @apply mt-0.5 text-xs font-semibold tabular-nums sm:text-sm;
+    }
+
+    .overall-status__card.is-warning .overall-status__card-value {
+      color: var(--color-overall-status-warning-value);
+    }
+
+    .overall-status__card.is-danger .overall-status__card-value {
+      color: var(--color-overall-status-danger-value);
+    }
+
+    .overall-status__card.is-success .overall-status__card-value {
+      color: var(--color-overall-status-success-value);
+    }
+
+    .overall-status__card.is-neutral .overall-status__card-value {
+      color: var(--color-overall-status-neutral-value);
+    }
+  }
+
+  .overall-status-grid {
+    @apply col-span-12 lg:col-span-4 flex h-full w-full items-stretch;
+
+    .overall-status-wrapper {
+      @apply w-full;
+    }
+  }
+}

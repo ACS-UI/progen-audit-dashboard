@@ -152,6 +152,7 @@ async function loadPage() {
     || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   document.documentElement.dataset.theme = isDarkTheme ? 'dark' : 'light';
+  // localStorage.theme = 'dark';
 }
 
 loadPage();

@@ -15,12 +15,40 @@
   --color-overview-success: var(--color-emerald-600);
   --color-overview-danger: var(--color-red-600);
   --color-overview-total: var(--color-slate-900);
+  --color-summary-ring-green: var(--color-emerald-600);
+  --color-summary-ring-red: var(--color-red-600);
+  --color-summary-audit-card-bg: color-mix(in srgb, var(--color-slate-50) 50%, transparent);
+  --color-summary-audit-card-border: color-mix(in srgb, var(--color-red-200) 90%, transparent);
+  --color-summary-audit-card-border-complete: color-mix(in srgb, var(--color-emerald-200) 90%, transparent);
+  --color-summary-audit-title: var(--color-slate-900);
+  --color-summary-audit-muted: var(--color-slate-500);
+  --color-summary-audit-track: var(--color-slate-200);
+  --color-overall-status-bg: var(--color-white);
+  --color-overall-status-border: color-mix(in srgb, var(--color-slate-200) 80%, transparent);
+  --color-overall-status-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --color-overall-status-title: var(--color-slate-900);
+  --color-overall-status-warning-bg: var(--color-amber-50);
+  --color-overall-status-warning-border: color-mix(in srgb, var(--color-amber-300) 90%, transparent);
+  --color-overall-status-warning-label: color-mix(in srgb, var(--color-amber-900) 90%, transparent);
+  --color-overall-status-warning-value: var(--color-amber-900);
+  --color-overall-status-danger-bg: var(--color-red-50);
+  --color-overall-status-danger-border: color-mix(in srgb, var(--color-red-300) 90%, transparent);
+  --color-overall-status-danger-label: color-mix(in srgb, var(--color-red-900) 90%, transparent);
+  --color-overall-status-danger-value: var(--color-red-700);
+  --color-overall-status-success-bg: var(--color-emerald-50);
+  --color-overall-status-success-border: color-mix(in srgb, var(--color-emerald-300) 90%, transparent);
+  --color-overall-status-success-label: color-mix(in srgb, var(--color-emerald-900) 90%, transparent);
+  --color-overall-status-success-value: var(--color-emerald-700);
+  --color-overall-status-neutral-bg: var(--color-slate-50);
+  --color-overall-status-neutral-border: color-mix(in srgb, var(--color-slate-300) 90%, transparent);
+  --color-overall-status-neutral-label: color-mix(in srgb, var(--color-slate-900) 90%, transparent);
+  --color-overall-status-neutral-value: var(--color-slate-800);
   --breakpoint-xs: 768px;
   --spacing-section: 2.5rem;
 }
 
 [data-theme="dark"] {
-   --color-foreground-opposite: var(--color-white);
+  --color-foreground-opposite: var(--color-white);
   --color-background-color: #0b0e14;
   --color-card-bg: #161b22;
   --color-card-foreground: #8b949e;
@@ -32,6 +60,34 @@
   --color-overview-success: var(--color-emerald-300);
   --color-overview-danger: var(--color-red-300);
   --color-overview-total: #e6edf3;
+  --color-summary-ring-green: #35d1c6;
+  --color-summary-ring-red: #fb6b84;
+  --color-summary-audit-card-bg: #0d1117;
+  --color-summary-audit-card-border: #7f1d1d;
+  --color-summary-audit-card-border-complete: #14532d;
+  --color-summary-audit-title: #e6edf3;
+  --color-summary-audit-muted: #8b949e;
+  --color-summary-audit-track: #30363d;
+  --color-overall-status-bg: #161b22;
+  --color-overall-status-border: #30363d;
+  --color-overall-status-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  --color-overall-status-title: #ffffff;
+  --color-overall-status-warning-bg: color-mix(in srgb, var(--color-amber-950) 40%, transparent);
+  --color-overall-status-warning-border: color-mix(in srgb, var(--color-amber-700) 50%, transparent);
+  --color-overall-status-warning-label: color-mix(in srgb, var(--color-amber-200) 90%, transparent);
+  --color-overall-status-warning-value: var(--color-amber-200);
+  --color-overall-status-danger-bg: color-mix(in srgb, var(--color-red-950) 40%, transparent);
+  --color-overall-status-danger-border: color-mix(in srgb, var(--color-red-800) 55%, transparent);
+  --color-overall-status-danger-label: color-mix(in srgb, var(--color-red-200) 90%, transparent);
+  --color-overall-status-danger-value: var(--color-red-300);
+  --color-overall-status-success-bg: color-mix(in srgb, var(--color-emerald-950) 40%, transparent);
+  --color-overall-status-success-border: color-mix(in srgb, var(--color-emerald-700) 50%, transparent);
+  --color-overall-status-success-label: color-mix(in srgb, var(--color-emerald-200) 90%, transparent);
+  --color-overall-status-success-value: var(--color-emerald-300);
+  --color-overall-status-neutral-bg: color-mix(in srgb, var(--color-slate-900) 40%, transparent);
+  --color-overall-status-neutral-border: color-mix(in srgb, var(--color-slate-700) 60%, transparent);
+  --color-overall-status-neutral-label: color-mix(in srgb, var(--color-slate-200) 90%, transparent);
+  --color-overall-status-neutral-value: var(--color-slate-200);
 }
 
 @layer base {
