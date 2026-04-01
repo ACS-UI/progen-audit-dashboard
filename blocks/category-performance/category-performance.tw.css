@@ -1,0 +1,57 @@
+@reference "../../styles/global.tw.css";
+
+@layer components {
+  .cmp-category-performance {
+    @apply flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border p-4 pb-4 shadow-sm sm:p-4;
+    background-color: var(--color-category-performance-bg);
+    border-color: var(--color-category-performance-border);
+    box-shadow: var(--color-category-performance-shadow);
+
+    :is(h1, h2, h3, h4, h5, h6) {
+      @apply shrink-0 text-sm font-semibold;
+      color: var(--color-category-performance-title);
+    }
+
+    .category-performance__chart-shell {
+      @apply relative mt-2 -mx-1 min-h-[12rem] w-[calc(100%+0.5rem)] flex-1 basis-0 sm:mx-0 sm:mt-3 sm:min-h-[12rem] sm:w-full lg:min-h-[13rem];
+    }
+
+    .category-performance__canvas {
+      @apply absolute inset-0 h-full w-full;
+    }
+
+    .category-performance__tooltip {
+      @apply pointer-events-none absolute z-20 max-w-[14rem] rounded-lg border px-2.5 py-2 text-left text-xs;
+      background-color: var(--color-category-performance-tooltip-bg);
+      border-color: var(--color-category-performance-tooltip-border);
+      box-shadow: var(--color-category-performance-tooltip-shadow);
+    }
+
+    .category-performance__tooltip-title {
+      @apply font-semibold;
+      color: var(--color-category-performance-tooltip-title);
+    }
+
+    .category-performance__tooltip-body {
+      @apply mt-1 space-y-0.5;
+      color: var(--color-category-performance-tooltip-text);
+    }
+
+    .category-performance__tooltip-muted {
+      color: var(--color-category-performance-tooltip-muted);
+    }
+
+    .category-performance__tooltip-value {
+      @apply font-medium tabular-nums;
+      color: var(--color-category-performance-tooltip-value);
+    }
+  }
+
+  .category-performance-grid {
+    @apply col-span-12 lg:col-span-8 flex h-full w-full items-stretch;
+
+    .category-performance-wrapper {
+      @apply w-full;
+    }
+  }
+}

@@ -1,7 +1,0 @@
-@reference '../../styles/global.tw.css';
-
-@layer components {
-    .report-header {
-        @apply bg-red-500 mx-auto py-2 shadow-2xl;
-    }  
-}

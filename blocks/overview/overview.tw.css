@@ -1,0 +1,74 @@
+@reference "../../styles/global.tw.css";
+
+@layer components {
+  .cmp-overview {
+    @apply h-full rounded-2xl border border-card-border bg-card-bg p-3 pt-3 shadow-sm text-card-foreground sm:p-4 sm:pt-4;
+    --overview-progress-color: hsl(0 72% 45%);
+    :is(h1, h2, h3, h4, h5, h6) {
+      @apply text-xs font-semibold uppercase tracking-wider text-card-foreground;
+    }
+    .overall__graph {
+      @apply relative mx-auto my-4 grid place-items-center w-36 h-36;
+    }
+    .overall__graph-ring {
+      @apply relative rounded-full;
+      width: 100%;
+      height: 100%;
+    }
+    .overall__graph-segment {
+      @apply absolute left-1/2 top-1/2 block w-1.5 h-3 bg-overview-progress-inactive opacity-35;
+      transform:
+        translate(-50%, -50%) rotate(calc(var(--segment-index) * 10deg)) translateY(-4rem);
+      transform-origin: center;
+      transition:
+        background-color 280ms ease,
+        opacity 280ms ease,
+        box-shadow 280ms ease;
+    }
+    .overall__graph-segment.is-active {
+      @apply opacity-100;
+      background-color: var(--segment-color);
+      box-shadow: 0 0 12px color-mix(in srgb, var(--segment-color) 30%, transparent);
+    }
+    .overall__graph-score {
+      @apply absolute inset-0 flex items-center justify-center text-center font-semibold;
+      color: var(--overview-progress-color);
+      transition: color 220ms ease;
+    }
+    .overall__graph-score-value,
+    .overall__graph-score-unit {
+      @apply text-2xl;
+    }
+    .overall__graph-score-value {
+      @apply tabular-nums;
+    }
+    .overall__metrics-container {
+      @apply flex flex-col gap-2;
+    }
+    .overall__metrics-item {
+      @apply flex items-center justify-between rounded-lg border px-3 py-2 border-card-border bg-background-color text-sm font-medium tabular-nums;
+      span {
+        @apply first-of-type:text-xs first-of-type:font-light;
+      }
+      span:first-of-type {
+        @apply text-overview-metric-label;
+      }
+    }
+    .overall__metrics-item:first-of-type {
+      @apply text-overview-success;
+    }
+    .overall__metrics-item:nth-of-type(2) {
+      @apply text-overview-danger;
+    }
+    .overall__metrics-item:nth-of-type(3) {
+      @apply text-overview-total;
+    }
+  }
+  .overview-grid {
+    @apply col-span-12 lg:col-span-3 flex h-full w-full items-stretch;
+
+    .overview-wrapper {
+      @apply w-full;
+    }
+  }
+}

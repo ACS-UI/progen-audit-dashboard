@@ -2,10 +2,10 @@
 
 @layer components {
   .cmp-card {
-    @apply shadow-md xs:bg-theme-bg;
+    @apply rounded-2xl border border-card-border bg-card-bg p-3 pt-3 shadow-sm text-card-foreground sm:p-4 sm:pt-4;
+  }
 
-    p {
-      color: oklch(51.1% 0.262 276.966deg);
-    }
+  .overall-scores-container {
+    @apply col-span-3;
   }
 }
