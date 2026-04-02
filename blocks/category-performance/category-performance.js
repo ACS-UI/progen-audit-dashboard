@@ -1,4 +1,8 @@
-import { loadChartJs } from '../../scripts/utils.js';
+import {
+  attachMetricsGate,
+  loadChartJs,
+  shouldDisableDashboardMotion,
+} from '../../scripts/utils.js';
 
 function getHeadingMarkup(block) {
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
@@ -120,6 +124,28 @@ function getChartSizing() {
   };
 }
 
+function shouldDisableChartMotion() {
+  return shouldDisableDashboardMotion();
+}
+
+function getLoadingBarsMarkup() {
+  const bars = [62, 84, 46, 72, 58, 90, 66, 78, 52, 70, 88, 60];
+
+  return bars.map((height) => `
+    <span class="category-performance__loading-bar dashboard-skeleton" style="--loading-bar-height:${height}%"></span>
+  `).join('');
+}
+
+function getLoadingMarkup() {
+  return `
+    <div class="category-performance__chart-shell category-performance__chart-shell--loading" data-chart-host>
+      <div class="category-performance__loading-grid" aria-hidden="true">
+        ${getLoadingBarsMarkup()}
+      </div>
+    </div>
+  `;
+}
+
 async function renderChart(block, data) {
   await loadChartJs();
 
@@ -132,6 +158,8 @@ async function renderChart(block, data) {
 
   const context = canvas.getContext('2d');
   const chartSizing = getChartSizing();
+  const shouldAnimateBars = !shouldDisableChartMotion()
+    && document.body.classList.contains('dashboard-intro-pending');
   const externalTooltipHandler = ({ tooltip }) => {
     if (!tooltipEl) {
       return;
@@ -186,14 +214,18 @@ async function renderChart(block, data) {
       responsive: true,
       maintainAspectRatio: false,
       animation: {
-        duration: 0,
+        duration: shouldDisableChartMotion() ? 0 : 0,
       },
       animations: {
         y: {
-          duration: 700,
+          duration: shouldDisableChartMotion() ? 0 : 700,
           easing: 'easeOutQuart',
           from: 0,
           delay(animationContext) {
+            if (shouldDisableChartMotion()) {
+              return 0;
+            }
+
             return animationContext.type === 'data' ? animationContext.dataIndex * 80 : 0;
           },
         },
@@ -265,10 +297,20 @@ async function renderChart(block, data) {
     chart.update('none');
   };
 
-  window.requestAnimationFrame(() => {
+  if (shouldDisableChartMotion()) {
     chart.data.datasets[0].data = data.map((item) => item.value);
-    chart.update();
-  });
+    chart.update('none');
+  } else if (shouldAnimateBars) {
+    block.addEventListener('dashboard:intro-category-performance-start', () => {
+      chart.data.datasets[0].data = data.map((item) => item.value);
+      chart.update();
+    }, { once: true });
+  } else {
+    window.requestAnimationFrame(() => {
+      chart.data.datasets[0].data = data.map((item) => item.value);
+      chart.update();
+    });
+  }
 
   const themeObserver = new MutationObserver(() => {
     applyTheme();
@@ -296,27 +338,48 @@ async function renderChart(block, data) {
 export default async function decorate(block) {
   const headingMarkup = getHeadingMarkup(block);
   const data = getChartData(block);
+  let rendered = false;
 
-  block.innerHTML = `
-    ${headingMarkup}
-    <div class="category-performance__chart-shell" data-chart-host>
-      <canvas
-        class="category-performance__canvas"
-        id="chart-categories"
-        role="img"
-        aria-label="Category performance. Hover a bar for score and risk per category."
-      ></canvas>
-      <div
-        id="category-chart-tooltip"
-        class="category-performance__tooltip hidden"
-        role="tooltip"
-        hidden
-      ></div>
-    </div>
-  `;
+  const renderFinalState = async () => {
+    if (rendered) {
+      return;
+    }
 
-  block.classList.add('cmp-category-performance');
+    rendered = true;
+    block.innerHTML = `
+      ${headingMarkup}
+      <div class="category-performance__chart-shell" data-chart-host>
+        <canvas
+          class="category-performance__canvas"
+          id="chart-categories"
+          role="img"
+          aria-label="Category performance. Hover a bar for score and risk per category."
+        ></canvas>
+        <div
+          id="category-chart-tooltip"
+          class="category-performance__tooltip hidden"
+          role="tooltip"
+          hidden
+        ></div>
+      </div>
+    `;
+
+    block.classList.add('cmp-category-performance');
+    block.classList.remove('is-loading');
+    await renderChart(block, data);
+  };
+
   block?.closest('.category-performance-container')?.classList.add('category-performance-grid');
-
-  await renderChart(block, data);
+  attachMetricsGate({
+    renderLoading: () => {
+      block.innerHTML = `
+        ${headingMarkup}
+        ${getLoadingMarkup()}
+      `;
+      block.classList.add('cmp-category-performance', 'is-loading');
+    },
+    renderFinal: async () => {
+      await renderFinalState();
+    },
+  });
 }

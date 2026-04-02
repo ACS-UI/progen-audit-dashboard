@@ -45,6 +45,21 @@
         padding-block: calc(var(--spacing, 0.25rem) * 2);
       }
     }
+    .program-status__card.is-loading {
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--spacing, 0.25rem) * 2);
+      border-color: var(--color-surface-inset-border, var(--color-slate-200));
+      background-color: var(--color-surface-inset-bg, var(--color-white));
+    }
+    .program-status__skeleton--label {
+      height: calc(var(--spacing, 0.25rem) * 3);
+      width: calc(var(--spacing, 0.25rem) * 20);
+    }
+    .program-status__skeleton--value {
+      height: calc(var(--spacing, 0.25rem) * 4);
+      width: calc(var(--spacing, 0.25rem) * 12);
+    }
     .program-status__card.is-warning {
       background-color: var(--color-program-status-warning-bg);
       border-color: var(--color-program-status-warning-border);

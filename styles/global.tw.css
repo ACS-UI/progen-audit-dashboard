@@ -136,6 +136,41 @@
     @apply font-sans;
   }
 
+  body.dashboard-intro-pending .overview-grid,
+  body.dashboard-intro-pending .summary-grid,
+  body.dashboard-intro-pending .program-status-grid,
+  body.dashboard-intro-pending .category-performance-grid,
+  body.dashboard-intro-pending .check-summary-grid,
+  body.dashboard-intro-pending .top-issues-grid {
+    @apply opacity-0;
+  }
+
+  .dashboard-intro-target {
+    @apply will-change-transform;
+    transform-origin: center;
+    backface-visibility: hidden;
+  }
+
+  .dashboard-skeleton {
+    @apply block rounded-full;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-background-color) 92%, transparent) 0%,
+      color-mix(in srgb, var(--color-surface-panel-value) 18%, transparent) 50%,
+      color-mix(in srgb, var(--color-background-color) 92%, transparent) 100%
+    );
+    background-size: 220% 100%;
+    animation: dashboard-skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .dashboard-skeleton-block {
+    @apply rounded-lg;
+  }
+
+  body.dashboard-intro-active .dashboard-intro-hero {
+    @apply relative z-20;
+  }
+
   .main-container {
     @apply mx-auto max-w-[80rem] px-4 py-4 sm:px-6 sm:py-5 lg:py-6 ml-auto!;
   }
@@ -145,5 +180,14 @@
   }
   .cmp-container {
     @apply grid grid-cols-12 gap-4 max-w-[80rem];
+  }
+
+  @keyframes dashboard-skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -20% 0;
+    }
   }
 }

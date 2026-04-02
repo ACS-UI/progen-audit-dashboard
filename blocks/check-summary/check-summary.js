@@ -1,3 +1,5 @@
+import { attachMetricsGate } from '../../scripts/utils.js';
+
 function getHeadingMarkup(block) {
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
 
@@ -67,18 +69,54 @@ function getItemMarkup(item) {
   `;
 }
 
+function getLoadingMarkup(count) {
+  return `
+    <h2 id="summary-heading" class="check-summary__sr-only"></h2>
+    <div class="check-summary__grid">
+      ${Array.from({ length: count }, () => `
+        <article class="check-summary__item check-summary__item--loading">
+          <span class="check-summary__skeleton check-summary__skeleton--label dashboard-skeleton"></span>
+          <span class="check-summary__skeleton check-summary__skeleton--value dashboard-skeleton"></span>
+        </article>
+      `).join('')}
+    </div>
+  `;
+}
+
 export default function decorate(block) {
   const headingMarkup = getHeadingMarkup(block);
   const items = getItems(block);
+  let rendered = false;
 
-  block.innerHTML = `
-    ${headingMarkup}
-    <h2 id="summary-heading" class="check-summary__sr-only"></h2>
-    <div class="check-summary__grid">
-      ${items.map((item) => getItemMarkup(item)).join('')}
-    </div>
-  `;
+  const renderFinalState = () => {
+    if (rendered) {
+      return;
+    }
 
-  block.classList.add('cmp-check-summary');
+    rendered = true;
+    block.innerHTML = `
+      ${headingMarkup}
+      <h2 id="summary-heading" class="check-summary__sr-only"></h2>
+      <div class="check-summary__grid">
+        ${items.map((item) => getItemMarkup(item)).join('')}
+      </div>
+    `;
+
+    block.classList.add('cmp-check-summary');
+    block.classList.remove('is-loading');
+  };
+
   block?.closest('.check-summary-container')?.classList.add('check-summary-grid');
+  attachMetricsGate({
+    renderLoading: () => {
+      block.innerHTML = `
+        ${headingMarkup}
+        ${getLoadingMarkup(items.length || 6)}
+      `;
+      block.classList.add('cmp-check-summary', 'is-loading');
+    },
+    renderFinal: () => {
+      renderFinalState();
+    },
+  });
 }

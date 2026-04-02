@@ -169,6 +169,84 @@ export function getUIAuditMetrics() {
 }
 
 /**
+ * Returns true when dashboard motion should be disabled.
+ * @returns {boolean}
+ */
+export function shouldDisableDashboardMotion() {
+  return document.body.classList.contains('dashboard-no-motion')
+    || window.matchMedia('(max-width: 639px)').matches
+    || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Renders a loading state until metrics are available or timeout elapses.
+ * This matches blocks that show a skeleton first, then render a final state
+ * once when real metrics arrive or when fallback content should be shown.
+ *
+ * @param {{
+ *   renderLoading: () => void,
+ *   renderFinal: (metrics: object|object[]|null) => (void|Promise<void>),
+ *   timeout?: number,
+ * }} options
+ * @returns {() => void}
+ */
+export function attachMetricsGate({
+  renderLoading,
+  renderFinal,
+  timeout = 2000,
+}) {
+  const initialMetrics = getUIAuditMetrics();
+
+  if (initialMetrics) {
+    renderFinal(initialMetrics);
+    return () => {};
+  }
+
+  renderLoading();
+
+  let settled = false;
+  let timeoutId = null;
+  let handleMetricsUpdate = () => {};
+
+  function cleanup() {
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+
+    window.removeEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
+  }
+
+  async function finalize(metrics) {
+    if (settled) {
+      return;
+    }
+
+    settled = true;
+    cleanup();
+    await renderFinal(metrics);
+  }
+
+  handleMetricsUpdate = (event) => {
+    const metrics = event?.detail?.metrics;
+
+    if (!metrics) {
+      return;
+    }
+
+    finalize(metrics);
+  };
+
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, handleMetricsUpdate);
+
+  timeoutId = window.setTimeout(() => {
+    finalize(null);
+  }, timeout);
+
+  return cleanup;
+}
+
+/**
  * Builds a scoreByKey map from metrics (array or { data: array } of { key, value }).
  * @param {object|object[]|null} metrics - From getUIAuditMetrics().
  * @returns {Record<string, *>} Map of key -> value.

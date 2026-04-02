@@ -20,6 +20,18 @@
       @apply rounded-lg border border-surface-inset-border bg-surface-inset-bg px-2 py-1.5 shadow-surface-inset sm:px-2.5 sm:py-2;
     }
 
+    .check-summary__item--loading {
+      @apply flex flex-col gap-2;
+    }
+
+    .check-summary__skeleton--label {
+      @apply h-3 w-20;
+    }
+
+    .check-summary__skeleton--value {
+      @apply h-5 w-12;
+    }
+
     .check-summary__item-label {
       @apply text-[10px] font-medium leading-tight text-surface-panel-muted sm:text-xs;
     }

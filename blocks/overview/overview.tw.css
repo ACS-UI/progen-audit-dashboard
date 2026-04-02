@@ -4,11 +4,98 @@
   .cmp-overview {
     @apply h-full rounded-2xl border border-card-border bg-card-bg p-3 pt-3 shadow-sm text-card-foreground sm:p-4 sm:pt-4;
     --overview-progress-color: hsl(0 72% 45%);
+    --overview-card-glow: transparent;
+    --overview-metric-bg: var(--color-background-color);
+    --overview-border-angle: 0deg;
+    position: relative;
+    isolation: isolate;
+    border-color: color-mix(in srgb, var(--overview-progress-color) 42%, var(--color-card-border));
+    box-shadow:
+      var(--shadow-surface-panel),
+      0 0 24px -24px var(--overview-card-glow),
+      14px 0 28px -28px var(--overview-card-glow),
+      -14px 0 28px -28px var(--overview-card-glow),
+      0 14px 30px -26px var(--overview-card-glow),
+      0 -10px 26px -28px var(--overview-card-glow);
+    transition: box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
+    animation: overview-glow-orbit 5.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    &::before {
+      content: '';
+      @apply pointer-events-none absolute inset-0 rounded-2xl;
+      padding: 1px;
+      background: conic-gradient(
+        from var(--overview-border-angle),
+        color-mix(in srgb, var(--overview-progress-color) 20%, transparent) 0deg,
+        color-mix(in srgb, var(--overview-progress-color) 82%, white) 72deg,
+        color-mix(in srgb, var(--overview-progress-color) 35%, transparent) 144deg,
+        color-mix(in srgb, var(--overview-progress-color) 75%, white) 216deg,
+        color-mix(in srgb, var(--overview-progress-color) 18%, transparent) 288deg,
+        color-mix(in srgb, var(--overview-progress-color) 20%, transparent) 360deg
+      );
+      opacity: 0.9;
+      z-index: 0;
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      animation: overview-border-spin 3.6s linear infinite;
+    }
+    > * {
+      position: relative;
+      z-index: 1;
+    }
     :is(h1, h2, h3, h4, h5, h6) {
       @apply text-xs font-semibold uppercase tracking-wider text-card-foreground;
     }
+    &.is-landed {
+      box-shadow:
+        var(--shadow-surface-panel),
+        0 0 32px -22px var(--overview-card-glow),
+        18px 0 34px -24px var(--overview-card-glow),
+        -18px 0 34px -24px var(--overview-card-glow),
+        0 18px 38px -22px var(--overview-card-glow),
+        0 -14px 32px -24px var(--overview-card-glow);
+    }
     .overall__graph {
       @apply relative mx-auto my-4 grid place-items-center w-36 h-36;
+    }
+    .overall__graph--loading {
+      @apply overflow-hidden rounded-full;
+    }
+    .overall__graph-loading-ring {
+      @apply absolute inset-0 rounded-full;
+      background:
+        radial-gradient(circle at center, transparent 0 54%, color-mix(in srgb, var(--color-background-color) 90%, transparent) 55% 69%, transparent 70% 100%),
+        conic-gradient(
+          from 0deg,
+          color-mix(in srgb, var(--color-background-color) 92%, transparent) 0deg,
+          color-mix(in srgb, var(--color-surface-panel-value) 18%, transparent) 120deg,
+          color-mix(in srgb, var(--color-surface-panel-value) 28%, white) 180deg,
+          color-mix(in srgb, var(--color-background-color) 92%, transparent) 300deg,
+          color-mix(in srgb, var(--color-background-color) 92%, transparent) 360deg
+        );
+      animation: overview-loading-rotate 1.6s linear infinite;
+    }
+    .overall__graph-loading-score {
+      @apply absolute inset-0 flex items-center justify-center;
+    }
+    .overall__graph-loading-line {
+      @apply block rounded-full;
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-background-color) 92%, transparent) 0%,
+        color-mix(in srgb, var(--color-surface-panel-value) 18%, transparent) 50%,
+        color-mix(in srgb, var(--color-background-color) 92%, transparent) 100%
+      );
+      background-size: 220% 100%;
+      animation: overview-loading-shimmer 1.4s ease-in-out infinite;
+    }
+    .overall__graph-loading-line--value {
+      @apply h-7 w-16;
     }
     .overall__graph-ring {
       @apply relative rounded-full;
@@ -46,13 +133,44 @@
       @apply flex flex-col gap-2;
     }
     .overall__metrics-item {
-      @apply flex items-center justify-between rounded-lg border px-3 py-2 border-card-border bg-background-color text-sm font-medium tabular-nums;
+      @apply flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium tabular-nums;
+      background-color: var(--color-background-color);
+      border: none;
+      transition:
+        opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 420ms cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 420ms cubic-bezier(0.16, 1, 0.3, 1);
       span {
         @apply first-of-type:text-xs first-of-type:font-light;
       }
-      span:first-of-type {
-        @apply text-surface-panel-text;
-      }
+    }
+    .overall__metric-skeleton {
+      @apply block rounded-full;
+      background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-background-color) 92%, transparent) 0%,
+        color-mix(in srgb, var(--color-surface-panel-value) 18%, transparent) 50%,
+        color-mix(in srgb, var(--color-background-color) 92%, transparent) 100%
+      );
+      background-size: 220% 100%;
+      animation: overview-loading-shimmer 1.4s ease-in-out infinite;
+    }
+    .overall__metric-skeleton--label {
+      @apply h-3 w-16;
+    }
+    .overall__metric-skeleton--value {
+      @apply h-4 w-10;
+    }
+    .overall__metrics-item.is-hidden {
+      @apply opacity-0;
+      transform: translateY(10px);
+      filter: blur(6px);
+    }
+    .overall__metrics-item.is-visible {
+      @apply opacity-100;
+      transform: translateY(0);
+      filter: blur(0);
     }
     .overall__metrics-item:first-of-type {
       @apply text-semantic-success;
@@ -69,6 +187,81 @@
 
     .overview-wrapper {
       @apply w-full;
+    }
+  }
+
+  @keyframes overview-glow-orbit {
+    0% {
+      box-shadow:
+        var(--shadow-surface-panel),
+        0 0 24px -24px var(--overview-card-glow),
+        14px 0 28px -28px var(--overview-card-glow),
+        -14px 0 28px -28px var(--overview-card-glow),
+        0 14px 30px -26px var(--overview-card-glow),
+        0 -10px 26px -28px var(--overview-card-glow);
+    }
+    25% {
+      box-shadow:
+        var(--shadow-surface-panel),
+        0 0 26px -22px var(--overview-card-glow),
+        10px -12px 30px -24px var(--overview-card-glow),
+        -16px 10px 34px -26px var(--overview-card-glow),
+        10px 18px 36px -24px var(--overview-card-glow),
+        -8px -14px 28px -26px var(--overview-card-glow);
+    }
+    50% {
+      box-shadow:
+        var(--shadow-surface-panel),
+        0 0 28px -22px var(--overview-card-glow),
+        0 -16px 32px -24px var(--overview-card-glow),
+        0 18px 38px -24px var(--overview-card-glow),
+        16px 8px 32px -26px var(--overview-card-glow),
+        -14px -6px 32px -26px var(--overview-card-glow);
+    }
+    75% {
+      box-shadow:
+        var(--shadow-surface-panel),
+        0 0 26px -22px var(--overview-card-glow),
+        16px 10px 34px -24px var(--overview-card-glow),
+        -10px -14px 30px -24px var(--overview-card-glow),
+        -10px 18px 36px -24px var(--overview-card-glow),
+        10px -14px 28px -26px var(--overview-card-glow);
+    }
+    100% {
+      box-shadow:
+        var(--shadow-surface-panel),
+        0 0 24px -24px var(--overview-card-glow),
+        14px 0 28px -28px var(--overview-card-glow),
+        -14px 0 28px -28px var(--overview-card-glow),
+        0 14px 30px -26px var(--overview-card-glow),
+        0 -10px 26px -28px var(--overview-card-glow);
+    }
+  }
+
+  @keyframes overview-loading-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -20% 0;
+    }
+  }
+
+  @keyframes overview-loading-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes overview-border-spin {
+    from {
+      --overview-border-angle: 0deg;
+    }
+    to {
+      --overview-border-angle: 360deg;
     }
   }
 }

@@ -64,12 +64,20 @@
       @apply rounded-xl border border-top-issues-card-border bg-top-issues-card-bg p-4 shadow-surface-panel;
     }
 
+    .top-issues__item--loading {
+      @apply border-surface-inset-border bg-surface-inset-bg;
+    }
+
     .top-issues__item-row {
       @apply flex items-start gap-3;
     }
 
     .top-issues__item-icon {
       @apply mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-xl bg-top-issues-icon-bg text-top-issues-icon-fg;
+    }
+
+    .top-issues__item-icon--loading {
+      @apply bg-transparent text-transparent;
     }
 
     .top-issues__item-icon svg {
@@ -86,6 +94,22 @@
 
     .top-issues__item-details {
       @apply mt-2 text-xs leading-relaxed text-surface-panel-text;
+    }
+
+    .top-issues__skeleton {
+      @apply block;
+    }
+
+    .top-issues__skeleton--title {
+      @apply h-4 w-full max-w-[32rem];
+    }
+
+    .top-issues__skeleton--details {
+      @apply mt-2 h-3 w-full;
+    }
+
+    .top-issues__skeleton--details.is-short {
+      @apply w-2/3;
     }
   }
 

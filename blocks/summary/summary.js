@@ -1,3 +1,8 @@
+import {
+  attachMetricsGate,
+  shouldDisableDashboardMotion,
+} from '../../scripts/utils.js';
+
 function getHeadingMarkup(block) {
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
 
@@ -6,6 +11,10 @@ function getHeadingMarkup(block) {
   }
 
   return heading.cloneNode(true).outerHTML;
+}
+
+function shouldDisableSummaryMotion() {
+  return shouldDisableDashboardMotion();
 }
 
 function getRowCells(row) {
@@ -184,6 +193,68 @@ function animateAuditBars(block) {
   });
 }
 
+function animateAuditCards(block) {
+  const auditCards = [...block.querySelectorAll('.summary__audit-card')];
+
+  if (!auditCards.length) {
+    return Promise.resolve();
+  }
+
+  auditCards.forEach((card) => {
+    card.classList.add('is-hidden');
+  });
+
+  return new Promise((resolve) => {
+    let completedCount = 0;
+
+    auditCards.forEach((card, index) => {
+      window.setTimeout(() => {
+        card.classList.remove('is-hidden');
+        card.classList.add('is-visible');
+        completedCount += 1;
+
+        if (completedCount === auditCards.length) {
+          resolve();
+        }
+      }, 120 + (index * 120));
+    });
+  });
+}
+
+function startSummaryAnimations(block) {
+  if (block.dataset.summaryAnimated === 'true') {
+    return;
+  }
+
+  block.dataset.summaryAnimated = 'true';
+
+  if (shouldDisableSummaryMotion()) {
+    [...block.querySelectorAll('.summary__ring-layer')].forEach((ringLayer) => {
+      const ring = ringLayer.querySelector('.summary__ring');
+      const targetValue = Number(ringLayer.dataset.ringValue) || 0;
+
+      if (ring) {
+        ring.style.background = getRingBackground(targetValue, 1);
+      }
+    });
+    [...block.querySelectorAll('.summary__audit-card')].forEach((card) => {
+      card.classList.remove('is-hidden');
+      card.classList.add('is-visible');
+    });
+    [...block.querySelectorAll('.summary__audit-bar-fill')].forEach((barFill) => {
+      if (barFill.dataset.targetWidth) {
+        barFill.style.width = barFill.dataset.targetWidth;
+      }
+    });
+    return;
+  }
+
+  animateSummaryRings(block);
+  animateAuditCards(block).then(() => {
+    animateAuditBars(block);
+  });
+}
+
 function attachRingPopoverPositioning(block) {
   const graph = block.querySelector('.summary__graph');
   const ringLayers = [...block.querySelectorAll('.summary__ring-layer')];
@@ -266,16 +337,18 @@ function attachRingPopoverPositioning(block) {
 }
 
 async function renderSummaryCards(block) {
-  const headingMarkup = getHeadingMarkup(block);
-  const description = getOptionalDescription(block);
-  const summaryData = getSummaryData(block);
+  const headingMarkup = block.dataset.summaryHeadingMarkup || getHeadingMarkup(block);
+  const description = block.dataset.summaryDescription || getOptionalDescription(block);
+  const summaryData = JSON.parse(block.dataset.summaryData || 'null') || getSummaryData(block);
+  const shouldHideAuditCardsInitially = true;
   const metricsMarkup = summaryData.audits.map((audit) => {
     const passedRate = Number(audit.value.toFixed(1));
     const failedRate = Number((100 - audit.value).toFixed(1));
     const accentClass = passedRate >= 100 ? 'is-complete' : '';
+    const hiddenClass = shouldHideAuditCardsInitially ? ' is-hidden' : '';
 
     return `
-      <article class="summary__audit-card ${accentClass}">
+      <article class="summary__audit-card ${accentClass}${hiddenClass}">
         <h4 class="summary__audit-title">${audit.label}</h4>
         <p class="summary__audit-rate">Pass rate: ${passedRate.toFixed(1)}%</p>
         <div class="summary__audit-metrics">
@@ -332,13 +405,74 @@ async function renderSummaryCards(block) {
   `;
 
   block.classList.add('cmp-summary');
+  block.classList.remove('is-loading');
   attachRingPopoverPositioning(block);
-  animateSummaryRings(block);
-  animateAuditBars(block);
+}
+
+function renderSummaryLoadingState(block) {
+  const headingMarkup = block.dataset.summaryHeadingMarkup || getHeadingMarkup(block);
+  const description = block.dataset.summaryDescription || getOptionalDescription(block);
+
+  block.innerHTML = `
+    ${headingMarkup}
+    <p class="summary__description">${description}</p>
+    <div class="summary__content">
+      <div class="summary__graph summary__graph--loading">
+        <span class="summary__loading-ring dashboard-skeleton"></span>
+      </div>
+      <div class="summary__metrics-container">
+        ${Array.from({ length: 3 }, () => `
+          <article class="summary__audit-card summary__audit-card--loading">
+            <span class="summary__skeleton summary__skeleton--title dashboard-skeleton"></span>
+            <span class="summary__skeleton summary__skeleton--rate dashboard-skeleton"></span>
+            <span class="summary__skeleton summary__skeleton--bar dashboard-skeleton"></span>
+            <span class="summary__skeleton summary__skeleton--bar dashboard-skeleton"></span>
+          </article>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  block.classList.add('cmp-summary', 'is-loading');
+}
+
+function activateSummary(block) {
+  const shouldWaitForDashboardIntro = document.body.classList.contains('dashboard-intro-pending')
+    && !shouldDisableSummaryMotion();
+
+  if (shouldWaitForDashboardIntro) {
+    block.addEventListener('dashboard:intro-summary-start', () => {
+      startSummaryAnimations(block);
+    }, { once: true });
+    return;
+  }
+
+  startSummaryAnimations(block);
 }
 
 export default async function decorate(block) {
   block?.closest('.summary-container')?.classList.add('summary-grid');
-  // block.style.display = 'none';
-  await renderSummaryCards(block);
+  block.dataset.summaryHeadingMarkup = getHeadingMarkup(block);
+  block.dataset.summaryDescription = getOptionalDescription(block);
+  block.dataset.summaryData = JSON.stringify(getSummaryData(block));
+  let rendered = false;
+
+  const renderFinalState = async () => {
+    if (rendered) {
+      return;
+    }
+
+    rendered = true;
+    await renderSummaryCards(block);
+    activateSummary(block);
+  };
+
+  attachMetricsGate({
+    renderLoading: () => {
+      renderSummaryLoadingState(block);
+    },
+    renderFinal: async () => {
+      await renderFinalState();
+    },
+  });
 }

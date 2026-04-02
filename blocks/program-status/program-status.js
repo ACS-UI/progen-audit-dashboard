@@ -1,3 +1,5 @@
+import { attachMetricsGate } from '../../scripts/utils.js';
+
 function getHeadingMarkup(block) {
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
 
@@ -127,17 +129,52 @@ function getCardMarkup({ label, value, tone }) {
   `;
 }
 
+function getLoadingMarkup() {
+  return `
+    <div class="program-status__grid">
+      ${Array.from({ length: 6 }, () => `
+        <article class="program-status__card is-loading">
+          <span class="program-status__skeleton program-status__skeleton--label dashboard-skeleton"></span>
+          <span class="program-status__skeleton program-status__skeleton--value dashboard-skeleton"></span>
+        </article>
+      `).join('')}
+    </div>
+  `;
+}
+
 export default function decorate(block) {
   const headingMarkup = getHeadingMarkup(block);
   const cards = getStatusCards(block);
+  let rendered = false;
 
-  block.innerHTML = `
-    ${headingMarkup}
-    <div class="program-status__grid">
-      ${cards.map((card) => getCardMarkup(card)).join('')}
-    </div>
-  `;
+  const renderFinalState = () => {
+    if (rendered) {
+      return;
+    }
 
-  block.classList.add('cmp-program-status');
+    rendered = true;
+    block.innerHTML = `
+      ${headingMarkup}
+      <div class="program-status__grid">
+        ${cards.map((card) => getCardMarkup(card)).join('')}
+      </div>
+    `;
+
+    block.classList.add('cmp-program-status');
+    block.classList.remove('is-loading');
+  };
+
   block?.closest('.program-status-container, .overall-status-container')?.classList.add('program-status-grid');
+  attachMetricsGate({
+    renderLoading: () => {
+      block.innerHTML = `
+        ${headingMarkup}
+        ${getLoadingMarkup()}
+      `;
+      block.classList.add('cmp-program-status', 'is-loading');
+    },
+    renderFinal: () => {
+      renderFinalState();
+    },
+  });
 }

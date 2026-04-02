@@ -18,6 +18,25 @@
       @apply relative mx-auto my-4 grid w-[200px] lg:w-full place-items-center aspect-square;
     }
 
+    .summary__graph--loading {
+      @apply overflow-hidden rounded-full;
+    }
+
+    .summary__loading-ring {
+      @apply block h-[190px] w-[190px] rounded-full;
+      background:
+        radial-gradient(circle at center, transparent 0 54%, color-mix(in srgb, var(--color-background-color) 90%, transparent) 55% 69%, transparent 70% 100%),
+        conic-gradient(
+          from 0deg,
+          color-mix(in srgb, var(--color-background-color) 92%, transparent) 0deg,
+          color-mix(in srgb, var(--color-surface-panel-value) 18%, transparent) 120deg,
+          color-mix(in srgb, var(--color-surface-panel-value) 28%, white) 180deg,
+          color-mix(in srgb, var(--color-background-color) 92%, transparent) 300deg,
+          color-mix(in srgb, var(--color-background-color) 92%, transparent) 360deg
+        );
+      animation: summary-loading-rotate 1.6s linear infinite;
+    }
+
     .summary__graph-rings {
       @apply relative grid h-full w-full place-items-center;
     }
@@ -98,10 +117,30 @@
 
     .summary__audit-card {
       @apply rounded-lg border px-2.5 py-2 sm:px-3 sm:py-2.5 bg-summary-audit-card-bg border-summary-audit-card-border;
+      transition:
+        opacity 460ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 460ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 460ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .summary__audit-card.is-complete {
       @apply border-summary-audit-card-border-complete
+    }
+
+    .summary__audit-card--loading {
+      @apply flex flex-col gap-2 border-surface-inset-border bg-surface-inset-bg;
+    }
+
+    .summary__audit-card.is-hidden {
+      @apply opacity-0;
+      transform: translateY(20px);
+      filter: blur(8px);
+    }
+
+    .summary__audit-card.is-visible {
+      @apply opacity-100;
+      transform: translateY(0);
+      filter: blur(0);
     }
 
     .summary__audit-title {
@@ -143,6 +182,18 @@
     .summary__audit-metric-value {
       @apply mt-0.5 tabular-nums text-surface-panel-muted;
     }
+
+    .summary__skeleton--title {
+      @apply h-3 w-24;
+    }
+
+    .summary__skeleton--rate {
+      @apply h-3 w-20;
+    }
+
+    .summary__skeleton--bar {
+      @apply h-2 w-full rounded-full;
+    }
   }
 
   .summary__content {
@@ -157,6 +208,15 @@
 
     .summary-wrapper {
       @apply w-full;
+    }
+  }
+
+  @keyframes summary-loading-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 }

@@ -16,6 +16,18 @@
       @apply rounded-lg border px-2 py-1.5 sm:px-2.5 sm:py-2;
     }
 
+    .program-status__card.is-loading {
+      @apply flex flex-col gap-2 border-surface-inset-border bg-surface-inset-bg;
+    }
+
+    .program-status__skeleton--label {
+      @apply h-3 w-20;
+    }
+
+    .program-status__skeleton--value {
+      @apply h-4 w-12;
+    }
+
     .program-status__card.is-warning {
       background-color: var(--color-program-status-warning-bg);
       border-color: var(--color-program-status-warning-border);
