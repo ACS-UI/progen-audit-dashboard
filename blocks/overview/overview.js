@@ -1,3 +1,9 @@
+import {
+  getUIAuditMetrics,
+  UI_AUDIT_METRICS_UPDATED_EVENT,
+  getScoreByKeyFromMetrics
+} from '../../scripts/utils.js';
+
 /**
  * Reuses the authored heading node so the rendered block preserves
  * the original heading level instead of forcing a fixed tag.
@@ -79,10 +85,10 @@ ${segmentsMarkup}
  */
 function animateProgressMeter(block) {
   const ring = block.querySelector('.overall__graph-ring');
-  const score = block.querySelector('.overall__graph-score');
   const scoreValue = block.querySelector('.overall__graph-score-value');
+  const scoreContainer = block.querySelector('.overall__graph-score');
 
-  if (!ring || !score || !scoreValue) {
+  if (!ring || !scoreContainer || !scoreValue) {
     return;
   }
 
@@ -115,8 +121,7 @@ function animateProgressMeter(block) {
 
     scoreValue.textContent = `${progressScore}`;
     ring.style.setProperty('--overview-progress-color', progressColor);
-    score.style.setProperty('--overview-progress-color', progressColor);
-
+    scoreContainer.style.setProperty('--overview-progress-color', progressColor);
     segments.forEach((segment, index) => {
       segment.classList.toggle('is-active', index < activeSegments);
     });
@@ -147,11 +152,45 @@ function animateProgressMeter(block) {
  * @param {HTMLElement} block
  * @returns {Promise<void>}
  */
-async function renderOverallScoreCards(block) {
-  const headingMarkup = getHeadingMarkup(block);
+async function renderOverallScoreCards(block, metricsData) {
+  // get metrics from localStorage
+  let metrics = metricsData;
+  if (!metrics) {
+    metrics = getUIAuditMetrics();
+    if (!metrics) {
+      const stored = localStorage.getItem('ui-audit-metrics');
+      if (stored) {
+        try {
+          metrics = JSON.parse(stored);
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+  }
+
+  const headingMarkup = block.dataset.heading || getHeadingMarkup(block);
+  if (!block.dataset.heading) block.dataset.heading = headingMarkup;
+
   const metricLabels = getMetricLabels(block);
-  const overallScore = 90;
-  const scores = ['130', '124', '254'];
+  const scoreMap = getScoreByKeyFromMetrics(metrics);
+
+  const total = Number(scoreMap['summary.overall.total']) || 0;
+  const passed = Number(scoreMap['summary.overall.passed']) || 0;
+  const failed = Number(scoreMap['summary.overall.failed']) || 0;
+
+  const overallScore = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+  /**
+   * The user's labels are: ["Passed", "Failed", "Total"]
+   */
+  const scores = metricLabels.map((label) => {
+    const l = label.toLowerCase();
+    if (l.includes('pass')) return passed;
+    if (l.includes('fail')) return failed;
+    if (l.includes('total')) return total;
+    return 0;
+  });
 
   const metricsMarkup = metricLabels.map((label, index) => `
         <div class="overall__metrics-item">
@@ -181,4 +220,8 @@ ${metricsMarkup}
 export default function decorate(block) {
   block?.closest('.overview-container')?.classList.add('overview-grid');
   renderOverallScoreCards(block);
+  // Re-render when metrics are updated
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, (e) => {
+    renderOverallScoreCards(block, e.detail.metrics);
+  });
 }
