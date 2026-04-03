@@ -1,3 +1,9 @@
+import {
+  getUIAuditMetrics,
+  UI_AUDIT_METRICS_UPDATED_EVENT,
+  getScoreByKeyFromMetrics
+} from '../../scripts/utils.js';
+
 function getHeadingMarkup(block) {
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
 
@@ -9,9 +15,19 @@ function getHeadingMarkup(block) {
 }
 
 function getListItems(block) {
-  return [...block.querySelectorAll('ol li')]
+  // If we already parsed and stored labels, use them
+  if (block.dataset.labels) {
+    return JSON.parse(block.dataset.labels);
+  }
+  const labels = [...block.querySelectorAll('ol li')]
     .map((item) => item.textContent?.trim())
     .filter(Boolean);
+
+  // Store labels to prevent losing them on re-render
+  if (labels.length) {
+    block.dataset.labels = JSON.stringify(labels);
+  }
+  return labels;
 }
 
 function normalizeKey(label) {
@@ -33,20 +49,10 @@ function getFallbackValue(label) {
 }
 
 function getItemTone(label) {
-  const normalizedLabel = normalizeKey(label);
-
-  if (normalizedLabel === 'passed') {
-    return 'is-success';
-  }
-
-  if (normalizedLabel === 'failed' || normalizedLabel === 'critical failed') {
-    return 'is-danger';
-  }
-
-  if (normalizedLabel === 'mandatory failed' || normalizedLabel === 'high failed' || normalizedLabel === 'medium failed') {
-    return 'is-warning';
-  }
-
+  const nl = normalizeKey(label);
+  if (nl === 'passed') return 'is-success';
+  if (nl === 'failed' || nl === 'critical failed') return 'is-danger';
+  if (nl === 'mandatory failed' || nl === 'high failed' || nl === 'medium failed') return 'is-warning';
   return '';
 }
 
@@ -67,12 +73,48 @@ function getItemMarkup(item) {
   `;
 }
 
-export default function decorate(block) {
-  const headingMarkup = getHeadingMarkup(block);
-  const items = getItems(block);
+async function renderCheckSummary(block, metricsData) {
+  // Use provided metrics or use localStorage
+  let metrics = metricsData;
+  if (!metrics) {
+    metrics = getUIAuditMetrics();
+    if (!metrics) {
+      const stored = localStorage.getItem('ui-audit-metrics');
+      if (stored) {
+        try { metrics = JSON.parse(stored); } catch (e) { /* ignore */ }
+      }
+    }
+  }
+
+  const scoreMap = getScoreByKeyFromMetrics(metrics);
+  const labels = getListItems(block);
+
+  const keyMapping = {
+    'total checks': 'summary.overall.total',
+    'passed': 'summary.overall.passed',
+    'failed': 'summary.overall.failed',
+    'critical failed': 'summary.overall.criticalFailed',
+    'mandatory failed': 'summary.overall.mandatoryFailed',
+    'high failed': 'summary.overall.highFailed',
+    'medium failed': 'summary.overall.mediumFailed',
+  };
+
+  const items = labels.map((label) => {
+    const nl = normalizeKey(label);
+    const metricKey = keyMapping[nl];
+    const value = scoreMap[metricKey];
+
+    return {
+      label,
+      value: value !== undefined && value !== null ? value : '--',
+      tone: getItemTone(label),
+    };
+  });
+
+  if (!block.dataset.heading) block.dataset.heading = getHeadingMarkup(block);
 
   block.innerHTML = `
-    ${headingMarkup}
+    ${block.dataset.heading}
     <h2 id="summary-heading" class="check-summary__sr-only"></h2>
     <div class="check-summary__grid">
       ${items.map((item) => getItemMarkup(item)).join('')}
@@ -81,4 +123,14 @@ export default function decorate(block) {
 
   block.classList.add('cmp-check-summary');
   block?.closest('.check-summary-container')?.classList.add('check-summary-grid');
+}
+
+export default async function decorate(block) {
+  // Initial render
+  await renderCheckSummary(block);
+
+  // Live updates
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, (e) => {
+    renderCheckSummary(block, e.detail.metrics);
+  });
 }

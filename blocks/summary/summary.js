@@ -1,10 +1,12 @@
+import {
+  getUIAuditMetrics,
+  UI_AUDIT_METRICS_UPDATED_EVENT,
+  getScoreByKeyFromMetrics
+} from '../../scripts/utils.js';
+
 function getHeadingMarkup(block) {
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
-
-  if (!heading) {
-    return '<h3 id="overall-scores">Summary</h3>';
-  }
-
+  if (!heading) return '<h3 id="summary-title">Summary</h3>';
   return heading.cloneNode(true).outerHTML;
 }
 
@@ -33,65 +35,60 @@ function getOptionalDescription(block) {
 }
 
 function parseNumber(value) {
-  if (!value) {
-    return null;
-  }
-
+  if (value === undefined || value === null) return null;
   const numericValue = Number.parseFloat(String(value).replace(/[^\d.]/g, ''));
   return Number.isFinite(numericValue) ? numericValue : null;
 }
 
-function getSummaryData(block) {
+function getSummaryData(block, metrics) {
+  const scoreMap = getScoreByKeyFromMetrics(metrics);
   const rows = [...block.children];
   const auditRows = rows.slice(1, 4);
-  const metricRows = rows.slice(4);
-  const passRateRow = metricRows.find((row) => getRowCells(row)[0]?.toLowerCase() === 'pass rate');
-  const passedRow = metricRows.find((row) => getRowCells(row)[0]?.toLowerCase() === 'passed');
-  const failedRow = metricRows.find((row) => getRowCells(row)[0]?.toLowerCase() === 'failed');
 
-  const passRate = parseNumber(getRowCells(passRateRow || [])[1]) ?? 51.2;
-  const passed = parseNumber(getRowCells(passedRow || [])[1]) ?? 130;
-  const failed = parseNumber(getRowCells(failedRow || [])[1]) ?? 124;
-  const total = passed + failed || 1;
-  const fallbackAuditValues = [
-    Math.min(100, Math.max(0, Math.round((passed / total) * 1000) / 10)),
-    Math.min(100, Math.max(0, Math.round(passRate * 10) / 10)),
-    100,
+  // Extract Overall data
+  const overallPassed = Number(scoreMap['summary.overall.passed']) || 0;
+  const overallTotal = Number(scoreMap['summary.overall.total']) || 0;
+  const overallPassRate = overallTotal > 0 ? Math.round((overallPassed / overallTotal) * 100) : 0;
+
+  // Category mapping
+  const categoryKeys = [
+    { prefix: 'summary.browserAudit', label: 'Browser Audit' },
+    { prefix: 'summary.codeAudit', label: 'Code Audit' },
+    { prefix: 'summary.manualAudit', label: 'Manual Audit' },
   ];
-  const audits = auditRows.map((row, index) => {
-    const [, label, authoredValue] = getRowCells(row);
-    const value = parseNumber(authoredValue) ?? fallbackAuditValues[index] ?? 0;
+
+  const audits = categoryKeys.map((cat, index) => {
+    const passed = Number(scoreMap[`${cat.prefix}.passed`]) || 0;
+    const total = Number(scoreMap[`${cat.prefix}.total`]) || 0;
+    const value = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+    // Preserve authored labels if possible, otherwise use category label
+    const authoredLabel = getRowCells(auditRows[index] || [])[1];
 
     return {
-      label: label || `Audit ${index + 1}`,
-      value: Math.min(100, Math.max(0, value)),
+      label: authoredLabel || cat.label,
+      value,
+      passed,
+      failed: Number(scoreMap[`${cat.prefix}.failed`]) || 0,
+      total,
     };
   });
 
   return {
-    passRate,
-    passed,
-    failed,
-    total,
+    passRate: overallPassRate,
+    passed: overallPassed,
+    failed: Number(scoreMap['summary.overall.failed']) || 0,
+    total: overallTotal,
     audits,
     rings: audits.map((audit, index) => ({
       label: audit.label,
       value: audit.value,
+      passed: audit.passed,
+      failed: audit.failed,
+      total: audit.total,
       size: [190, 150, 110][index] ?? 110,
       stroke: 16,
     })),
-  };
-}
-
-function getRingTooltipData(label, value, total) {
-  const passed = Math.round((value / 100) * total);
-  const failed = Math.max(total - passed, 0);
-
-  return {
-    label,
-    passed,
-    failed,
-    value,
   };
 }
 
@@ -110,22 +107,18 @@ function getRingBackground(value, revealProgress = 1) {
   )`;
 }
 
-function getRingMarkup({
-  label, value, size, stroke,
-}, total) {
-  const safeValue = Math.min(100, Math.max(0, value));
-  const tooltip = getRingTooltipData(label, safeValue, total);
-
+function getRingMarkup(ring) {
+  const safeValue = ring.value;
   return `
     <div
       class="summary__ring-layer"
-      style="--ring-size:${size}px; --ring-thickness:${stroke}px;"
-      aria-label="${label} ${value} percent"
+      style="--ring-size:${ring.size}px; --ring-thickness:${ring.stroke}px;"
+      aria-label="${ring.label} ${ring.value} percent"
       tabindex="0"
-      data-label="${tooltip.label}"
-      data-passed="${tooltip.passed}"
-      data-failed="${tooltip.failed}"
-      data-pass-rate="${tooltip.value}"
+      data-label="${ring.label}"
+      data-passed="${ring.passed}"
+      data-failed="${ring.failed}"
+      data-pass-rate="${ring.value}"
       data-ring-value="${safeValue}"
     >
       <div class="summary__ring" style="background:${getRingBackground(safeValue, 0)};"></div>
@@ -250,25 +243,26 @@ function attachRingPopoverPositioning(block) {
   graph.addEventListener('mouseleave', () => {
     popover.dataset.visible = 'false';
   });
-
-  ringLayers.forEach((ringLayer) => {
-    ringLayer.addEventListener('focus', () => {
-      const rect = ringLayer.getBoundingClientRect();
-      setPopoverContent(ringLayer);
-      setPopoverPosition(rect.right, rect.top);
-      popover.dataset.visible = 'true';
-    });
-
-    ringLayer.addEventListener('blur', () => {
-      popover.dataset.visible = 'false';
-    });
-  });
 }
 
-async function renderSummaryCards(block) {
-  const headingMarkup = getHeadingMarkup(block);
-  const description = getOptionalDescription(block);
-  const summaryData = getSummaryData(block);
+async function renderSummaryCards(block, metricsData) {
+  // Use provided metrics or use localStorage
+  let metrics = metricsData;
+  if (!metrics) {
+    metrics = getUIAuditMetrics();
+    if (!metrics) {
+      const stored = localStorage.getItem('ui-audit-metrics');
+      if (stored) {
+        try { metrics = JSON.parse(stored); } catch (e) { /* ignore */ }
+      }
+    }
+  }
+
+  if (!block.dataset.heading) block.dataset.heading = getHeadingMarkup(block);
+  if (!block.dataset.description) block.dataset.description = getOptionalDescription(block);
+
+  const summaryData = getSummaryData(block, metrics);
+
   const metricsMarkup = summaryData.audits.map((audit) => {
     const passedRate = Number(audit.value.toFixed(1));
     const failedRate = Number((100 - audit.value).toFixed(1));
@@ -284,14 +278,14 @@ async function renderSummaryCards(block) {
             <div class="summary__audit-bar">
               <span class="summary__audit-bar-fill is-passed" data-target-width="${passedRate}%" style="width:0%;"></span>
             </div>
-            <div class="summary__audit-metric-value">${passedRate.toFixed(1)} %</div>
+            <div class="summary__audit-metric-value">${audit.passed}</div>
           </div>
           <div class="summary__audit-metric">
             <div class="summary__audit-metric-label">Failed</div>
             <div class="summary__audit-bar">
               <span class="summary__audit-bar-fill is-failed" data-target-width="${failedRate}%" style="width:0%;"></span>
             </div>
-            <div class="summary__audit-metric-value">${failedRate.toFixed(1)} %</div>
+            <div class="summary__audit-metric-value">${audit.failed}</div>
           </div>
         </div>
       </article>
@@ -299,36 +293,34 @@ async function renderSummaryCards(block) {
   }).join('');
 
   block.innerHTML = `
-    ${headingMarkup}
-    <p class="summary__description">${description}</p>
+    ${block.dataset.heading}
+    <p class="summary__description">${block.dataset.description}</p>
     <div class="summary__content">
-    <div class="summary__graph">
-      <div class="summary__graph-rings">
-        ${summaryData.rings.map((ring) => getRingMarkup(ring, summaryData.total)).join('')}
-      </div>
-      <div class="summary__graph-popover" role="presentation" data-visible="false">
-        <div class="summary__ring-popover-title" data-popover-title></div>
-        <div class="summary__ring-popover-row">
-          <span class="summary__ring-popover-dot is-passed"></span>
-          <span data-popover-passed></span>
+      <div class="summary__graph">
+        <div class="summary__graph-rings">
+          ${summaryData.rings.map((ring) => getRingMarkup(ring)).join('')}
         </div>
-        <div class="summary__ring-popover-row">
-          <span class="summary__ring-popover-dot is-failed"></span>
-          <span data-popover-failed></span>
+        <div class="summary__graph-popover" role="presentation" data-visible="false">
+          <div class="summary__ring-popover-title" data-popover-title></div>
+          <div class="summary__ring-popover-row">
+            <span class="summary__ring-popover-dot is-passed"></span>
+            <span data-popover-passed></span>
+          </div>
+          <div class="summary__ring-popover-row">
+            <span class="summary__ring-popover-dot is-failed"></span>
+            <span data-popover-failed></span>
+          </div>
+          <div class="summary__ring-popover-rate" data-popover-rate></div>
         </div>
-        <div class="summary__ring-popover-rate" data-popover-rate></div>
+        <div class="summary__graph-score" aria-label="Pass rate ${summaryData.passRate} percent">
+          <span class="summary__graph-score-value">${summaryData.passRate}</span>
+          <span class="summary__graph-score-unit">%</span>
+        </div>
       </div>
-      <div class="summary__graph-score" aria-label="Pass rate ${summaryData.passRate} percent">
-        <span class="summary__graph-score-value">${summaryData.passRate}</span>
-        <span class="summary__graph-score-unit">%</span>
+      <div class="summary__metrics-container">
+        ${metricsMarkup}
       </div>
     </div>
-        <div class="summary__metrics-container">
-      ${metricsMarkup}
-    </div>
-    </div>
-    
-
   `;
 
   block.classList.add('cmp-summary');
@@ -339,6 +331,10 @@ async function renderSummaryCards(block) {
 
 export default async function decorate(block) {
   block?.closest('.summary-container')?.classList.add('summary-grid');
-  // block.style.display = 'none';
+
   await renderSummaryCards(block);
+
+  window.addEventListener(UI_AUDIT_METRICS_UPDATED_EVENT, (e) => {
+    renderSummaryCards(block, e.detail.metrics);
+  });
 }
