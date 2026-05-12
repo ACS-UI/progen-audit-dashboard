@@ -12,6 +12,19 @@
       @apply relative mt-2 -mx-1 min-h-[12rem] w-[calc(100%+0.5rem)] flex-1 basis-0 sm:mx-0 sm:mt-3 sm:min-h-[12rem] sm:w-full lg:min-h-[13rem];
     }
 
+    .category-performance__chart-shell--loading {
+      @apply overflow-hidden rounded-xl border border-surface-inset-border bg-surface-inset-bg;
+    }
+
+    .category-performance__loading-grid {
+      @apply absolute inset-0 flex items-end gap-3 px-4 pb-4 pt-6 sm:gap-4;
+    }
+
+    .category-performance__loading-bar {
+      @apply block flex-1 rounded-t-full;
+      height: var(--loading-bar-height);
+    }
+
     .category-performance__canvas {
       @apply absolute inset-0 h-full w-full;
     }

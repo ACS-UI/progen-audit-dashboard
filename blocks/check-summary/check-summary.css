@@ -60,6 +60,19 @@
         padding-block: calc(var(--spacing, 0.25rem) * 2);
       }
     }
+    .check-summary__item--loading {
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--spacing, 0.25rem) * 2);
+    }
+    .check-summary__skeleton--label {
+      height: calc(var(--spacing, 0.25rem) * 3);
+      width: calc(var(--spacing, 0.25rem) * 20);
+    }
+    .check-summary__skeleton--value {
+      height: calc(var(--spacing, 0.25rem) * 5);
+      width: calc(var(--spacing, 0.25rem) * 12);
+    }
     .check-summary__item-label {
       font-size: 10px;
       --tw-leading: var(--leading-tight, 1.25);

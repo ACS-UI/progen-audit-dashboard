@@ -56,6 +56,21 @@
         width: 100%;
       }
     }
+    .summary__graph--loading {
+      overflow: hidden;
+      border-radius: calc(infinity * 1px);
+    }
+    .summary__loading-ring {
+      display: block;
+      height: 190px;
+      width: 190px;
+      border-radius: calc(infinity * 1px);
+      background: radial-gradient(circle at center, transparent 0 54%, color-mix(in srgb, color-mix(in oklab,var(--color-slate-50)80%,transparent) 90%, transparent) 55% 69%, transparent 70% 100%), conic-gradient( from 0deg, color-mix(in srgb, color-mix(in oklab,var(--color-slate-50)80%,transparent) 92%, transparent) 0deg, color-mix(in srgb, oklch(20.8% 0.042 265.755) 18%, transparent) 120deg, color-mix(in srgb, oklch(20.8% 0.042 265.755) 28%, white) 180deg, color-mix(in srgb, color-mix(in oklab,var(--color-slate-50)80%,transparent) 92%, transparent) 300deg, color-mix(in srgb, color-mix(in oklab,var(--color-slate-50)80%,transparent) 92%, transparent) 360deg );
+      @supports (color: color-mix(in lab, red, red)) {
+        background: radial-gradient(circle at center, transparent 0 54%, color-mix(in srgb, var(--color-background-color) 90%, transparent) 55% 69%, transparent 70% 100%), conic-gradient( from 0deg, color-mix(in srgb, var(--color-background-color) 92%, transparent) 0deg, color-mix(in srgb, var(--color-surface-panel-value) 18%, transparent) 120deg, color-mix(in srgb, var(--color-surface-panel-value) 28%, white) 180deg, color-mix(in srgb, var(--color-background-color) 92%, transparent) 300deg, color-mix(in srgb, var(--color-background-color) 92%, transparent) 360deg );
+      }
+      animation: summary-loading-rotate 1.6s linear infinite;
+    }
     .summary__graph-rings {
       position: relative;
       display: grid;
@@ -227,12 +242,30 @@
       @media (width >= 40rem) {
         padding-block: calc(var(--spacing, 0.25rem) * 2.5);
       }
+      transition: opacity 460ms cubic-bezier(0.16, 1, 0.3, 1), transform 460ms cubic-bezier(0.16, 1, 0.3, 1), filter 460ms cubic-bezier(0.16, 1, 0.3, 1);
     }
     .summary__audit-card.is-complete {
       border-color: var(--color-summary-audit-card-border-complete, color-mix(in srgb, oklch(90.5% 0.093 164.15) 90%, transparent));
       @supports (color: color-mix(in lab, red, red)) {
         border-color: var(--color-summary-audit-card-border-complete, color-mix(in srgb, var(--color-emerald-200) 90%, transparent));
       }
+    }
+    .summary__audit-card--loading {
+      display: flex;
+      flex-direction: column;
+      gap: calc(var(--spacing, 0.25rem) * 2);
+      border-color: var(--color-surface-inset-border, var(--color-slate-200));
+      background-color: var(--color-surface-inset-bg, var(--color-white));
+    }
+    .summary__audit-card.is-hidden {
+      opacity: 0%;
+      transform: translateY(20px);
+      filter: blur(8px);
+    }
+    .summary__audit-card.is-visible {
+      opacity: 100%;
+      transform: translateY(0);
+      filter: blur(0);
     }
     .summary__audit-title {
       font-size: 11px;
@@ -308,6 +341,19 @@
       --tw-numeric-spacing: tabular-nums;
       font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
     }
+    .summary__skeleton--title {
+      height: calc(var(--spacing, 0.25rem) * 3);
+      width: calc(var(--spacing, 0.25rem) * 24);
+    }
+    .summary__skeleton--rate {
+      height: calc(var(--spacing, 0.25rem) * 3);
+      width: calc(var(--spacing, 0.25rem) * 20);
+    }
+    .summary__skeleton--bar {
+      height: calc(var(--spacing, 0.25rem) * 2);
+      width: 100%;
+      border-radius: calc(infinity * 1px);
+    }
   }
   .summary__content {
     display: flex;
@@ -338,6 +384,14 @@
     }
     .summary-wrapper {
       width: 100%;
+    }
+  }
+  @keyframes summary-loading-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 }

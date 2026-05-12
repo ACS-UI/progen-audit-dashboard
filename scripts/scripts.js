@@ -12,6 +12,15 @@ import {
   loadSections,
   loadCSS,
 } from './aem.js';
+import { shouldDisableDashboardMotion } from './utils.js';
+import { hasDashboardIntro, runDashboardIntro } from './utils/animation.js';
+
+function applyThemePreference() {
+  const isDarkTheme = localStorage.theme === 'dark'
+    || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  document.documentElement.dataset.theme = isDarkTheme ? 'dark' : 'light';
+}
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -99,6 +108,9 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
+    if (hasDashboardIntro(main)) {
+      document.body.classList.add('dashboard-intro-pending');
+    }
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
@@ -122,6 +134,7 @@ async function loadLazy(doc) {
 
   const main = doc.querySelector('main');
   await loadSections(main);
+  await runDashboardIntro(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
@@ -144,14 +157,11 @@ function loadDelayed() {
 }
 
 async function loadPage() {
+  applyThemePreference();
+  document.body.classList.toggle('dashboard-no-motion', shouldDisableDashboardMotion());
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
-
-  const isDarkTheme = localStorage.theme === 'dark'
-    || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-  document.documentElement.dataset.theme = isDarkTheme ? 'dark' : 'light';
   // localStorage.theme = 'dark';
 }
 

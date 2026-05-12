@@ -1,3 +1,5 @@
+import { attachMetricsGate } from '../../scripts/utils.js';
+
 function getHeadingMarkup(block) {
   const heading = block.querySelector('h1, h2, h3, h4, h5, h6');
 
@@ -346,64 +348,104 @@ function renderIssues(block, issues, currentPage = 0) {
   block.dataset.currentPage = String(currentPage);
 }
 
+function getLoadingMarkup() {
+  return `
+    <div class="top-issues__list">
+      ${Array.from({ length: 3 }, () => `
+        <article class="top-issues__item top-issues__item--loading">
+          <div class="top-issues__item-row">
+            <span class="top-issues__item-icon top-issues__item-icon--loading dashboard-skeleton"></span>
+            <div class="top-issues__item-content">
+              <span class="top-issues__skeleton top-issues__skeleton--title dashboard-skeleton"></span>
+              <span class="top-issues__skeleton top-issues__skeleton--details dashboard-skeleton"></span>
+              <span class="top-issues__skeleton top-issues__skeleton--details is-short dashboard-skeleton"></span>
+            </div>
+          </div>
+        </article>
+      `).join('')}
+    </div>
+  `;
+}
+
 export default function decorate(block) {
   const headingMarkup = getHeadingMarkup(block);
   const issues = getIssues(block);
+  let rendered = false;
 
-  block.innerHTML = `
-    ${headingMarkup}
-    <div class="top-issues__list"></div>
-    <div class="top-issues__pagination-shell"></div>
-  `;
+  const renderFinalState = () => {
+    if (rendered) {
+      return;
+    }
 
-  block.classList.add('cmp-top-issues');
+    rendered = true;
+    block.innerHTML = `
+      ${headingMarkup}
+      <div class="top-issues__list"></div>
+      <div class="top-issues__pagination-shell"></div>
+    `;
+
+    block.classList.add('cmp-top-issues');
+    block.classList.remove('is-loading');
+    renderIssues(block, issues, 0);
+
+    block.addEventListener('click', (event) => {
+      const pageButton = event.target.closest('[data-page]');
+      const navButton = event.target.closest('[data-pagination]');
+      const currentPage = Number(block.dataset.currentPage || '0');
+      const totalPages = Math.ceil(issues.length / PAGE_SIZE);
+
+      if (pageButton) {
+        renderIssues(block, issues, Number(pageButton.dataset.page || '0'));
+        return;
+      }
+
+      if (!navButton) {
+        return;
+      }
+
+      if (navButton.dataset.pagination === 'prev' && currentPage > 0) {
+        renderIssues(block, issues, currentPage - 1);
+      }
+
+      if (navButton.dataset.pagination === 'next' && currentPage < totalPages - 1) {
+        renderIssues(block, issues, currentPage + 1);
+      }
+    });
+
+    block.addEventListener('change', (event) => {
+      const jumpSelect = event.target.closest('[data-pagination="jump"]');
+
+      if (!jumpSelect) {
+        return;
+      }
+
+      const nextPage = Number(jumpSelect.value);
+
+      if (Number.isNaN(nextPage)) {
+        return;
+      }
+
+      renderIssues(block, issues, nextPage);
+    });
+
+    const mediaQuery = window.matchMedia('(max-width: 639px)');
+    mediaQuery.addEventListener('change', () => {
+      const currentPage = Number(block.dataset.currentPage || '0');
+      renderIssues(block, issues, currentPage);
+    });
+  };
+
   block?.closest('.top-issues-container')?.classList.add('top-issues-grid');
-
-  renderIssues(block, issues, 0);
-
-  block.addEventListener('click', (event) => {
-    const pageButton = event.target.closest('[data-page]');
-    const navButton = event.target.closest('[data-pagination]');
-    const currentPage = Number(block.dataset.currentPage || '0');
-    const totalPages = Math.ceil(issues.length / PAGE_SIZE);
-
-    if (pageButton) {
-      renderIssues(block, issues, Number(pageButton.dataset.page || '0'));
-      return;
-    }
-
-    if (!navButton) {
-      return;
-    }
-
-    if (navButton.dataset.pagination === 'prev' && currentPage > 0) {
-      renderIssues(block, issues, currentPage - 1);
-    }
-
-    if (navButton.dataset.pagination === 'next' && currentPage < totalPages - 1) {
-      renderIssues(block, issues, currentPage + 1);
-    }
-  });
-
-  block.addEventListener('change', (event) => {
-    const jumpSelect = event.target.closest('[data-pagination="jump"]');
-
-    if (!jumpSelect) {
-      return;
-    }
-
-    const nextPage = Number(jumpSelect.value);
-
-    if (Number.isNaN(nextPage)) {
-      return;
-    }
-
-    renderIssues(block, issues, nextPage);
-  });
-
-  const mediaQuery = window.matchMedia('(max-width: 639px)');
-  mediaQuery.addEventListener('change', () => {
-    const currentPage = Number(block.dataset.currentPage || '0');
-    renderIssues(block, issues, currentPage);
+  attachMetricsGate({
+    renderLoading: () => {
+      block.innerHTML = `
+        ${headingMarkup}
+        ${getLoadingMarkup()}
+      `;
+      block.classList.add('cmp-top-issues', 'is-loading');
+    },
+    renderFinal: () => {
+      renderFinalState();
+    },
   });
 }
